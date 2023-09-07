@@ -11,18 +11,27 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if Input.is_action_just_pressed("ui_accept"):
-		if join_tickbox.button_pressed:
-			print("Uh", address_field.text)
-			peer.create_client(address_field.text)
-			root_mp.multiplayer_peer = peer
+		if Client.is_in_server:
+			Global.player_ready.rpc_id(1)
 		else:
-			print("WTF", address_field.text)
-			peer.create_server(9001)
-			root_mp.multiplayer_peer = peer
+			if join_tickbox.button_pressed:
+				print("Client", address_field.text)
+				peer.create_client(address_field.text)
+				root_mp.multiplayer_peer = peer
+			else:
+				print("Server", address_field.text)
+				peer.create_server(9001)
+				root_mp.multiplayer_peer = peer
+				Server.add_player(1)
+			Client.is_in_server = true
 	pass
 
 func _on_peer_connected(id):
 	print(id, " ", root_mp.get_unique_id(), " ", root_mp.is_server())
-	if root_mp.get_unique_id() != 1:
+	if root_mp.is_server():
+		Server.add_player(id)
+		print(Server.players)
+		Global.test.rpc_id(id, "Hello from server!")
+	else:
 		print("Hello?")
-		Global.test.rpc("Hello world!")
+		Global.test.rpc("Hello from client!")

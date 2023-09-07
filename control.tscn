@@ -14,6 +14,7 @@ layout_mode = 0
 offset_left = 137.0
 offset_right = 625.0
 offset_bottom = 100.0
+text = "ws://localhost:9001"
 
 [node name="CheckBox" type="CheckBox" parent="."]
 layout_mode = 0
