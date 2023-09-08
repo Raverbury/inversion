@@ -32,6 +32,7 @@ func _on_peer_connected(id):
 		Server.add_player(id)
 		print(Server.players)
 		Global.test.rpc_id(id, "Hello from server!")
+		Global.server_send.rpc_id(id, Global.create_game_state().to_bytes())
 	else:
 		print("Hello?")
 		Global.test.rpc("Hello from client!")

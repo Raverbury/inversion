@@ -11,15 +11,27 @@ config_version=5
 [application]
 
 config/name="TestMP"
-run/main_scene="res://control.tscn"
+run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.1", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-Global="*res://Global.gd"
-Server="*res://scripts/Server.gd"
-Client="*res://scripts/Client.gd"
+Global="*res://scripts/singletons/Global.gd"
+Server="*res://scripts/singletons/Server.gd"
+Client="*res://scripts/singletons/Client.gd"
+Main="*res://scripts/singletons/Main.gd"
+EventBus="*res://scripts/singletons/EventBus.gd"
+Proto="*res://scripts/singletons/Proto.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/protobuf/plugin.cfg")
 
 [rendering]
 
