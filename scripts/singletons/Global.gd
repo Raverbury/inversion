@@ -5,9 +5,9 @@ func test(data):
 	print(get_tree().get_multiplayer().get_remote_sender_id(), " send ", data)
 
 @rpc("any_peer", "call_local", "reliable", 0)
-func player_ready():
-	if get_tree().get_multiplayer().is_server():
-		Server.player_ready(get_tree().get_multiplayer().get_remote_sender_id())
+func player_set_readiness(readiness):
+	if Main.root_mp.is_server():
+		Server.player_set_ready(Main.root_mp.get_remote_sender_id(), readiness)
 
 @rpc("authority", "call_local", "reliable", 0)
 func server_send(data: PackedByteArray):

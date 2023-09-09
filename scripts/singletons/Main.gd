@@ -7,6 +7,7 @@ var app_state: AppState = AppState.DISCONNECTED
 
 var peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 var client_display_name
+var client_is_ready = false
 
 func _ready():
 	root_mp.connected_to_server.connect(on_connected_to_server)
@@ -16,6 +17,7 @@ func _ready():
 	EventBus.pressed_server_host.connect(on_server_host_pressed)
 	EventBus.pressed_server_join.connect(on_server_join_pressed)
 	EventBus.pressed_disconnect.connect(on_disconnect_pressed)
+	EventBus.pressed_ready.connect(on_ready_pressed)
 
 func set_enable(node: Node, value: bool):
 	node.process_mode = Node.PROCESS_MODE_INHERIT if value else Node.PROCESS_MODE_DISABLED
@@ -31,11 +33,13 @@ func on_disconnected_to_server():
 	app_state = AppState.DISCONNECTED
 	EventBus.sent_feedback.emit("[color=red]Disconnected from server[/color]")
 	EventBus.player_list_updated.emit(Proto.PlayerList.new().to_bytes())
+	client_is_ready = false
 
 # Client calls this
 func on_connection_failed():
 	app_state = AppState.DISCONNECTED
 	EventBus.sent_feedback.emit("[color=red]Could not join server[/color]")
+	client_is_ready = false
 
 # Server calls this
 func on_peer_disconnected(peer_id):
@@ -88,3 +92,9 @@ func on_disconnect_pressed():
 		EventBus.sent_feedback.emit("[color=green]Left the server[/color]")
 		EventBus.player_list_updated.emit(Proto.PlayerList.new().to_bytes())
 	root_mp.multiplayer_peer = null
+	client_is_ready = false
+
+# Both call this
+func on_ready_pressed():
+	client_is_ready = !client_is_ready
+	Global.player_set_readiness.rpc_id(1, client_is_ready)

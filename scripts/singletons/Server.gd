@@ -3,6 +3,7 @@ extends Node
 var player_list: Proto.PlayerList
 var player_dict: Dictionary = {}
 var is_initialized = false
+var room_is_ready = false
 
 func wipe():
 	if is_initialized == false:
@@ -13,6 +14,8 @@ func wipe():
 	EventBus.player_list_updated.emit(player_list.to_bytes())
 
 func initialize():
+	if is_initialized == true:
+		return
 	is_initialized = true
 	player_list = Proto.PlayerList.new()
 	player_dict = {}
@@ -26,6 +29,7 @@ func add_player(pid, display_name):
 	player_dict[pid] = player
 	dict_to_player_list()
 	Global.update_player_list.rpc(player_list.to_bytes())
+	check_room_readiness()
 
 func remove_player(pid):
 	pid = str(pid)
@@ -33,15 +37,24 @@ func remove_player(pid):
 	player_dict.erase(pid)
 	dict_to_player_list()
 	Global.update_player_list.rpc(player_list.to_bytes())
+	check_room_readiness()
 	return dn
 
-func player_ready(pid):
-	player_dict[pid].set_is_ready(true)
+func player_set_ready(pid, readiness):
+	pid = str(pid)
+	player_dict[pid].set_is_ready(readiness)
 	dict_to_player_list()
+	Global.update_player_list.rpc(player_list.to_bytes())
+	check_room_readiness()
+
+func check_room_readiness():
 	for k in player_dict:
 		if player_dict[k].get_is_ready() == false:
+			print("Not all ready")
+			room_is_ready = false
 			return
 	print("All ready")
+	room_is_ready = true
 
 func dict_to_player_list():
 	player_list = Proto.PlayerList.new()
