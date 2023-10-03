@@ -1,23 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://bywieb3jacjqv"]
+[gd_scene load_steps=3 format=3 uid="uid://bywieb3jacjqv"]
 
 [ext_resource type="Script" path="res://scripts/nodes/MenuUI.gd" id="1_hu0kx"]
-[ext_resource type="TileSet" uid="uid://bpqn6yjwtffxq" path="res://assets/resources/tileset_base.tres" id="1_lf8al"]
-[ext_resource type="Script" path="res://scripts/TileMapScript.gd" id="2_5rfag"]
+[ext_resource type="PackedScene" uid="uid://dtg5wmle4f5lb" path="res://assets/scenes/game/game.tscn" id="2_7ftmn"]
 
 [node name="Master" type="Node"]
 
-[node name="Node2D" type="Node2D" parent="."]
-
-[node name="Camera2D" type="Camera2D" parent="Node2D"]
-
-[node name="TileMap" type="TileMap" parent="Node2D"]
-tile_set = ExtResource("1_lf8al")
-format = 2
-layer_0/tile_data = PackedInt32Array(-131076, 0, 5, -65539, 65536, 6, -65538, 65536, 6, -65537, 65536, 6, -131072, 65536, 6, -131071, 65536, 6, -65535, 65536, 6, -65536, 65536, 6, -1, 65536, 6, -2, 65536, 6, -3, 65536, 6, -65540, 0, 6, -4, 0, 6, 65532, 0, 7, 65533, 65536, 7, 65534, 65536, 7, 65535, 65536, 7, 0, 65536, 7, 1, 65536, 7, 2, 131072, 7, -65534, 131072, 6, -131070, 0, 8, -131075, 65536, 5, -131074, 65536, 5, -131073, 65536, 5, -196608, 65536, 5, -196607, 65536, 5, -196606, 65536, 5, -131069, 131072, 7, -196605, 131072, 5)
-script = ExtResource("2_5rfag")
+[node name="Game" parent="." instance=ExtResource("2_7ftmn")]
 
 [node name="UI" type="Control" parent="."]
-visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

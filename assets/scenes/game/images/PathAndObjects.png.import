@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bt50ir2jxil76"
-path="res://.godot/imported/PathAndObjects.png-f4a5c057a9a990d99651ee6395292f8c.ctex"
+path="res://.godot/imported/PathAndObjects.png-cf0632ac48be6a3bc26829a28f254649.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/PathAndObjects.png"
-dest_files=["res://.godot/imported/PathAndObjects.png-f4a5c057a9a990d99651ee6395292f8c.ctex"]
+source_file="res://assets/scenes/game/images/PathAndObjects.png"
+dest_files=["res://.godot/imported/PathAndObjects.png-cf0632ac48be6a3bc26829a28f254649.ctex"]
 
 [params]
 
