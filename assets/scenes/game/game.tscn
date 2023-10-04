@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://dtg5wmle4f5lb"]
+[gd_scene load_steps=5 format=3 uid="uid://dtg5wmle4f5lb"]
 
 [ext_resource type="Script" path="res://assets/scenes/game/scripts/GameController.gd" id="1_6asbp"]
+[ext_resource type="Script" path="res://assets/scenes/game/scripts/GameCamera.gd" id="2_mv12j"]
 [ext_resource type="Script" path="res://assets/scenes/game/scripts/TileInfoPanel.gd" id="2_url78"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ihn8h"]
@@ -10,8 +11,11 @@ region = Rect2(0, 0, 32, 32)
 script = ExtResource("1_6asbp")
 
 [node name="Camera2D" type="Camera2D" parent="."]
+script = ExtResource("2_mv12j")
 
-[node name="UI" type="Control" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI" type="Control" parent="CanvasLayer"]
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 3
 anchors_preset = 15
@@ -20,7 +24,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TileInfoPanel" type="Panel" parent="UI"]
+[node name="TileInfoPanel" type="Panel" parent="CanvasLayer/UI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.8
@@ -31,7 +35,7 @@ grow_horizontal = 0
 grow_vertical = 0
 script = ExtResource("2_url78")
 
-[node name="TileImage" type="TextureRect" parent="UI/TileInfoPanel"]
+[node name="TileImage" type="TextureRect" parent="CanvasLayer/UI/TileInfoPanel"]
 layout_mode = 1
 anchors_preset = -1
 offset_left = 20.0
@@ -42,7 +46,7 @@ texture = SubResource("AtlasTexture_ihn8h")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="TileName" type="Label" parent="UI/TileInfoPanel"]
+[node name="TileName" type="Label" parent="CanvasLayer/UI/TileInfoPanel"]
 layout_mode = 0
 offset_left = 90.0
 offset_top = 20.0
@@ -51,7 +55,7 @@ offset_bottom = 84.0
 text = "Path"
 autowrap_mode = 1
 
-[node name="TileDescription" type="Label" parent="UI/TileInfoPanel"]
+[node name="TileDescription" type="Label" parent="CanvasLayer/UI/TileInfoPanel"]
 layout_mode = 0
 offset_left = 20.0
 offset_top = 100.0

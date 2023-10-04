@@ -7,19 +7,18 @@
 
 [node name="Game" parent="." instance=ExtResource("2_7ftmn")]
 
-[node name="UI" type="Control" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="UI" type="Control" parent="CanvasLayer"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -640.0
-offset_top = -360.0
-offset_right = -640.0
-offset_bottom = -360.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MenuUI" type="Control" parent="UI"]
+[node name="MenuUI" type="Control" parent="CanvasLayer/UI"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,7 +27,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_hu0kx")
 
-[node name="TabContainer" type="TabContainer" parent="UI/MenuUI"]
+[node name="TabContainer" type="TabContainer" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.05
@@ -39,10 +38,10 @@ grow_horizontal = 2
 grow_vertical = 2
 tab_alignment = 1
 
-[node name="Host" type="Control" parent="UI/MenuUI/TabContainer"]
+[node name="Host" type="Control" parent="CanvasLayer/UI/MenuUI/TabContainer"]
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="UI/MenuUI/TabContainer/Host"]
+[node name="LineEdit" type="LineEdit" parent="CanvasLayer/UI/MenuUI/TabContainer/Host"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -53,7 +52,7 @@ text = "9001"
 placeholder_text = "Port"
 alignment = 1
 
-[node name="Button" type="Button" parent="UI/MenuUI/TabContainer/Host"]
+[node name="Button" type="Button" parent="CanvasLayer/UI/MenuUI/TabContainer/Host"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.4
@@ -62,11 +61,11 @@ anchor_right = 0.6
 anchor_bottom = 0.9
 text = "Host"
 
-[node name="Join" type="Control" parent="UI/MenuUI/TabContainer"]
+[node name="Join" type="Control" parent="CanvasLayer/UI/MenuUI/TabContainer"]
 visible = false
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="UI/MenuUI/TabContainer/Join"]
+[node name="LineEdit" type="LineEdit" parent="CanvasLayer/UI/MenuUI/TabContainer/Join"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -77,7 +76,7 @@ text = "localhost:9001"
 placeholder_text = "Server address"
 alignment = 1
 
-[node name="Button" type="Button" parent="UI/MenuUI/TabContainer/Join"]
+[node name="Button" type="Button" parent="CanvasLayer/UI/MenuUI/TabContainer/Join"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.4
@@ -86,7 +85,7 @@ anchor_right = 0.6
 anchor_bottom = 0.9
 text = "Join"
 
-[node name="NameContainer" type="TabContainer" parent="UI/MenuUI"]
+[node name="NameContainer" type="TabContainer" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.05
@@ -95,10 +94,10 @@ anchor_right = 0.45
 anchor_bottom = 0.4
 tabs_visible = false
 
-[node name="Control" type="Control" parent="UI/MenuUI/NameContainer"]
+[node name="Control" type="Control" parent="CanvasLayer/UI/MenuUI/NameContainer"]
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="UI/MenuUI/NameContainer/Control"]
+[node name="LineEdit" type="LineEdit" parent="CanvasLayer/UI/MenuUI/NameContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -109,7 +108,7 @@ placeholder_text = "Your dislay name"
 alignment = 1
 max_length = 24
 
-[node name="FeedbackContainer" type="TabContainer" parent="UI/MenuUI"]
+[node name="FeedbackContainer" type="TabContainer" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.05
@@ -118,10 +117,10 @@ anchor_right = 0.45
 anchor_bottom = 0.9
 tabs_visible = false
 
-[node name="Control" type="Control" parent="UI/MenuUI/FeedbackContainer"]
+[node name="Control" type="Control" parent="CanvasLayer/UI/MenuUI/FeedbackContainer"]
 layout_mode = 2
 
-[node name="RichTextLabel" type="RichTextLabel" parent="UI/MenuUI/FeedbackContainer/Control"]
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI/MenuUI/FeedbackContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -130,7 +129,7 @@ anchor_bottom = 0.8
 bbcode_enabled = true
 scroll_following = true
 
-[node name="Button" type="Button" parent="UI/MenuUI/FeedbackContainer/Control"]
+[node name="Button" type="Button" parent="CanvasLayer/UI/MenuUI/FeedbackContainer/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.4
@@ -139,7 +138,7 @@ anchor_right = 0.6
 anchor_bottom = 0.9
 text = "Disconnect"
 
-[node name="PlayerList" type="TabContainer" parent="UI/MenuUI"]
+[node name="PlayerList" type="TabContainer" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.55
@@ -148,15 +147,15 @@ anchor_right = 0.95
 anchor_bottom = 0.75
 tabs_visible = false
 
-[node name="Control" type="Control" parent="UI/MenuUI/PlayerList"]
+[node name="Control" type="Control" parent="CanvasLayer/UI/MenuUI/PlayerList"]
 layout_mode = 2
 
-[node name="Header" type="Control" parent="UI/MenuUI/PlayerList/Control"]
+[node name="Header" type="Control" parent="CanvasLayer/UI/MenuUI/PlayerList/Control"]
 layout_mode = 1
 anchor_right = 1.0
 anchor_bottom = 0.12
 
-[node name="Label" type="Label" parent="UI/MenuUI/PlayerList/Control/Header"]
+[node name="Label" type="Label" parent="CanvasLayer/UI/MenuUI/PlayerList/Control/Header"]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.15
@@ -166,7 +165,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
 
-[node name="Label2" type="Label" parent="UI/MenuUI/PlayerList/Control/Header"]
+[node name="Label2" type="Label" parent="CanvasLayer/UI/MenuUI/PlayerList/Control/Header"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.15
@@ -177,7 +176,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
 
-[node name="Label3" type="Label" parent="UI/MenuUI/PlayerList/Control/Header"]
+[node name="Label3" type="Label" parent="CanvasLayer/UI/MenuUI/PlayerList/Control/Header"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.45
@@ -188,7 +187,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
 
-[node name="Label4" type="Label" parent="UI/MenuUI/PlayerList/Control/Header"]
+[node name="Label4" type="Label" parent="CanvasLayer/UI/MenuUI/PlayerList/Control/Header"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.85
@@ -199,7 +198,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
 
-[node name="ScrollContainer" type="ScrollContainer" parent="UI/MenuUI/PlayerList/Control"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/UI/MenuUI/PlayerList/Control"]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.12
@@ -208,11 +207,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UI/MenuUI/PlayerList/Control/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI/MenuUI/PlayerList/Control/ScrollContainer"]
 custom_minimum_size = Vector2(512, 0)
 layout_mode = 2
 
-[node name="HideButton" type="Button" parent="UI/MenuUI"]
+[node name="HideButton" type="Button" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.4
@@ -222,7 +221,7 @@ offset_right = 8.0
 offset_bottom = 8.0
 text = "Hide"
 
-[node name="ShowButton" type="Button" parent="UI/MenuUI"]
+[node name="ShowButton" type="Button" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
@@ -233,7 +232,7 @@ offset_right = 8.0
 offset_bottom = 8.0
 text = "Show"
 
-[node name="ReadyButton" type="Button" parent="UI/MenuUI"]
+[node name="ReadyButton" type="Button" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.6
@@ -242,7 +241,7 @@ anchor_right = 0.7
 anchor_bottom = 0.85
 text = "Ready"
 
-[node name="StartButton" type="Button" parent="UI/MenuUI"]
+[node name="StartButton" type="Button" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.8
@@ -251,7 +250,7 @@ anchor_right = 0.9
 anchor_bottom = 0.85
 text = "Start"
 
-[node name="ReadyCheckBox" type="CheckBox" parent="UI/MenuUI"]
+[node name="ReadyCheckBox" type="CheckBox" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.7
