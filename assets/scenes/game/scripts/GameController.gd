@@ -21,30 +21,23 @@ func _input(event):
 		# get tm coord/"index" of tile
 		var clicked_cell: Vector2i = tile_map.local_to_map(get_global_mouse_position())
 		# get source id in tileset of said tile
-		var tile_id: int = tile_map.get_cell_source_id(0, clicked_cell)
+		var tss_id: int = tile_map.get_cell_source_id(0, clicked_cell)
 		# if not empty
-		if tile_id != -1:
-			# grab td of source 0 first since we will switch source to 1 in a sec
-			var tile_data_0: TileData = tile_map.get_cell_tile_data(0, clicked_cell)
-			tile_map.set_cell(0, clicked_cell, 1, tile_map.get_cell_atlas_coords(0, clicked_cell))
+		if tss_id != -1:
+			# grab td
+			var tile_data: TileData = tile_map.get_cell_tile_data(0, clicked_cell)
+			# add select tile to tm layer 2
+			tile_map.set_cell(2, clicked_cell, 2, Vector2i(0, 0))
 			# when mouse leave tile basically
-			# undo color, switch back to source 0
+			# remove select tile on tm layer 2
 			if has_last_cell == true && clicked_cell != last_cell:
-				var last_tile_data: TileData = tile_map.get_cell_tile_data(0, last_cell)
-				last_tile_data.modulate = Color.WHITE
-				tile_map.set_cell(0, last_cell, 0, tile_map.get_cell_atlas_coords(0, last_cell))
-			# to prevent updating ui with info from source 1 which should be empty
-			if tile_id == 1:
-				return
+				tile_map.set_cell(2, last_cell, -1, tile_map.get_cell_atlas_coords(0, last_cell))
 			# save current cell info to check against when "leaving"
 			last_cell = clicked_cell
 			has_last_cell = true
-			# swap color of source 1
-			var tile_data_1: TileData = tile_map.get_cell_tile_data(0, clicked_cell)
-			tile_data_1.modulate = Color.LIGHT_BLUE
-			# send info of source 0 to ui
+			# send info of td to ui
 			var texture = tile_map.tile_set.get_source(0).texture
 			var atlas_coord = tile_map.get_cell_atlas_coords(0, clicked_cell) as Vector2
-			var tile_name = tile_data_0.get_custom_data("name")
-			var tile_desc = tile_data_0.get_custom_data("description")
+			var tile_name = tile_data.get_custom_data("name")
+			var tile_desc = tile_data.get_custom_data("description")
 			EventBus.game_tile_hovered.emit(texture, atlas_coord, tile_name, tile_desc)

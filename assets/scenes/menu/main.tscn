@@ -1,11 +1,11 @@
 [gd_scene load_steps=3 format=3 uid="uid://bywieb3jacjqv"]
 
-[ext_resource type="Script" path="res://scripts/nodes/MenuUI.gd" id="1_hu0kx"]
-[ext_resource type="PackedScene" uid="uid://dtg5wmle4f5lb" path="res://assets/scenes/game/game.tscn" id="2_7ftmn"]
+[ext_resource type="PackedScene" uid="uid://dtg5wmle4f5lb" path="res://assets/scenes/game/game.tscn" id="1_eanxy"]
+[ext_resource type="Script" path="res://scripts/nodes/MenuUI.gd" id="2_xa7xv"]
 
 [node name="Master" type="Node"]
 
-[node name="Game" parent="." instance=ExtResource("2_7ftmn")]
+[node name="Game" parent="." instance=ExtResource("1_eanxy")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 layer = 5
@@ -25,7 +25,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_hu0kx")
+script = ExtResource("2_xa7xv")
 
 [node name="TabContainer" type="TabContainer" parent="CanvasLayer/UI/MenuUI"]
 layout_mode = 1
