@@ -4,6 +4,7 @@ var tile_map: TileMap = null
 var last_cell: Vector2i
 var has_last_cell: bool = false
 var last_reachables: Array = []
+var last_attackables: Array = []
 
 func load_map(scene_path):
 	var map_tres = load(scene_path) as PackedScene
@@ -29,6 +30,7 @@ func _input(event):
 			if has_last_cell == true && clicked_cell != last_cell:
 				tile_map.set_cell(2, last_cell, -1, tile_map.get_cell_atlas_coords(0, last_cell))
 				self.highlight_tiles(self.last_reachables, false)
+				# self.highlight_tiles(self.last_attackables, false)
 			if has_last_cell == false || clicked_cell != last_cell:
 				# grab td
 				var tile_data: TileData = tile_map.get_cell_tile_data(0, clicked_cell)
@@ -40,6 +42,8 @@ func _input(event):
 				EventBus.game_tile_hovered.emit(texture, atlas_coord, tile_name, tile_desc)
 				self.last_reachables = self.get_reachable_tiles(clicked_cell, 2)
 				self.highlight_tiles(self.last_reachables, true)
+				# self.last_attackables = self.get_attackable_tiles(clicked_cell, 7)
+				# self.highlight_tiles(self.last_attackables, true)
 			# save current cell info to check against when "leaving"
 			last_cell = clicked_cell
 			has_last_cell = true
@@ -88,3 +92,12 @@ func traverse(ap, coord, reachables, coming_from, cache):
 func highlight_tiles(list_of_coords, do_highlight, highlight_atlas_coord = Vector2i(0, 0)):
 	for coord in list_of_coords:
 		self.tile_map.set_cell(1, coord, 1 if do_highlight else -1, highlight_atlas_coord)
+
+func get_attackable_tiles(source: Vector2i, attack_range: int): # say range of 3
+	var attackables = Global.Set.new()
+	for x in range(-attack_range, attack_range + 1): # x is [-3; 3]
+		var y_leftover = attack_range - abs(x) # we want y to be 0, 1, 2, 3, 2, 1, 0 given that range of x
+		for y in range(-y_leftover, y_leftover + 1):
+			var tile_coord = Vector2i(source.x + x, source.y + y)
+			attackables.add(tile_coord)
+	return attackables.items()
