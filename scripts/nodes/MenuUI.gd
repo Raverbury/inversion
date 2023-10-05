@@ -31,11 +31,13 @@ func _ready():
 	host_button.pressed.connect(on_host_button_pressed)
 	join_button.pressed.connect(on_join_button_pressed)
 	disconnect_button.pressed.connect(on_disconnect_button_pressed)
-	EventBus.sent_feedback.connect(on_feedback_sent)
 	hide_button.pressed.connect(on_hide_button_pressed)
 	show_button.pressed.connect(on_show_button_pressed)
-	EventBus.player_list_updated.connect(on_player_list_updated)
 	ready_button.pressed.connect(on_ready_button_pressed)
+	start_button.pressed.connect(on_start_button_pressed)
+
+	EventBus.sent_feedback.connect(on_feedback_sent)
+	EventBus.player_list_updated.connect(on_player_list_updated)
 
 func _process(_delta):
 	if Main.app_state == Main.AppState.DISCONNECTED:
@@ -62,6 +64,13 @@ func _process(_delta):
 			start_button.disabled = false
 		else:
 			start_button.disabled = true
+	elif Main.app_state == Main.AppState.IN_GAME:
+		Main.set_enable(tab_container, false)
+		disconnect_button.disabled = false
+		host_button.disabled = true
+		join_button.disabled = true
+		ready_button.disabled = true
+		start_button.disabled = true
 	ready_check_box.button_pressed = Main.client_is_ready
 
 func get_display_name():

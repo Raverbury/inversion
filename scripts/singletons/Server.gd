@@ -5,6 +5,8 @@ var player_dict: Dictionary = {}
 var is_initialized = false
 var room_is_ready = false
 
+var MAP_PATHS = ["res://assets/scenes/game/map_0.tscn"]
+
 func wipe():
 	if is_initialized == false:
 		return
@@ -28,7 +30,7 @@ func add_player(pid, display_name):
 	player.set_is_ready(false)
 	player_dict[pid] = player
 	dict_to_player_list()
-	Global.update_player_list.rpc(player_list.to_bytes())
+	Rpc.update_player_list.rpc(player_list.to_bytes())
 	check_room_readiness()
 
 func remove_player(pid):
@@ -36,7 +38,7 @@ func remove_player(pid):
 	var dn = player_dict[pid].get_display_name() if player_dict.has(pid) else "nil"
 	player_dict.erase(pid)
 	dict_to_player_list()
-	Global.update_player_list.rpc(player_list.to_bytes())
+	Rpc.update_player_list.rpc(player_list.to_bytes())
 	check_room_readiness()
 	return dn
 
@@ -44,17 +46,19 @@ func player_set_ready(pid, readiness):
 	pid = str(pid)
 	player_dict[pid].set_is_ready(readiness)
 	dict_to_player_list()
-	Global.update_player_list.rpc(player_list.to_bytes())
+	Rpc.update_player_list.rpc(player_list.to_bytes())
 	check_room_readiness()
 
 func check_room_readiness():
 	for k in player_dict:
 		if player_dict[k].get_is_ready() == false:
-			print("Not all ready")
 			room_is_ready = false
 			return
-	print("All ready")
 	room_is_ready = true
+
+func request_start_game():
+	if room_is_ready:
+		Rpc.send_ready.rpc(Global.get_random_from_list(MAP_PATHS))
 
 func dict_to_player_list():
 	player_list = Proto.PlayerList.new()
