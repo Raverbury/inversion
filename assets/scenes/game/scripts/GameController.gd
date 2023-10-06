@@ -5,6 +5,16 @@ var last_cell: Vector2i
 var has_last_cell: bool = false
 var last_reachables: Array = []
 var last_attackables: Array = []
+var class_select_ui
+var tile_info_ui
+
+func _ready():
+	class_select_ui = Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
+	tile_info_ui = Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
+
+func _exit_tree():
+	class_select_ui.queue_free()
+	tile_info_ui.queue_free()
 
 func load_map(scene_path):
 	var map_tres = load(scene_path) as PackedScene
@@ -68,7 +78,6 @@ func get_reachable_tiles(source: Vector2i, ap: int):
 	return reachables.items()
 
 func traverse(ap, coord, reachables, coming_from, cache):
-	print("traverse called")
 	var ap_cost = get_ap_cost(coord)
 	if ap_cost == -1:
 		return

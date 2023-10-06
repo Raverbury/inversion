@@ -1,0 +1,48 @@
+[gd_scene load_steps=3 format=3 uid="uid://bf0x2nv55leho"]
+
+[ext_resource type="Script" path="res://assets/scenes/game/scripts/TileInfoPanel.gd" id="1_1r6lf"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jflu7"]
+region = Rect2(0, 0, 32, 32)
+
+[node name="TileInfoPanel" type="Panel"]
+anchors_preset = -1
+anchor_left = 0.8
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("1_1r6lf")
+
+[node name="TileImage" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+texture = SubResource("AtlasTexture_jflu7")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="TileName" type="Label" parent="."]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 20.0
+offset_right = 210.0
+offset_bottom = 84.0
+text = "Path"
+autowrap_mode = 1
+
+[node name="TileDescription" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 100.0
+offset_right = 220.0
+offset_bottom = 200.0
+text = "This is the description"
+autowrap_mode = 3
+clip_text = true
+text_overrun_behavior = 3
