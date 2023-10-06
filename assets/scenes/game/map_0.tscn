@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://3hsq5ckhu4ks"]
+[gd_scene load_steps=3 format=3 uid="uid://3hsq5ckhu4ks"]
 
 [ext_resource type="TileSet" uid="uid://bpqn6yjwtffxq" path="res://assets/scenes/game/resources/tileset_base.tres" id="1_c3o6w"]
+[ext_resource type="Script" path="res://assets/scenes/game/scripts/GameTileMap.gd" id="2_txco8"]
 
 [node name="TileMap" type="TileMap"]
 tile_set = ExtResource("1_c3o6w")
@@ -21,3 +22,6 @@ layer_2/y_sort_enabled = false
 layer_2/y_sort_origin = 0
 layer_2/z_index = 12
 layer_2/tile_data = PackedInt32Array()
+script = ExtResource("2_txco8")
+map_name = "Default"
+spawn_points = Array[Vector2i]([Vector2i(-18, 8), Vector2i(17, 8), Vector2i(17, -9), Vector2i(-18, -9)])
