@@ -33,6 +33,20 @@ message Player {
   string peer_id = 1;
   bool is_ready = 2;
   string display_name = 3;
+  PlayerGameData player_game_data = 4;
+}
+
+message PlayerGameData {
+  int32 class_id = 1;
+  int32 max_hp = 2;
+  int32 current_hp = 3;
+  int32 accuracy = 4;
+  int32 evasion = 5;
+  int32 armor = 6;
+  int32 attack_power = 7;
+  int32 attack_range = 8;
+  int32 max_ap = 9;
+  int32 current_ap = 10;
 }
 
 message PlayerList {

@@ -11,5 +11,5 @@ script = ExtResource("1_6asbp")
 script = ExtResource("2_mv12j")
 
 [node name="GamePlayer" parent="." instance=ExtResource("4_4qwf6")]
-position = Vector2(-272, -16)
+position = Vector2(16, 16)
 frame_progress = 0.9837

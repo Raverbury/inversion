@@ -581,6 +581,5 @@ animations = [{
 position = Vector2(-16, -16)
 sprite_frames = SubResource("SpriteFrames_11elf")
 animation = &"idle"
-frame_progress = 0.789955
 script = ExtResource("2_a06pq")
 sprite_name = "m14"

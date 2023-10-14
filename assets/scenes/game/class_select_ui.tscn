@@ -42,6 +42,7 @@ alignment = 1
 custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 script = ExtResource("2_e3wev")
+game_class_id = 1
 
 [node name="Label" type="Label" parent="HBoxContainer/Panel"]
 layout_mode = 1
@@ -61,7 +62,7 @@ text_overrun_behavior = 3
 custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 script = ExtResource("2_e3wev")
-game_class_id = 1
+game_class_id = 2
 
 [node name="Label" type="Label" parent="HBoxContainer/Panel2"]
 layout_mode = 1

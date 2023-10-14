@@ -35,6 +35,26 @@ func add_player(pid, display_name):
 	Rpc.update_player_list.rpc(player_list.to_bytes())
 	check_room_readiness()
 
+func player_set_class(pid, class_id):
+	pid = str(pid)
+	var player: Proto.Player = player_dict[pid]
+	var game_data = player.new_player_game_data()
+	game_data.set_class_id(int(class_id))
+	game_data.set_max_hp(30)
+	game_data.set_current_hp(30)
+	game_data.set_accuracy(30)
+	game_data.set_evasion(10)
+	game_data.set_armor(0)
+	game_data.set_attack_power(10)
+	game_data.set_attack_range(5)
+	game_data.set_max_ap(10)
+	game_data.set_current_ap(10)
+	player_dict[pid] = player
+	# print(player.get_player_game_data())
+	dict_to_player_list()
+	# print(get_class_readiness())
+	# print(player_list)
+
 func remove_player(pid):
 	pid = str(pid)
 	var dn = player_dict[pid].get_display_name() if player_dict.has(pid) else "nil"
@@ -57,6 +77,12 @@ func check_room_readiness():
 			room_is_ready = false
 			return
 	room_is_ready = true
+
+func get_class_readiness():
+	for k in player_dict:
+		if player_dict[k].get_player_game_data() == null:
+			return false
+	return true
 
 func request_start_game():
 	if room_is_ready:

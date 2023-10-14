@@ -20,9 +20,9 @@ config/icon="res://icon.svg"
 EventBus="*res://assets/scenes/global/scripts/EventBus.gd"
 Global="*res://assets/scenes/global/scripts/Global.gd"
 Main="*res://assets/scenes/global/scripts/Main.gd"
-Proto="*res://assets/scenes/global/scripts/Proto.gd"
 Rpc="*res://assets/scenes/global/scripts/Rpc.gd"
 Server="*res://assets/scenes/global/scripts/Server.gd"
+Proto="*res://assets/scenes/global/scripts/Proto.gd"
 
 [display]
 

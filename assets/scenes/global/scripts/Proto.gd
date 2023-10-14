@@ -933,6 +933,12 @@ class Player:
 		service.field = _display_name
 		data[_display_name.tag] = service
 		
+		_player_game_data = PBField.new("player_game_data", PB_DATA_TYPE.MESSAGE, PB_RULE.OPTIONAL, 4, true, DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE])
+		service = PBServiceField.new()
+		service.field = _player_game_data
+		service.func_ref = Callable(self, "new_player_game_data")
+		data[_player_game_data.tag] = service
+		
 	var data = {}
 	
 	var _peer_id: PBField
@@ -961,6 +967,183 @@ class Player:
 		_display_name.value = DEFAULT_VALUES_3[PB_DATA_TYPE.STRING]
 	func set_display_name(value : String) -> void:
 		_display_name.value = value
+	
+	var _player_game_data: PBField
+	func get_player_game_data() -> PlayerGameData:
+		return _player_game_data.value
+	func clear_player_game_data() -> void:
+		data[4].state = PB_SERVICE_STATE.UNFILLED
+		_player_game_data.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+	func new_player_game_data() -> PlayerGameData:
+		_player_game_data.value = PlayerGameData.new()
+		return _player_game_data.value
+	
+	func _to_string() -> String:
+		return PBPacker.message_to_string(data)
+		
+	func to_bytes() -> PackedByteArray:
+		return PBPacker.pack_message(data)
+		
+	func from_bytes(bytes : PackedByteArray, offset : int = 0, limit : int = -1) -> int:
+		var cur_limit = bytes.size()
+		if limit != -1:
+			cur_limit = limit
+		var result = PBPacker.unpack_message(data, bytes, offset, cur_limit)
+		if result == cur_limit:
+			if PBPacker.check_required(data):
+				if limit == -1:
+					return PB_ERR.NO_ERRORS
+			else:
+				return PB_ERR.REQUIRED_FIELDS
+		elif limit == -1 && result > 0:
+			return PB_ERR.PARSE_INCOMPLETE
+		return result
+	
+class PlayerGameData:
+	func _init():
+		var service
+		
+		_class_id = PBField.new("class_id", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 1, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _class_id
+		data[_class_id.tag] = service
+		
+		_max_hp = PBField.new("max_hp", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 2, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _max_hp
+		data[_max_hp.tag] = service
+		
+		_current_hp = PBField.new("current_hp", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 3, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _current_hp
+		data[_current_hp.tag] = service
+		
+		_accuracy = PBField.new("accuracy", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 4, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _accuracy
+		data[_accuracy.tag] = service
+		
+		_evasion = PBField.new("evasion", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 5, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _evasion
+		data[_evasion.tag] = service
+		
+		_armor = PBField.new("armor", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 6, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _armor
+		data[_armor.tag] = service
+		
+		_attack_power = PBField.new("attack_power", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 7, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _attack_power
+		data[_attack_power.tag] = service
+		
+		_attack_range = PBField.new("attack_range", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 8, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _attack_range
+		data[_attack_range.tag] = service
+		
+		_max_ap = PBField.new("max_ap", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 9, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _max_ap
+		data[_max_ap.tag] = service
+		
+		_current_ap = PBField.new("current_ap", PB_DATA_TYPE.INT32, PB_RULE.OPTIONAL, 10, true, DEFAULT_VALUES_3[PB_DATA_TYPE.INT32])
+		service = PBServiceField.new()
+		service.field = _current_ap
+		data[_current_ap.tag] = service
+		
+	var data = {}
+	
+	var _class_id: PBField
+	func get_class_id() -> int:
+		return _class_id.value
+	func clear_class_id() -> void:
+		data[1].state = PB_SERVICE_STATE.UNFILLED
+		_class_id.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_class_id(value : int) -> void:
+		_class_id.value = value
+	
+	var _max_hp: PBField
+	func get_max_hp() -> int:
+		return _max_hp.value
+	func clear_max_hp() -> void:
+		data[2].state = PB_SERVICE_STATE.UNFILLED
+		_max_hp.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_max_hp(value : int) -> void:
+		_max_hp.value = value
+	
+	var _current_hp: PBField
+	func get_current_hp() -> int:
+		return _current_hp.value
+	func clear_current_hp() -> void:
+		data[3].state = PB_SERVICE_STATE.UNFILLED
+		_current_hp.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_current_hp(value : int) -> void:
+		_current_hp.value = value
+	
+	var _accuracy: PBField
+	func get_accuracy() -> int:
+		return _accuracy.value
+	func clear_accuracy() -> void:
+		data[4].state = PB_SERVICE_STATE.UNFILLED
+		_accuracy.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_accuracy(value : int) -> void:
+		_accuracy.value = value
+	
+	var _evasion: PBField
+	func get_evasion() -> int:
+		return _evasion.value
+	func clear_evasion() -> void:
+		data[5].state = PB_SERVICE_STATE.UNFILLED
+		_evasion.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_evasion(value : int) -> void:
+		_evasion.value = value
+	
+	var _armor: PBField
+	func get_armor() -> int:
+		return _armor.value
+	func clear_armor() -> void:
+		data[6].state = PB_SERVICE_STATE.UNFILLED
+		_armor.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_armor(value : int) -> void:
+		_armor.value = value
+	
+	var _attack_power: PBField
+	func get_attack_power() -> int:
+		return _attack_power.value
+	func clear_attack_power() -> void:
+		data[7].state = PB_SERVICE_STATE.UNFILLED
+		_attack_power.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_attack_power(value : int) -> void:
+		_attack_power.value = value
+	
+	var _attack_range: PBField
+	func get_attack_range() -> int:
+		return _attack_range.value
+	func clear_attack_range() -> void:
+		data[8].state = PB_SERVICE_STATE.UNFILLED
+		_attack_range.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_attack_range(value : int) -> void:
+		_attack_range.value = value
+	
+	var _max_ap: PBField
+	func get_max_ap() -> int:
+		return _max_ap.value
+	func clear_max_ap() -> void:
+		data[9].state = PB_SERVICE_STATE.UNFILLED
+		_max_ap.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_max_ap(value : int) -> void:
+		_max_ap.value = value
+	
+	var _current_ap: PBField
+	func get_current_ap() -> int:
+		return _current_ap.value
+	func clear_current_ap() -> void:
+		data[10].state = PB_SERVICE_STATE.UNFILLED
+		_current_ap.value = DEFAULT_VALUES_3[PB_DATA_TYPE.INT32]
+	func set_current_ap(value : int) -> void:
+		_current_ap.value = value
 	
 	func _to_string() -> String:
 		return PBPacker.message_to_string(data)

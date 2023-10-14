@@ -31,6 +31,12 @@ func update_player_list(data: PackedByteArray):
 func send_ready(map_path):
 	EventBus.game_is_ready.emit(map_path)
 
+@rpc("any_peer", "call_local", "reliable", 0)
+func player_pick_class(class_id, a):
+	var a1: Wuta = str_to_var(a)
+	print(a1)
+	Server.player_set_class(Main.root_mp.get_remote_sender_id(), class_id)
+
 func create_game_state():
 	var gs = Proto.GameState.new()
 	gs.set_turn(1)
