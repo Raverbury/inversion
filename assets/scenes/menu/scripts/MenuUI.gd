@@ -112,28 +112,24 @@ func set_display(value = true):
 	t.tween_property(self, "position", Vector2(0 if value else -1280, 0), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_EXPO)
 	# position.x = 0 if value else -1280
 
-func on_player_list_updated(data: PackedByteArray):
-	var pl = Proto.PlayerList.new()
-	pl.from_bytes(data)
+func on_player_list_updated(pl_dict: Dictionary):
 	for n in player_list.get_children():
 		player_list.remove_child(n)
 		n.queue_free()
-	var pl_dict = pl.get_player_list()
-	print(pl_dict)
-	for k in pl_dict:
+	for pid in pl_dict:
 		var control = Control.new()
 		control.custom_minimum_size = Vector2(player_list.size.x, 40.0)
 		var role_label = get_new_label_for_player_list(0.0, 0.15)
 		var id_label = get_new_label_for_player_list(0.15, 0.45)
 		var name_label = get_new_label_for_player_list(0.45, 0.85)
 		var ready_label = get_new_label_for_player_list(0.85, 1.0)
-		role_label.set_text("Host" if k == "1" else "")
-		id_label.set_text(k)
-		id_label.set_tooltip_text(k)
-		name_label.set_text(pl_dict[k].get_display_name())
-		name_label.set_tooltip_text(pl_dict[k].get_display_name())
-		ready_label.set_text("Ready" if pl_dict[k].get_is_ready() else "")
-		if k == str(Main.root_mp.get_unique_id()):
+		role_label.set_text("Host" if pid == 1 else "")
+		id_label.set_text(str(pid))
+		id_label.set_tooltip_text(str(pid))
+		name_label.set_text(pl_dict[pid].display_name)
+		name_label.set_tooltip_text(pl_dict[pid].display_name)
+		ready_label.set_text("Ready" if pl_dict[pid].is_ready else "")
+		if pid == Main.root_mp.get_unique_id():
 			role_label.label_settings.font_color = Color.YELLOW
 			id_label.label_settings.font_color = Color.YELLOW
 			name_label.label_settings.font_color = Color.YELLOW

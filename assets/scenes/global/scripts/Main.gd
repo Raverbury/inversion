@@ -42,7 +42,8 @@ func set_enable(node: Node, value: bool):
 func on_connected_to_server():
 	app_state = AppState.CONNECTED
 	EventBus.sent_feedback.emit("[color=green]Joined server[/color]")
-	Rpc.client_hello.rpc_id(1, client_display_name)
+	var message = PlayerConnectMessage.new(client_display_name)
+	Rpc.player_connect.rpc_id(1, SRLZ.serialize(message))
 
 # Client calls this
 func on_disconnected_to_server():
@@ -99,7 +100,7 @@ func on_disconnect_pressed():
 		Server.wipe()
 	else:
 		EventBus.sent_feedback.emit("[color=green]Left the server[/color]")
-		EventBus.player_list_updated.emit(Proto.PlayerList.new().to_bytes())
+		EventBus.player_list_updated.emit({})
 	dc_cleanup()
 
 # Common connection close cleanup
@@ -108,7 +109,7 @@ func dc_cleanup():
 	root_mp.multiplayer_peer = null
 	client_is_ready = false
 	app_state = AppState.DISCONNECTED
-	EventBus.player_list_updated.emit(Proto.PlayerList.new().to_bytes())
+	EventBus.player_list_updated.emit({})
 	if game_node:
 		game_node.queue_free()
 		game_node = null
@@ -116,7 +117,8 @@ func dc_cleanup():
 # Both call this
 func on_ready_pressed():
 	client_is_ready = !client_is_ready
-	Rpc.player_set_readiness.rpc_id(1, client_is_ready)
+	var message = PlayerSetReadinessMessage.new(client_is_ready)
+	Rpc.player_set_readiness.rpc_id(1, SRLZ.serialize(message))
 
 func on_start_pressed():
 	if root_mp.is_server():

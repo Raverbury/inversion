@@ -22,17 +22,12 @@ Global="*res://assets/scenes/global/scripts/Global.gd"
 Main="*res://assets/scenes/global/scripts/Main.gd"
 Rpc="*res://assets/scenes/global/scripts/Rpc.gd"
 Server="*res://assets/scenes/global/scripts/Server.gd"
-Proto="*res://assets/scenes/global/scripts/Proto.gd"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="viewport"
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/protobuf/plugin.cfg")
 
 [rendering]
 

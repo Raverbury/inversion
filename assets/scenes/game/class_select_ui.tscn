@@ -12,7 +12,6 @@ anchor_left = 0.1
 anchor_top = 0.1
 anchor_right = 0.9
 anchor_bottom = 0.9
-tooltip_text = "ASD"
 script = ExtResource("1_dlcvx")
 
 [node name="PickAClassLabel" type="Label" parent="."]

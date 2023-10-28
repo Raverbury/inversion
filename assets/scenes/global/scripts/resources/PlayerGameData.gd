@@ -1,0 +1,14 @@
+class_name PlayerGameData extends Object
+
+var class_id: int = 0
+var cls_name: String = 'PLACEHOLDER_CLASS'
+var current_hp: int = 10
+var max_hp: int = 10
+var accuracy: int = 10
+var evasion: int = 0
+var armor: int = 0
+var attack_power: int = 5
+var attack_range: int = 10
+var max_ap: int = 10
+var current_ap: int = 10
+var vision_range: int = 10

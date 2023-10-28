@@ -7,7 +7,7 @@ var last_dir: int = 0
 func _ready():
 	play("move")
 
-func _process(delta):
+func _process(_delta):
 	move_with_lerp_wrapper()
 
 func move_with_lerp_wrapper():
