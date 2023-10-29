@@ -1,18 +1,22 @@
+# Author: github.com/raverbury
+
 class_name SRLZ
 
+# These can be whatever, as long as
+# they don't conflict with other script paths
 const ID_ARRAY_TYPE: String = "special://array"
 const ID_DICTIONARY_TYPE: String = "special://dictionary"
 
 # Example dict structure
 # var example = {
-# 	"type": "a://path/to/class.gd",
+# 	"type": "res://path/to/class.gd",
 # 	"data": {
 # 		"some_int": {
 # 			"type": "",
 # 			"data": 2
 # 		},
 # 		"obj": {
-# 			"type": "a://another/path/to/class.gd",
+# 			"type": "res://another/path/to/class.gd",
 # 			"data": {
 # 				"hp": {
 # 					"type": "",
@@ -59,6 +63,7 @@ static func deserialize(dict: Dictionary):
 	elif obj_type_string == ID_DICTIONARY_TYPE:
 		obj = {}
 		var data = dict["data"]
+		# Assuming using primitives for keys
 		for key in data.keys():
 			var value = data[key]
 			obj[key] = deserialize(value)
@@ -82,6 +87,8 @@ static func serialize(obj) -> Dictionary:
 	var data
 
 	if obj_type == TYPE_OBJECT:
+		# Returns an empty string for classes declared
+		# with the class keyword so they don't work
 		object_type_string = obj.get_script().get_path()
 		data = {}
 		for property in obj.get_property_list():
@@ -98,6 +105,7 @@ static func serialize(obj) -> Dictionary:
 	elif obj_type == TYPE_DICTIONARY:
 		object_type_string = ID_DICTIONARY_TYPE
 		data = {}
+		# Assuming using primitives for keys
 		for key in obj:
 			data[key] = serialize(obj[key])
 
