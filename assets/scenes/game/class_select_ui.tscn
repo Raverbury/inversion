@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://bduinjshpqap"]
+[gd_scene load_steps=3 format=3 uid="uid://bduinjshpqap"]
 
 [ext_resource type="Script" path="res://assets/scenes/game/scripts/GameClassSelectControl.gd" id="1_dlcvx"]
-[ext_resource type="Script" path="res://assets/scenes/game/scripts/GameClassPanel.gd" id="2_e3wev"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ovet8"]
 font_size = 50
@@ -36,46 +35,6 @@ anchor_right = 0.95
 anchor_bottom = 0.8
 offset_bottom = 40.0
 alignment = 1
-
-[node name="Panel" type="Panel" parent="HBoxContainer"]
-custom_minimum_size = Vector2(230, 0)
-layout_mode = 2
-script = ExtResource("2_e3wev")
-game_class_id = 1
-
-[node name="Label" type="Label" parent="HBoxContainer/Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "LMAO
-HERE BE DRAGONS
-CLICK HERE TO WIN A FREE IPAD"
-horizontal_alignment = 1
-autowrap_mode = 2
-text_overrun_behavior = 3
-
-[node name="Panel2" type="Panel" parent="HBoxContainer"]
-custom_minimum_size = Vector2(230, 0)
-layout_mode = 2
-script = ExtResource("2_e3wev")
-game_class_id = 2
-
-[node name="Label" type="Label" parent="HBoxContainer/Panel2"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "LMAO
-HERE BE DRAGONS
-CLICK HERE TO WIN A FREE IPAD"
-horizontal_alignment = 1
-autowrap_mode = 2
-text_overrun_behavior = 3
 
 [node name="ConfirmButton" type="Button" parent="."]
 layout_mode = 1

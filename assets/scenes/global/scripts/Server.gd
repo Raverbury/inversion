@@ -30,25 +30,15 @@ func add_player(pid, display_name):
 
 
 func player_set_class(pid, class_id):
-	# pid = str(pid)
-	# var player: Proto.Player = player_dict[pid]
-	# var game_data = player.new_player_game_data()
-	# game_data.set_class_id(int(class_id))
-	# game_data.set_max_hp(30)
-	# game_data.set_current_hp(30)
-	# game_data.set_accuracy(30)
-	# game_data.set_evasion(10)
-	# game_data.set_armor(0)
-	# game_data.set_attack_power(10)
-	# game_data.set_attack_range(5)
-	# game_data.set_max_ap(10)
-	# game_data.set_current_ap(10)
-	# player_dict[pid] = player
-
-	# print(player.get_player_game_data())
-	# dict_to_player_list()
-	# print(get_class_readiness())
+	var player: Player = player_dict[pid]
+	# no reselect xd
+	if player.player_game_data != null:
+		return
+	player.player_game_data = Global.PlayerClassData.getPlayerGameDataBasedOnClass(class_id)
+	player_dict[pid] = player
 	print(player_dict)
+	if all_players_picked_class() == true:
+		pass
 
 
 func remove_player(pid):
@@ -74,7 +64,7 @@ func check_room_readiness():
 	room_is_ready = true
 
 
-func get_class_readiness():
+func all_players_picked_class():
 	for k in player_dict:
 		if player_dict[k].player_game_data == null:
 			return false
