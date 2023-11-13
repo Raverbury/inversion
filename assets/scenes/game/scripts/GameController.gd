@@ -8,6 +8,9 @@ var last_attackables: Array = []
 var class_select_ui
 var tile_info_ui
 
+var is_loading_map_scene: bool = false
+var map_scene_path: String
+
 func _ready():
 	class_select_ui = Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
 	tile_info_ui = Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
@@ -17,11 +20,29 @@ func _exit_tree():
 	tile_info_ui.queue_free()
 
 func load_map(scene_path):
-	var map_tres = load(scene_path) as PackedScene
-	var tile_map_scene = map_tres.instantiate()
-	tile_map = tile_map_scene
-	add_child(tile_map)
-	move_child(tile_map, 0)
+	ResourceLoader.load_threaded_request(scene_path)
+	map_scene_path = scene_path
+	is_loading_map_scene = true
+
+func resolve_load_map():
+	if is_loading_map_scene == false:
+		return
+	if ResourceLoader.load_threaded_get_status(map_scene_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		return
+	if ResourceLoader.load_threaded_get_status(map_scene_path) != ResourceLoader.THREAD_LOAD_LOADED:
+		print("ERROR loading resources")
+		is_loading_map_scene = false
+		return
+	var map_scene = ResourceLoader.load_threaded_get(map_scene_path) as PackedScene
+	var inst_map_scene = map_scene.instantiate()
+	add_child(inst_map_scene)
+	move_child(inst_map_scene, 0)
+	is_loading_map_scene = false
+
+
+func _process(_delta):
+	resolve_load_map()
+
 
 func _input(event):
 	if tile_map == null:

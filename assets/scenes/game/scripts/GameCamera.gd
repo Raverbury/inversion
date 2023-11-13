@@ -1,11 +1,9 @@
-extends Camera2D
+extends PanningCamera
 
-func _input(event):
-	if event is InputEventMouseButton:
-		var zoom_level = zoom.x
-		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			zoom_level = max(zoom_level - 0.05, 0.7)
-			zoom = Vector2(zoom_level, zoom_level)
-		elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoom_level = min(zoom_level + 0.05, 2.3)
-			zoom = Vector2(zoom_level, zoom_level)
+func _init():
+	zoom_sensititvity = 1.5
+	zoom = Vector2(2, 2)
+
+func pan_camera_to(pos: Vector2):
+	var tween = create_tween()
+	tween.tween_property(self, "global_position", pos, 1.5)
