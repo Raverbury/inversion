@@ -8,6 +8,7 @@ func _ready():
 	create_class_panels()
 	EventBus.game_class_selected.connect(on_game_class_selected)
 	confirm_button.pressed.connect(on_confirm_button_pressed)
+	EventBus.class_select_ui_freed.connect(_class_select_ui_freed_handler)
 
 func create_class_panels():
 	var classes = Global.PlayerClassData.CLASS_DATA
@@ -33,3 +34,7 @@ func on_confirm_button_pressed():
 	for child in hbox_container.get_children():
 		child.is_locked_in = true
 	Rpc.player_pick_class.rpc_id(1, SRLZ.serialize(PlayerPickClassMessage.new(last_gc_id)))
+
+
+func _class_select_ui_freed_handler():
+	queue_free()

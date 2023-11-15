@@ -13,3 +13,11 @@ signal game_is_ready(map_path)
 signal game_tile_hovered(atlas_texture, atlas_coord, name, description)
 
 signal game_class_selected(gcid)
+
+signal game_started(game_state: GameState)
+
+# class select ui
+signal class_select_ui_freed()
+
+# camera
+signal camera_panned(pos: Vector2)

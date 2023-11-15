@@ -1,14 +1,14 @@
-class_name GamePlayer extends AnimatedSprite2D
+class_name GamePlayerSprite extends AnimatedSprite2D
 
 @export var sprite_name: String
 var is_moving: bool = false
 var last_dir: int = 0
 
 func _ready():
-	play("move")
+	play("idle")
 
-func _process(_delta):
-	move_with_lerp_wrapper()
+# func _process(_delta):
+	# move_with_lerp_wrapper()
 
 func move_with_lerp_wrapper():
 	if is_moving:
@@ -32,3 +32,7 @@ func move_with_lerp(move_direction: int):
 
 func on_move_done():
 	is_moving = false
+
+
+func set_mapgrid_pos(mapgrid_position: Vector2):
+	global_position = mapgrid_position * 32 + Vector2(16, 16)

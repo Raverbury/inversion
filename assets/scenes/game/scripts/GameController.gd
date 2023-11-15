@@ -7,6 +7,7 @@ var last_reachables: Array = []
 var last_attackables: Array = []
 var class_select_ui
 var tile_info_ui
+var player_sprites: Dictionary = {}
 
 var is_loading_map_scene: bool = false
 var map_scene_path: String
@@ -14,9 +15,10 @@ var map_scene_path: String
 func _ready():
 	class_select_ui = Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
 	tile_info_ui = Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
+	EventBus.game_started.connect(_game_started_handler)
 
 func _exit_tree():
-	class_select_ui.queue_free()
+	EventBus.class_select_ui_freed.emit()
 	tile_info_ui.queue_free()
 
 func load_map(scene_path):
@@ -34,9 +36,9 @@ func resolve_load_map():
 		is_loading_map_scene = false
 		return
 	var map_scene = ResourceLoader.load_threaded_get(map_scene_path) as PackedScene
-	var inst_map_scene = map_scene.instantiate()
-	add_child(inst_map_scene)
-	move_child(inst_map_scene, 0)
+	tile_map = map_scene.instantiate()
+	add_child(tile_map)
+	move_child(tile_map, 0)
 	is_loading_map_scene = false
 
 
@@ -131,3 +133,14 @@ func get_attackable_tiles(source: Vector2i, attack_range: int): # say range of 3
 			var tile_coord = Vector2i(source.x + x, source.y + y)
 			attackables.add(tile_coord)
 	return attackables.items()
+
+
+func _game_started_handler(game_state: GameState):
+	EventBus.class_select_ui_freed.emit()
+	for pid in game_state.player_dict:
+		var player_sprite_ps = load("res://assets/scenes/game/resources/player_sprite_prefab_m14.tscn") as PackedScene
+		var player_sprite: GamePlayerSprite = player_sprite_ps.instantiate()
+		player_sprite.set_mapgrid_pos(game_state.player_dict[pid].player_game_data.mapgrid_position)
+		add_child(player_sprite)
+		player_sprites[pid] = player_sprite
+	EventBus.camera_panned.emit(game_state.player_dict[Main.root_mp.get_unique_id()].player_game_data.mapgrid_position * 32 + Vector2(16, 16))

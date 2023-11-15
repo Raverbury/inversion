@@ -4,6 +4,8 @@ var player_dict: Dictionary = {}
 var is_initialized = false
 var room_is_ready = false
 
+var game_state: GameState
+
 var MAP_PATHS = [Global.Constant.Scene.MAP_0_SCENE]
 
 var map_node: GameTileMap
@@ -38,7 +40,8 @@ func player_set_class(pid, class_id):
 	player_dict[pid] = player
 	print(player_dict)
 	if all_players_picked_class() == true:
-		pass
+		game_state = GameState.new(player_dict, map_node.spawn_points)
+		Rpc.game_start.rpc(SRLZ.serialize(GameStartMessage.new(game_state)))
 
 
 func remove_player(pid):

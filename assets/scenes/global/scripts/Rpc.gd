@@ -40,3 +40,9 @@ func room_start(data: Dictionary):
 func player_pick_class(data: Dictionary):
 	var message: PlayerPickClassMessage = SRLZ.deserialize(data)
 	Server.player_set_class(Main.root_mp.get_remote_sender_id(), message.class_id)
+
+
+@rpc("authority", "call_local", "reliable", 0)
+func game_start(data: Dictionary):
+	var message: GameStartMessage = SRLZ.deserialize(data)
+	EventBus.game_started.emit(message.game_state)
