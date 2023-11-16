@@ -31,6 +31,40 @@ class Set:
 	func items():
 		return dic.keys()
 
+
+class PriorityQueue:
+	var arr: Array = []
+	var item_dict: Dictionary = {}
+
+	func insert(item, priority):
+		arr.insert(__get_insert_pos(priority), [item, priority])
+		item_dict[item] = 1
+
+
+	func pop():
+		var tmp = arr.pop_front()[0]
+		item_dict.erase(tmp)
+		return tmp
+
+
+	func has(item):
+		return item in item_dict
+
+
+	func __get_insert_pos(priority):
+		var insert_pos = 0
+		for inner_arr in arr:
+			if priority < inner_arr[1]:
+				return insert_pos
+			else:
+				insert_pos += 1
+		return insert_pos
+
+
+	func is_empty():
+		return arr.is_empty()
+
+
 class Constant:
 	class Scene:
 		const MENU_UI = "res://assets/scenes/menu/menu_ui.tscn"

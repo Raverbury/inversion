@@ -1,6 +1,6 @@
 extends Node2D
 
-var tile_map: TileMap = null
+var tile_map: GameTileMap = null
 var last_cell: Vector2i
 var has_last_cell: bool = false
 var last_reachables: Array = []
@@ -13,8 +13,6 @@ var is_loading_map_scene: bool = false
 var map_scene_path: String
 
 func _ready():
-	class_select_ui = Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
-	tile_info_ui = Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
 	EventBus.game_started.connect(_game_started_handler)
 
 func _exit_tree():
@@ -40,6 +38,9 @@ func resolve_load_map():
 	add_child(tile_map)
 	move_child(tile_map, 0)
 	is_loading_map_scene = false
+	class_select_ui = Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
+	tile_info_ui = Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
+	print(a_star(Vector2(-3, 2), Vector2(-2, -4)))
 
 
 func _process(_delta):
@@ -133,6 +134,42 @@ func get_attackable_tiles(source: Vector2i, attack_range: int): # say range of 3
 			var tile_coord = Vector2i(source.x + x, source.y + y)
 			attackables.add(tile_coord)
 	return attackables.items()
+
+
+func a_star_h(node_mapgrid: Vector2, goal_mapgrid: Vector2):
+	return abs(node_mapgrid.x - goal_mapgrid.x) + abs(node_mapgrid.y - goal_mapgrid.y)
+
+
+func a_star(start_mapgrid: Vector2, goal_mapgrid: Vector2):
+	var pq: Global.PriorityQueue = Global.PriorityQueue.new()
+	var came_from: Dictionary = {}
+	var g_score: Dictionary = {} # cheapest cost from start to n
+
+	pq.insert(start_mapgrid, a_star_h(start_mapgrid, goal_mapgrid))
+	g_score[start_mapgrid] = 0
+
+	while not pq.is_empty():
+		var current_node: Vector2 = pq.pop()
+		print("New loop")
+		print(current_node)
+		if current_node == goal_mapgrid:
+			var path = [current_node]
+			while current_node in came_from.keys():
+				current_node = came_from[current_node]
+				path.insert(0, current_node)
+				print(path)
+			return true
+
+		for neighbor_offset in [Vector2(-1, 0), Vector2(0, -1), Vector2(1, 0), Vector2(0, 1)]:
+			var neighbor_node = current_node + neighbor_offset
+			print(neighbor_node)
+			var temp_g_score = g_score[current_node] + tile_map.get_ap_cost_at(neighbor_node)
+			if not neighbor_node in g_score.keys() or temp_g_score < g_score[neighbor_node]:
+				g_score[neighbor_node] = temp_g_score
+				came_from[neighbor_node] = current_node
+				if not pq.has(neighbor_node):
+					pq.insert(neighbor_node, temp_g_score + a_star_h(neighbor_node, goal_mapgrid))
+	return false
 
 
 func _game_started_handler(game_state: GameState):
