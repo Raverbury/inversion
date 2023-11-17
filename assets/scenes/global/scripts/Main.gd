@@ -60,7 +60,7 @@ func on_connection_failed():
 func on_peer_disconnected(peer_id):
 	if root_mp.is_server():
 		var player_display_name = Server.remove_player(peer_id)
-		EventBus.sent_feedback.emit("%s (%s) left the server" % [player_display_name, str(peer_id)])
+		EventBus.sent_feedback.emit("%s (%s) left the server" % [player_display_name.replace("[", "[lb]"), str(peer_id)])
 
 # Server calls this
 func on_server_host_pressed(display_name, port):
@@ -92,7 +92,7 @@ func on_server_join_pressed(display_name, address: String):
 		return
 	root_mp.multiplayer_peer = peer
 	client_display_name = display_name
-	EventBus.sent_feedback.emit("Attempting to connect to " + address + "...")
+	EventBus.sent_feedback.emit("Attempting to connect to " + address.replace("[", "[lb]") + "...")
 	app_state = AppState.CONNECTING
 
 # Both call this

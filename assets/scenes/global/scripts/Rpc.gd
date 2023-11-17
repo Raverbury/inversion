@@ -10,8 +10,8 @@ func test(data):
 func player_send_chat_message(data: Dictionary):
 	var message: PlayerSendChatMessage = SRLZ.deserialize(data)
 	var pid = Main.root_mp.get_remote_sender_id()
-	var display_name = message.display_name
-	var content = message.chat_text
+	var display_name = message.display_name.replace("[", "[lb]")
+	var content = message.chat_text.replace("[", "[lb]")
 	EventBus.sent_chat_message.emit("%s (%d): %s" % [display_name, pid, content])
 
 
@@ -21,7 +21,7 @@ func player_connect(data: Dictionary):
 		return
 	var message: PlayerConnectMessage = SRLZ.deserialize(data)
 	var pid = Main.root_mp.get_remote_sender_id()
-	EventBus.sent_feedback.emit(str(pid) + " joined as " + message.display_name)
+	EventBus.sent_feedback.emit(str(pid) + " joined as " + message.display_name.replace("[", "[lb]"))
 	Server.add_player(pid, message.display_name)
 
 
