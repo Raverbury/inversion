@@ -9,6 +9,7 @@ func _ready():
 	EventBus.game_class_selected.connect(on_game_class_selected)
 	confirm_button.pressed.connect(on_confirm_button_pressed)
 	EventBus.class_select_ui_freed.connect(_class_select_ui_freed_handler)
+	confirm_button.disabled = true
 
 func create_class_panels():
 	var classes = Global.PlayerClassData.CLASS_DATA
@@ -27,6 +28,7 @@ func create_class_panels():
 
 func on_game_class_selected(gcid):
 	last_gc_id = gcid
+	confirm_button.disabled = false
 
 func on_confirm_button_pressed():
 	confirm_button.text = "STANDBY..."
