@@ -34,7 +34,8 @@ func __process_queued_movement():
 
 func __move_with_lerp(move_direction: int):
 	is_moving = true
-	var target_pos = Vector2(global_position.x + (-32 if move_direction == 0 else (32 if move_direction == 2 else 0)), global_position.y + (-32 if move_direction == 3 else (32 if move_direction == 1 else 0)))
+	var step_2_offset = Global.Constant.Direction.STEP_TO_V2OFFSET
+	var target_pos = global_position + Vector2((step_2_offset[move_direction] * 32))
 	var t: Tween = create_tween()
 	t.tween_property(self, "global_position", target_pos, 0.4)
 	t.finished.connect(__on_move_done)

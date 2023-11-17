@@ -25,7 +25,13 @@ extends Control
 
 @onready var chat_line_edit: LineEdit = $"FeedbackContainer/Control/LineEdit"
 
-const DEFAULT_NAMES = ["StinkyPineapple", "McCheese", "LeetKid420", "DisplayName", "AndyPhm", "IUseArchBTW"]
+const DEFAULT_NAMES = ["StinkyPineapple", "McCheese", "LeetKid420", "DisplayName", "AndyPhm", "IUseArchBTW",
+	"FMJ7.62x51", "1v1 me rust", "AYAYA AYAYA", "OBAMA YOSHI", "original name", "howdoiwriteincap", "MemeLord420",
+	"general_generous", "admiral_admirable", "captain_captive", "private_prying", "target package romeo", "CritRollPlz",
+	"ImagineLizard", "DivineTsundere", "malding maldino", "mad teacher", "#1 NALCS Coach", "lame weasel", "NerfElectroPea",
+	"WdymISkipLunch", "MittensOnKittens", "dm me 4 free vbucks", "come@me.bro", "TerribleDay", "xX_qu1cksc0p3r_Xx",
+	"\"name' OR 'a'='a\"", "\"a'); DELETE FROM items; --\"", "CritDmgRollPlz", "IAbstractFactoryBuilder"
+]
 
 var is_shown = true
 var unread_chat_message = 0

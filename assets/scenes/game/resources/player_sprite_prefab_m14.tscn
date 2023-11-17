@@ -584,7 +584,6 @@ font_size = 15
 position = Vector2(-16, -16)
 sprite_frames = SubResource("SpriteFrames_11elf")
 animation = &"idle"
-frame_progress = 0.234924
 script = ExtResource("2_a06pq")
 sprite_name = "m14"
 

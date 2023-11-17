@@ -125,7 +125,7 @@ func on_ready_pressed():
 
 func on_start_pressed():
 	if root_mp.is_server():
-		Server.request_start_game()
+		Server.request_start_room()
 
 func on_game_is_ready(map_path):
 	var packed_game_scene = load(Global.Constant.Scene.GAME_SCENE) as PackedScene

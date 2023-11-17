@@ -9,6 +9,16 @@ anchor_right = 0.7
 anchor_bottom = 1.0
 script = ExtResource("1_gv0rm")
 
+[node name="Mode" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 110.0
+offset_right = 220.0
+offset_bottom = 140.0
+text = "Mode: View"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
 [node name="DisplayName" type="Label" parent="."]
 layout_mode = 0
 offset_left = 220.0
@@ -60,15 +70,15 @@ text = "Evasion: -----"
 autowrap_mode = 3
 text_overrun_behavior = 4
 
-[node name="AP" type="Label" parent="."]
+[node name="AP" type="RichTextLabel" parent="."]
 layout_mode = 0
 offset_left = 430.0
 offset_top = 50.0
 offset_right = 630.0
-offset_bottom = 73.0
+offset_bottom = 80.0
+bbcode_enabled = true
 text = "AP: -----/-----"
-autowrap_mode = 3
-text_overrun_behavior = 4
+scroll_active = false
 
 [node name="Armor" type="Label" parent="."]
 layout_mode = 0

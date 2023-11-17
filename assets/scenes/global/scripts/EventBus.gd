@@ -17,11 +17,14 @@ signal game_is_ready(map_path)
 
 signal game_class_selected(gcid)
 
+# server messages
 signal game_started(game_state: GameState)
+signal player_move_updated(pid, move_steps, game_state)
 
 # player info ui
 signal player_info_updated(player: Player, stat_mods: Dictionary)
 signal ap_cost_updated(path_cost: int)
+signal mode_updated(mode_enum: int)
 signal player_info_ui_freed()
 
 # tile info ui

@@ -1,12 +1,13 @@
 class_name PlayerInfoUI extends Panel
 
+@onready var mode_label: Label = $Mode
 @onready var display_name_label: Label = $DisplayName
 @onready var pid_label: Label = $PlayerID
 @onready var hp_label: Label = $HP
 @onready var accuracy_label: Label = $Accuracy
 @onready var evasion_label: Label = $Evasion
 @onready var armor_label: Label = $Armor
-@onready var ap_label: Label = $AP
+@onready var ap_label: RichTextLabel = $AP
 @onready var attack_power_label: Label = $AttackPower
 @onready var attack_range_label: Label = $AttackRange
 @onready var attack_cost_label: Label = $AttackCost
@@ -17,6 +18,7 @@ var cached_player: Player
 func _ready():
 	EventBus.player_info_updated.connect(__player_info_updated_handler)
 	EventBus.ap_cost_updated.connect(__ap_cost_updated_handler)
+	EventBus.mode_updated.connect(__mode_updated_handler)
 	EventBus.player_info_ui_freed.connect(queue_free)
 
 
@@ -35,7 +37,8 @@ func __player_info_updated_handler(player: Player, stat_mods: Dictionary):
 	armor_label.text = "Armor: %s (%s)" % [player_game_data.armor,
 		("+%s" % stat_mods["armor_mod"] if stat_mods["armor_mod"] >= 0 else stat_mods["armor_mod"])
 			if stat_mods.has("armor_mod") else "+0"]
-	ap_label.text = "AP: %s (-0)/%s" % [player_game_data.current_ap, player_game_data.max_ap]
+	ap_label.text = "AP: %s (-0)/%s" % [("[color=red]%s[/color]" % player_game_data.current_ap)
+		if player_game_data.current_ap == 0 else player_game_data.current_ap, player_game_data.max_ap]
 	attack_power_label.text = "Attack power: %s" % [player_game_data.attack_power]
 	attack_range_label.text = "Attack range: %s" % [player_game_data.attack_range]
 	attack_cost_label.text = "Attack cost: %s" % [player_game_data.attack_cost]
@@ -45,4 +48,10 @@ func __player_info_updated_handler(player: Player, stat_mods: Dictionary):
 
 func __ap_cost_updated_handler(ap_cost):
 	var player_game_data = cached_player.player_game_data
-	ap_label.text = "AP: %s %s/%s" % [player_game_data.current_ap, "(-%s)" % ap_cost, player_game_data.max_ap]
+	ap_label.text = "AP: %s %s/%s" % [("[color=red]%s[/color]" % player_game_data.current_ap)
+	if player_game_data.current_ap == 0 else player_game_data.current_ap, ("([color=red]-%s[/color])" % ap_cost)
+		if ap_cost > player_game_data.current_ap else "(-%s)" % ap_cost, player_game_data.max_ap]
+
+
+func __mode_updated_handler(mode_enum: int):
+	mode_label.text = "Mode: %s" % ["Move", "Attack", "View"][mode_enum]

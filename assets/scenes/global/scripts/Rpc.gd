@@ -55,3 +55,15 @@ func player_pick_class(data: Dictionary):
 func game_start(data: Dictionary):
 	var message: GameStartMessage = SRLZ.deserialize(data)
 	EventBus.game_started.emit(message.game_state)
+
+
+@rpc("any_peer", "call_local", "reliable", 0)
+func player_request_move(data: Dictionary):
+	var message: PlayerMoveRequestMessage = SRLZ.deserialize(data)
+	Server.process_player_move_request(Main.root_mp.get_remote_sender_id(), message.move_steps)
+
+
+@rpc("authority", "call_local", "reliable", 0)
+func player_move_update(data: Dictionary):
+	var message: PlayerMoveResponseMessage = SRLZ.deserialize(data)
+	EventBus.player_move_updated.emit(message.player_id, message.move_steps, message.game_state)

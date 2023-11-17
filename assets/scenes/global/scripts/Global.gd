@@ -89,6 +89,7 @@ class Constant:
 		const UP = 1
 		const RIGHT = 2
 		const DOWN = 3
+		const STEP_TO_V2OFFSET = [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1)]
 
 class PlayerClassData:
 

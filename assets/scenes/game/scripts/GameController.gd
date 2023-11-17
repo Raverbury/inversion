@@ -19,6 +19,7 @@ var current_path_cost = 0
 
 func _ready():
 	EventBus.game_started.connect(__game_started_handler)
+	EventBus.player_move_updated.connect(__player_move_updated)
 
 
 func _exit_tree():
@@ -103,16 +104,24 @@ func __process_command_mode(event: InputEvent):
 		return
 	if event.is_action_released("move_command"):
 		if current_action_mode == ACTION_MODE.MOVE_MODE:
-			current_action_mode = ACTION_MODE.VIEW_MODE
-			tile_map.hide_reachables()
-			tile_map.hide_movement_path()
-			make_path_has_last_cell = false
-			current_move_path = []
-			current_path_cost = 0
-			EventBus.ap_cost_updated.emit(current_path_cost)
+			__set_action_mode(ACTION_MODE.VIEW_MODE)
 		else:
-			current_action_mode = ACTION_MODE.MOVE_MODE
-			tile_map.show_reachables()
+			__set_action_mode(ACTION_MODE.MOVE_MODE)
+
+
+func __set_action_mode(new_action_mode: ACTION_MODE):
+	current_action_mode = new_action_mode
+	if current_action_mode == ACTION_MODE.VIEW_MODE:
+		tile_map.hide_reachables()
+		tile_map.hide_movement_path()
+		make_path_has_last_cell = false
+		current_move_path = []
+		current_path_cost = 0
+		EventBus.ap_cost_updated.emit(current_path_cost)
+	elif current_action_mode == ACTION_MODE.MOVE_MODE:
+		tile_map.show_reachables()
+	EventBus.mode_updated.emit(current_action_mode)
+
 
 
 func __get_tile_data(event: InputEvent):
@@ -121,7 +130,7 @@ func __get_tile_data(event: InputEvent):
 		tile_map.select_tile(hovered_cell)
 		var texture = tile_map.tile_set.get_source(0).texture
 		var atlas_coord = tile_map.get_cell_atlas_coords(0, hovered_cell) as Vector2
-		var tile_name = tile_map.get_data_at(hovered_cell, "name", "You!")
+		var tile_name = tile_map.get_data_at(hovered_cell, "name", "Hey there")
 		var tile_desc = tile_map.get_data_at(hovered_cell, "description", "Plz go back im too lazy to clamp camera")
 		var ap_cost = tile_map.get_data_at(hovered_cell, "ap_cost", -1)
 		var acc_mod = tile_map.get_data_at(hovered_cell, "accuracy_mod", 0)
@@ -185,7 +194,9 @@ func __send_movement_path(event: InputEvent):
 		var current_ap = __get_my_player().player_game_data.current_ap
 		if not __validate_path() or current_path_cost > current_ap:
 			return
-		print(__make_steps_from_path())
+		var move_steps = __make_steps_from_path()
+		Rpc.player_request_move.rpc_id(1, SRLZ.serialize(PlayerMoveRequestMessage.new(move_steps)))
+		__set_action_mode(ACTION_MODE.VIEW_MODE)
 
 
 func __make_steps_from_path():
@@ -193,7 +204,7 @@ func __make_steps_from_path():
 	var tmp_move_path = [current_mapgrid_pos]
 	tmp_move_path.append_array(current_move_path)
 	var move_steps = []
-	var offset_step_map = [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1)]
+	var offset_step_map = Global.Constant.Direction.STEP_TO_V2OFFSET
 	for i in range(len(tmp_move_path) - 1):
 		var tile1 = tmp_move_path[i]
 		var tile2 = tmp_move_path[i + 1]
@@ -309,7 +320,7 @@ func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i):
 				path.insert(0, current_node)
 			return path
 
-		for neighbor_offset in [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1)]:
+		for neighbor_offset in Global.Constant.Direction.STEP_TO_V2OFFSET:
 			var neighbor_node = current_node + neighbor_offset
 			if not neighbor_node in cached_reachables:
 				continue
@@ -327,7 +338,7 @@ func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i):
 
 func __game_started_handler(_game_state: GameState):
 	EventBus.class_select_ui_freed.emit()
-	game_state = _game_state
+	__set_game_state(_game_state)
 	for pid in game_state.player_dict:
 		var player_sprite_ps = load("res://assets/scenes/game/resources/player_sprite_prefab_m14.tscn") as PackedScene
 		var player_sprite: GamePlayerSprite = player_sprite_ps.instantiate()
@@ -336,12 +347,7 @@ func __game_started_handler(_game_state: GameState):
 		player_sprite.set_mapgrid_pos(game_state.player_dict[pid].player_game_data.mapgrid_position)
 		add_child(player_sprite)
 	EventBus.camera_panned.emit(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position) * 32 + Vector2(16, 16), 1)
-	var my_player: Player = __get_my_player()
-	cached_reachables = get_reachable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.current_ap)
-	cached_attackables = get_attackable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.attack_range)
-	tile_map.set_reachables(cached_reachables)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
-	EventBus.player_info_updated.emit(__get_my_player(), tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position))
 
 
 func __get_my_player() -> Player:
@@ -354,3 +360,17 @@ func __is_my_turn():
 	if game_state == null:
 		return false
 	return game_state.turn_of_player == __get_my_player().peer_id
+
+
+func __set_game_state(_game_state: GameState):
+	game_state = _game_state
+	var my_player: Player = __get_my_player()
+	cached_reachables = get_reachable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.current_ap)
+	cached_attackables = get_attackable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.attack_range)
+	tile_map.set_reachables(cached_reachables)
+	EventBus.player_info_updated.emit(__get_my_player(), tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position))
+
+
+func __player_move_updated(pid, move_steps, _game_state):
+	__set_game_state(_game_state)
+	EventBus.player_moved.emit(pid, move_steps)
