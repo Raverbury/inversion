@@ -41,6 +41,7 @@ func player_set_class(pid, class_id):
 	print(player_dict)
 	if all_players_picked_class() == true:
 		game_state = GameState.new(player_dict, map_node.spawn_points)
+		game_state.advance_turn()
 		Rpc.game_start.rpc(SRLZ.serialize(GameStartMessage.new(game_state)))
 
 

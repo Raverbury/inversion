@@ -9,3 +9,4 @@ script = ExtResource("1_6asbp")
 [node name="PanningCamera" type="Camera2D" parent="."]
 script = ExtResource("2_mv12j")
 min_zoom = Vector2(0.75, 0.75)
+edge_pan_margin = 60.0

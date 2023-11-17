@@ -68,6 +68,7 @@ func on_server_host_pressed(display_name, port):
 	var error = peer.create_server(int(port), 4)
 	if error:
 		EventBus.sent_feedback.emit(error)
+		EventBus.sent_feedback.emit("Common error codes:\n22 - port already in use")
 		return
 	root_mp.multiplayer_peer = peer
 	if root_mp.is_server() == false:

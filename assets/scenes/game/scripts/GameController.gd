@@ -24,6 +24,7 @@ func _ready():
 func _exit_tree():
 	EventBus.class_select_ui_freed.emit()
 	EventBus.tile_info_ui_freed.emit()
+	EventBus.turn_ui_freed.emit()
 
 func load_map(scene_path):
 	ResourceLoader.load_threaded_request(scene_path)
@@ -47,6 +48,7 @@ func __resolve_load_map():
 	is_loading_map_scene = false
 	Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
+	Main.add_ui(Global.Constant.Scene.TURN_UI, 0)
 	# print(a_star(Vector2(-3, 2), Vector2(-2, -4)))
 
 
@@ -60,6 +62,7 @@ func _input(event):
 	__get_tile_data(event)
 	__process_command_mode(event)
 	__make_movement_path(event)
+	__send_movement_path(event)
 	# if event is InputEventMouseMotion:
 	# 	# get tm coord/"index" of tile
 	# 	var hovered_cell: Vector2i = tile_map.local_to_map(get_global_mouse_position())
@@ -94,6 +97,8 @@ func _input(event):
 
 
 func __process_command_mode(event: InputEvent):
+	if not __is_my_turn():
+		return
 	if event.is_action_released("move_command"):
 		if current_action_mode == ACTION_MODE.MOVE_MODE:
 			current_action_mode = ACTION_MODE.VIEW_MODE
@@ -115,10 +120,16 @@ func __get_tile_data(event: InputEvent):
 		var atlas_coord = tile_map.get_cell_atlas_coords(0, hovered_cell) as Vector2
 		var tile_name = tile_map.get_data_at(hovered_cell, "name", "...")
 		var tile_desc = tile_map.get_data_at(hovered_cell, "description", "...")
-		EventBus.game_tile_hovered.emit(texture, atlas_coord, tile_name, tile_desc)
+		var ap_cost = tile_map.get_data_at(hovered_cell, "ap_cost", -1)
+		var acc_mod = tile_map.get_data_at(hovered_cell, "accuracy_mod", 0)
+		var eva_mod = tile_map.get_data_at(hovered_cell, "evasion_mod", 0)
+		var armor_mod = tile_map.get_data_at(hovered_cell, "armor_mod", 0)
+		EventBus.game_tile_hovered.emit(texture, atlas_coord, tile_name, tile_desc, ap_cost, acc_mod, eva_mod, armor_mod)
 
 
 func __make_movement_path(event: InputEvent):
+	if not __is_my_turn():
+		return
 	if current_action_mode != ACTION_MODE.MOVE_MODE:
 		return
 	if not event is InputEventMouseMotion:
@@ -156,7 +167,44 @@ func __make_movement_path(event: InputEvent):
 		current_path_cost = __get_path_cost()
 		tile_map.set_movement_path(current_move_path, current_path_cost > player_current_ap)
 		tile_map.show_movement_path()
-		EventBus.player_moved.emit(1, [0, 1, 2, 3])
+
+
+func __send_movement_path(event: InputEvent):
+	if not __is_my_turn():
+		return
+	if current_action_mode != ACTION_MODE.MOVE_MODE:
+		return
+	if event.is_action_released("mouse_1"):
+		var current_ap = __get_my_player().player_game_data.current_ap
+		if not __validate_path() or current_path_cost > current_ap:
+			return
+		print(__make_steps_from_path())
+
+
+func __make_steps_from_path():
+	var current_mapgrid_pos = __get_my_player().player_game_data.mapgrid_position
+	var tmp_move_path = [current_mapgrid_pos]
+	tmp_move_path.append_array(current_move_path)
+	var move_steps = []
+	var offset_step_map = [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1)]
+	for i in range(len(tmp_move_path) - 1):
+		var tile1 = tmp_move_path[i]
+		var tile2 = tmp_move_path[i + 1]
+		var offset = tile2 - tile1
+		var step_direction = offset_step_map.find(offset)
+		move_steps.append(step_direction)
+	return move_steps
+
+
+func __validate_path():
+	if len(current_move_path) <= 0:
+		return false
+	for i in range(len(current_move_path) - 1):
+		var tile1 = current_move_path[i]
+		var tile2 = current_move_path[i + 1]
+		if not __tiles_are_neighbor(tile1, tile2):
+			return false
+	return true
 
 
 func __get_path_cost():
@@ -245,8 +293,8 @@ func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i):
 
 	while not pq.is_empty():
 		var current_node: Vector2i = pq.pop()
-		print("New loop")
-		print(current_node)
+		# print("New loop")
+		# print(current_node)
 		if current_node == goal_mapgrid:
 			var path = [current_node]
 			while current_node in came_from.keys():
@@ -279,14 +327,21 @@ func __game_started_handler(_game_state: GameState):
 		player_sprite.player_id = pid
 		player_sprite.set_mapgrid_pos(game_state.player_dict[pid].player_game_data.mapgrid_position)
 		add_child(player_sprite)
-	EventBus.camera_panned.emit(Vector2(game_state.player_dict[Main.root_mp.get_unique_id()].player_game_data.mapgrid_position) * 32 + Vector2(16, 16), 1)
+	EventBus.camera_panned.emit(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position) * 32 + Vector2(16, 16), 1)
 	var my_player: Player = __get_my_player()
 	cached_reachables = get_reachable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.current_ap)
 	cached_attackables = get_attackable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.attack_range)
 	tile_map.set_reachables(cached_reachables)
+	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
 
 
 func __get_my_player() -> Player:
 	if game_state == null:
 		return null
 	return game_state.player_dict[Main.root_mp.get_unique_id()]
+
+
+func __is_my_turn():
+	if game_state == null:
+		return false
+	return game_state.turn_of_player == __get_my_player().peer_id

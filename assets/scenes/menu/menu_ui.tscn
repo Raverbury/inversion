@@ -123,6 +123,7 @@ anchor_left = 0.1
 anchor_top = 0.73
 anchor_right = 0.9
 anchor_bottom = 0.8
+placeholder_text = "Send chat messages here while connected!"
 
 [node name="Button" type="Button" parent="FeedbackContainer/Control"]
 layout_mode = 1
