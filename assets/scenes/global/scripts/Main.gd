@@ -23,6 +23,7 @@ func _ready():
 	EventBus.pressed_ready.connect(on_ready_pressed)
 	EventBus.pressed_start.connect(on_start_pressed)
 	EventBus.game_is_ready.connect(on_game_is_ready)
+	EventBus.chat_message_sent.connect(__chat_message_sent_handler)
 	global_canvas_layer = CanvasLayer.new()
 	add_child(global_canvas_layer)
 	add_ui(Global.Constant.Scene.MENU_UI)
@@ -73,6 +74,7 @@ func on_server_host_pressed(display_name, port):
 		EventBus.sent_feedback.emit("[color=red]Server could not start[/color]")
 		return
 	EventBus.sent_feedback.emit("[color=green]Server started on port " + port + "[/color]")
+	client_display_name = display_name
 	app_state = AppState.CONNECTED
 	Server.initialize()
 	Server.add_player(1, display_name)
@@ -132,3 +134,9 @@ func on_game_is_ready(map_path):
 	game_node.load_map(map_path)
 	app_state = AppState.IN_GAME
 	EventBus.sent_feedback.emit("[color=green]Game started[/color]")
+
+
+func __chat_message_sent_handler(text):
+	if app_state in [AppState.CONNECTING, AppState.DISCONNECTED]:
+		return
+	Rpc.player_send_chat_message.rpc(SRLZ.serialize(PlayerSendChatMessage.new(client_display_name, text)))

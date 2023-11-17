@@ -6,6 +6,15 @@ func test(data):
 	print(get_tree().get_multiplayer().get_remote_sender_id(), " send ", data)
 
 
+@rpc("any_peer", "call_local", "reliable", 0)
+func player_send_chat_message(data: Dictionary):
+	var message: PlayerSendChatMessage = SRLZ.deserialize(data)
+	var pid = Main.root_mp.get_remote_sender_id()
+	var display_name = message.display_name
+	var content = message.chat_text
+	EventBus.sent_chat_message.emit("%s (%d): %s" % [display_name, pid, content])
+
+
 @rpc("any_peer", "call_remote", "reliable", 0)
 func player_connect(data: Dictionary):
 	if Main.root_mp.is_server() == false:

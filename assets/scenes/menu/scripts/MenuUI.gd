@@ -23,9 +23,12 @@ extends Control
 
 @onready var ready_check_box: CheckBox = $"ReadyCheckBox"
 
+@onready var chat_line_edit: LineEdit = $"FeedbackContainer/Control/LineEdit"
+
 const DEFAULT_NAMES = ["StinkyPineapple", "McCheese", "LeetKid420", "DisplayName", "AndyPhm", "IUseArchBTW"]
 
 var is_shown = true
+var unread_chat_message = 0
 
 func _ready():
 	host_button.pressed.connect(on_host_button_pressed)
@@ -37,8 +40,11 @@ func _ready():
 	start_button.pressed.connect(on_start_button_pressed)
 
 	EventBus.sent_feedback.connect(on_feedback_sent)
+	EventBus.sent_chat_message.connect(__sent_chat_message_handler)
 	EventBus.player_list_updated.connect(on_player_list_updated)
 	EventBus.game_is_ready.connect(on_game_is_ready)
+
+	chat_line_edit.text_submitted.connect(__chat_message_sent_handler)
 
 func _process(_delta):
 	if Main.app_state == Main.AppState.DISCONNECTED:
@@ -48,6 +54,8 @@ func _process(_delta):
 		join_button.disabled = false
 		ready_button.disabled = true
 		start_button.disabled = true
+		Main.set_enable(chat_line_edit, false)
+		Main.set_enable(name_line_edit, true)
 	elif Main.app_state == Main.AppState.CONNECTING:
 		Main.set_enable(tab_container, false)
 		disconnect_button.disabled = false
@@ -55,12 +63,16 @@ func _process(_delta):
 		join_button.disabled = true
 		ready_button.disabled = true
 		start_button.disabled = true
+		Main.set_enable(chat_line_edit, false)
+		Main.set_enable(name_line_edit, false)
 	elif Main.app_state == Main.AppState.CONNECTED:
 		Main.set_enable(tab_container, false)
 		disconnect_button.disabled = false
 		host_button.disabled = true
 		join_button.disabled = true
 		ready_button.disabled = false
+		Main.set_enable(chat_line_edit, true)
+		Main.set_enable(name_line_edit, false)
 		if Server.is_initialized == true && Server.room_is_ready == true:
 			start_button.disabled = false
 		else:
@@ -72,6 +84,8 @@ func _process(_delta):
 		join_button.disabled = true
 		ready_button.disabled = true
 		start_button.disabled = true
+		Main.set_enable(chat_line_edit, true)
+		Main.set_enable(name_line_edit, false)
 	ready_check_box.button_pressed = Main.client_is_ready
 
 func get_display_name():
@@ -90,12 +104,13 @@ func on_disconnect_button_pressed():
 
 func on_feedback_sent(message):
 	feedback_rich_text_label.append_text(str(message) + "\n")
-	# feedback_rich_text_label.scroll_vertical = feedback_rich_text_label.get_v_scroll_bar().max_value
 
 func on_hide_button_pressed():
 	set_display(false)
 
 func on_show_button_pressed():
+	show_button.text = "Show"
+	unread_chat_message = 0
 	set_display(true)
 
 func on_ready_button_pressed():
@@ -161,3 +176,15 @@ func get_new_label_for_player_list(left_anchor = 0.0, right_anchor = 0.0):
 
 func on_game_is_ready(_map_name):
 	set_display(false)
+
+
+func __chat_message_sent_handler(text):
+	EventBus.chat_message_sent.emit(text)
+	chat_line_edit.clear()
+
+
+func __sent_chat_message_handler(text):
+	feedback_rich_text_label.append_text(str(text) + "\n")
+	if is_shown == false:
+		unread_chat_message += 1
+		show_button.text = "Show\n(%d)" % unread_chat_message
