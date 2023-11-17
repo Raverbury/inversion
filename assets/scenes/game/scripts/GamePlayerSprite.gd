@@ -1,15 +1,19 @@
 class_name GamePlayerSprite extends AnimatedSprite2D
 
 var player_id: int = -1
+var display_name: String
 
 @export var sprite_name: String
 var is_moving: bool = false
 var last_dir: int = 0
 
+@onready var display_name_label = $DisplayName
+
 var queued_movement: Array = []
 
 func _ready():
 	play("idle")
+	display_name_label.text = display_name
 	EventBus.player_moved.connect(__player_moved_handler)
 
 

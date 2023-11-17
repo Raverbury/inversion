@@ -25,6 +25,7 @@ func _exit_tree():
 	EventBus.class_select_ui_freed.emit()
 	EventBus.tile_info_ui_freed.emit()
 	EventBus.turn_ui_freed.emit()
+	EventBus.player_info_ui_freed.emit()
 
 func load_map(scene_path):
 	ResourceLoader.load_threaded_request(scene_path)
@@ -49,6 +50,7 @@ func __resolve_load_map():
 	Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TURN_UI, 0)
+	Main.add_ui(Global.Constant.Scene.PLAYER_INFO_UI, 0)
 	# print(a_star(Vector2(-3, 2), Vector2(-2, -4)))
 
 
@@ -107,6 +109,7 @@ func __process_command_mode(event: InputEvent):
 			make_path_has_last_cell = false
 			current_move_path = []
 			current_path_cost = 0
+			EventBus.ap_cost_updated.emit(current_path_cost)
 		else:
 			current_action_mode = ACTION_MODE.MOVE_MODE
 			tile_map.show_reachables()
@@ -118,8 +121,8 @@ func __get_tile_data(event: InputEvent):
 		tile_map.select_tile(hovered_cell)
 		var texture = tile_map.tile_set.get_source(0).texture
 		var atlas_coord = tile_map.get_cell_atlas_coords(0, hovered_cell) as Vector2
-		var tile_name = tile_map.get_data_at(hovered_cell, "name", "...")
-		var tile_desc = tile_map.get_data_at(hovered_cell, "description", "...")
+		var tile_name = tile_map.get_data_at(hovered_cell, "name", "You!")
+		var tile_desc = tile_map.get_data_at(hovered_cell, "description", "Plz go back im too lazy to clamp camera")
 		var ap_cost = tile_map.get_data_at(hovered_cell, "ap_cost", -1)
 		var acc_mod = tile_map.get_data_at(hovered_cell, "accuracy_mod", 0)
 		var eva_mod = tile_map.get_data_at(hovered_cell, "evasion_mod", 0)
@@ -147,6 +150,7 @@ func __make_movement_path(event: InputEvent):
 		current_path_cost = __get_path_cost()
 		tile_map.set_movement_path(current_move_path, current_path_cost > player_current_ap)
 		tile_map.show_movement_path()
+		EventBus.ap_cost_updated.emit(current_path_cost)
 		return
 	# if neighbor to last cell in path (current pos if empty), check ap cost and add to path
 	var last_cell_in_path = player_mapgrid_pos if current_move_path.is_empty() else current_move_path.back()
@@ -157,16 +161,19 @@ func __make_movement_path(event: InputEvent):
 			current_path_cost = 0
 			tile_map.set_movement_path(current_move_path, current_path_cost > player_current_ap)
 			tile_map.show_movement_path()
+			EventBus.ap_cost_updated.emit(current_path_cost)
 			return
 		current_move_path.append(hovered_cell)
 		current_path_cost = __get_path_cost()
 		tile_map.set_movement_path(current_move_path, current_path_cost > player_current_ap)
 		tile_map.show_movement_path()
+		EventBus.ap_cost_updated.emit(current_path_cost)
 	else:
 		current_move_path = a_star(__get_my_player().player_game_data.mapgrid_position, hovered_cell).slice(1)
 		current_path_cost = __get_path_cost()
 		tile_map.set_movement_path(current_move_path, current_path_cost > player_current_ap)
 		tile_map.show_movement_path()
+		EventBus.ap_cost_updated.emit(current_path_cost)
 
 
 func __send_movement_path(event: InputEvent):
@@ -325,6 +332,7 @@ func __game_started_handler(_game_state: GameState):
 		var player_sprite_ps = load("res://assets/scenes/game/resources/player_sprite_prefab_m14.tscn") as PackedScene
 		var player_sprite: GamePlayerSprite = player_sprite_ps.instantiate()
 		player_sprite.player_id = pid
+		player_sprite.display_name = game_state.player_dict[pid].display_name
 		player_sprite.set_mapgrid_pos(game_state.player_dict[pid].player_game_data.mapgrid_position)
 		add_child(player_sprite)
 	EventBus.camera_panned.emit(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position) * 32 + Vector2(16, 16), 1)
@@ -333,6 +341,7 @@ func __game_started_handler(_game_state: GameState):
 	cached_attackables = get_attackable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.attack_range)
 	tile_map.set_reachables(cached_reachables)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
+	EventBus.player_info_updated.emit(__get_my_player(), tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position))
 
 
 func __get_my_player() -> Player:

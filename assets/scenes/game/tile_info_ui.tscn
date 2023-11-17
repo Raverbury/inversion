@@ -1,14 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://bf0x2nv55leho"]
+[gd_scene load_steps=4 format=3 uid="uid://bf0x2nv55leho"]
 
 [ext_resource type="Script" path="res://assets/scenes/game/scripts/TileInfoPanel.gd" id="1_1r6lf"]
+[ext_resource type="Texture2D" uid="uid://bt50ir2jxil76" path="res://assets/scenes/game/images/PathAndObjects.png" id="2_2sv75"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jflu7"]
+atlas = ExtResource("2_2sv75")
 region = Rect2(0, 0, 32, 32)
 
 [node name="TileInfoPanel" type="Panel"]
 anchors_preset = -1
 anchor_left = 0.7
-anchor_top = 0.65
+anchor_top = 0.79
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 0
@@ -29,19 +31,20 @@ stretch_mode = 1
 
 [node name="TileName" type="Label" parent="."]
 layout_mode = 0
-offset_left = 110.0
-offset_top = 20.0
-offset_right = 360.0
-offset_bottom = 50.0
+offset_left = 20.0
+offset_top = 110.0
+offset_right = 100.0
+offset_bottom = 140.0
 text = "Path"
+horizontal_alignment = 1
 autowrap_mode = 1
 
 [node name="TileDescription" type="Label" parent="."]
 layout_mode = 0
 offset_left = 110.0
-offset_top = 50.0
-offset_right = 360.0
-offset_bottom = 100.0
+offset_top = 20.0
+offset_right = 260.0
+offset_bottom = 140.0
 text = "This is the description."
 autowrap_mode = 3
 clip_text = true
@@ -50,35 +53,35 @@ text_overrun_behavior = 4
 [node name="APCost" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = -1
-offset_left = 20.0
-offset_top = 110.0
-offset_right = 120.0
-offset_bottom = 140.0
+offset_left = 270.0
+offset_top = 20.0
+offset_right = 370.0
+offset_bottom = 50.0
 text = "AP cost: -----"
 
 [node name="AccMod" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = -1
-offset_left = 20.0
-offset_top = 140.0
-offset_right = 120.0
-offset_bottom = 170.0
+offset_left = 270.0
+offset_top = 50.0
+offset_right = 370.0
+offset_bottom = 80.0
 text = "ACC: 0"
 
 [node name="EvaMod" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = -1
-offset_left = 20.0
-offset_top = 170.0
-offset_right = 120.0
-offset_bottom = 200.0
+offset_left = 270.0
+offset_top = 80.0
+offset_right = 370.0
+offset_bottom = 110.0
 text = "EVA: 0"
 
 [node name="ArmorMod" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = -1
-offset_left = 20.0
-offset_top = 200.0
-offset_right = 120.0
-offset_bottom = 230.0
+offset_left = 270.0
+offset_top = 110.0
+offset_right = 370.0
+offset_bottom = 140.0
 text = "Armor: 0"

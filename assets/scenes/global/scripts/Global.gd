@@ -77,6 +77,7 @@ class Constant:
 		const TILE_INFO_UI = "res://assets/scenes/game/tile_info_ui.tscn"
 		const CLASS_SELECT_UI = "res://assets/scenes/game/class_select_ui.tscn"
 		const TURN_UI = "res://assets/scenes/game/turn_ui.tscn"
+		const PLAYER_INFO_UI = "res://assets/scenes/game/player_info_ui.tscn"
 
 		const GAME_SCENE = "res://assets/scenes/game/game.tscn"
 

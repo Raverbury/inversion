@@ -1,4 +1,4 @@
-[gd_scene load_steps=85 format=3 uid="uid://cd0y1h7o6ycd1"]
+[gd_scene load_steps=86 format=3 uid="uid://cd0y1h7o6ycd1"]
 
 [ext_resource type="Texture2D" uid="uid://fm7lte0vhbnj" path="res://assets/scenes/game/images/spritesheet_m14_idle.png" id="1_n5pxu"]
 [ext_resource type="Script" path="res://assets/scenes/game/scripts/GamePlayerSprite.gd" id="2_a06pq"]
@@ -577,6 +577,9 @@ animations = [{
 "speed": 45.0
 }]
 
+[sub_resource type="LabelSettings" id="LabelSettings_k6skb"]
+font_size = 15
+
 [node name="GamePlayer" type="AnimatedSprite2D"]
 position = Vector2(-16, -16)
 sprite_frames = SubResource("SpriteFrames_11elf")
@@ -584,3 +587,16 @@ animation = &"idle"
 frame_progress = 0.234924
 script = ExtResource("2_a06pq")
 sprite_name = "m14"
+
+[node name="DisplayName" type="Label" parent="."]
+anchors_preset = -1
+offset_left = -100.0
+offset_top = 15.0
+offset_right = 100.0
+offset_bottom = 45.0
+text = "EpikUserName420XDDDD"
+label_settings = SubResource("LabelSettings_k6skb")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text_overrun_behavior = 4

@@ -19,6 +19,11 @@ signal game_class_selected(gcid)
 
 signal game_started(game_state: GameState)
 
+# player info ui
+signal player_info_updated(player: Player, stat_mods: Dictionary)
+signal ap_cost_updated(path_cost: int)
+signal player_info_ui_freed()
+
 # tile info ui
 signal game_tile_hovered(atlas_texture, atlas_coord, name, description, ap_cost, acc_mod, eva_mod, armor_mod)
 signal tile_info_ui_freed()

@@ -1,0 +1,121 @@
+[gd_scene load_steps=2 format=3 uid="uid://cvq0w370nyi5e"]
+
+[ext_resource type="Script" path="res://assets/scenes/game/scripts/player_info_ui.gd" id="1_gv0rm"]
+
+[node name="PlayerInfoUI" type="Panel"]
+anchors_preset = -1
+anchor_top = 0.79
+anchor_right = 0.7
+anchor_bottom = 1.0
+script = ExtResource("1_gv0rm")
+
+[node name="DisplayName" type="Label" parent="."]
+layout_mode = 0
+offset_left = 220.0
+offset_top = 20.0
+offset_right = 620.0
+offset_bottom = 50.0
+text = "Classname Displayname"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="PlayerID" type="Label" parent="."]
+layout_mode = 0
+offset_left = 640.0
+offset_top = 20.0
+offset_right = 790.0
+offset_bottom = 50.0
+text = "PID: -----"
+autowrap_mode = 3
+clip_text = true
+text_overrun_behavior = 4
+
+[node name="HP" type="Label" parent="."]
+layout_mode = 0
+offset_left = 220.0
+offset_top = 50.0
+offset_right = 420.0
+offset_bottom = 80.0
+text = "HP: -----/-----"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="Accuracy" type="Label" parent="."]
+layout_mode = 0
+offset_left = 220.0
+offset_top = 80.0
+offset_right = 420.0
+offset_bottom = 110.0
+text = "Accuracy: -----"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="Evasion" type="Label" parent="."]
+layout_mode = 0
+offset_left = 220.0
+offset_top = 110.0
+offset_right = 420.0
+offset_bottom = 140.0
+text = "Evasion: -----"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="AP" type="Label" parent="."]
+layout_mode = 0
+offset_left = 430.0
+offset_top = 50.0
+offset_right = 630.0
+offset_bottom = 73.0
+text = "AP: -----/-----"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="Armor" type="Label" parent="."]
+layout_mode = 0
+offset_left = 430.0
+offset_top = 80.0
+offset_right = 630.0
+offset_bottom = 110.0
+text = "Armor: -----"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="VisionRange" type="Label" parent="."]
+layout_mode = 0
+offset_left = 430.0
+offset_top = 110.0
+offset_right = 630.0
+offset_bottom = 140.0
+text = "Vision range: -----"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="AttackPower" type="Label" parent="."]
+layout_mode = 0
+offset_left = 640.0
+offset_top = 50.0
+offset_right = 840.0
+offset_bottom = 73.0
+text = "Attack power: -----"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="AttackRange" type="Label" parent="."]
+layout_mode = 0
+offset_left = 640.0
+offset_top = 80.0
+offset_right = 840.0
+offset_bottom = 103.0
+text = "Attack range: -----"
+autowrap_mode = 3
+text_overrun_behavior = 4
+
+[node name="AttackCost" type="Label" parent="."]
+layout_mode = 0
+offset_left = 640.0
+offset_top = 110.0
+offset_right = 840.0
+offset_bottom = 133.0
+text = "Attack cost: -----"
+autowrap_mode = 3
+text_overrun_behavior = 4
