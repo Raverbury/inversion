@@ -1,6 +1,6 @@
 class_name PlayerGameData extends Object
 
-var mapgrid_position: Vector2 = Vector2.ZERO
+var mapgrid_position: Vector2i = Vector2i.ZERO
 var class_id: int = 0
 var cls_name: String = 'PLACEHOLDER_CLASS'
 var current_hp: int = 10

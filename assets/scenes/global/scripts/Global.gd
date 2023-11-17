@@ -9,6 +9,12 @@ func get_random_from_list(list):
 	var length = len(list)
 	return list[rng_source.randi_range(0, length - 1)]
 
+
+class Util:
+	static func manhantan_distance(mapgrid1: Vector2i, mapgrid2: Vector2i):
+		return abs(mapgrid1.x - mapgrid2.x) + abs(mapgrid1.y - mapgrid2.y)
+
+
 class Set:
 	var dic: Dictionary = {}
 
@@ -74,6 +80,13 @@ class Constant:
 		const GAME_SCENE = "res://assets/scenes/game/game.tscn"
 
 		const MAP_0_SCENE = "res://assets/scenes/game/map_0.tscn"
+
+
+	class Direction:
+		const LEFT = 0
+		const UP = 1
+		const RIGHT = 2
+		const DOWN = 3
 
 class PlayerClassData:
 
