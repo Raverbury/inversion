@@ -5,6 +5,7 @@ class_name TurnUIControl extends Panel
 @onready var turn_panel: Panel = $TurnPanel
 
 @onready var player_label: Label = $PlayerPanel/PlayerLabel
+@onready var move_label: Label = $MovePanel/MoveLabel
 @onready var turn_label: Label = $TurnPanel/TurnLabel
 
 var player_panel_og_pos: Vector2
@@ -13,6 +14,8 @@ var turn_panel_og_pos: Vector2
 var tween_in_duration = 0.5
 var tween_hold_duration = 1.5
 var tween_out_duration = 0.75
+
+var end: bool = false
 
 var tween_pos_offset_horizontal = Vector2(ProjectSettings.get("display/window/size/viewport_width"), 0)
 var tween_pos_offset_vertical = Vector2(0, ProjectSettings.get("display/window/size/viewport_height"))
@@ -26,6 +29,7 @@ func _ready():
 	turn_panel.position -= tween_pos_offset_vertical
 	EventBus.turn_ui_freed.connect(__turn_ui_freed_handler)
 	EventBus.turn_displayed.connect(__turn_displayed_handler)
+	EventBus.game_resolved.connect(__game_resolved_handler)
 
 
 func __turn_ui_freed_handler():
@@ -34,11 +38,12 @@ func __turn_ui_freed_handler():
 
 func __turn_displayed_handler(player_name: String, is_me: bool, turn: int):
 	if is_me:
-		player_name = "YOUR "
+		player_name = "Your "
 	else:
-		player_name = player_name + "'s "
+		player_name = "%s's " % player_name
 	player_label.text = player_name
 	turn_label.text = "Turn %d" % turn
+	EventBus.anim_is_being_played.emit(true)
 	var tween_in = create_tween()
 	tween_in.tween_property(player_panel, "position", player_panel_og_pos, tween_in_duration)
 	tween_in.parallel()
@@ -46,6 +51,19 @@ func __turn_displayed_handler(player_name: String, is_me: bool, turn: int):
 	tween_in.parallel()
 	tween_in.tween_property(turn_panel, "position", turn_panel_og_pos, tween_in_duration)
 	tween_in.finished.connect(__tween_hold)
+
+
+func __game_resolved_handler(result: GameState.RESULT, victor_name: String):
+	player_label.text = ("%s's " % victor_name) if result == GameState.RESULT.WIN_LOSE else "DRAW"
+	move_label.text = "VICTORY"
+	turn_label.text = "Gameover"
+	EventBus.anim_is_being_played.emit(true)
+	var tween_in = create_tween()
+	tween_in.tween_property(player_panel, "position", player_panel_og_pos, tween_in_duration)
+	tween_in.parallel()
+	tween_in.tween_property(move_panel, "position", move_panel_og_pos, tween_in_duration)
+	tween_in.parallel()
+	tween_in.tween_property(turn_panel, "position", turn_panel_og_pos, tween_in_duration)
 
 
 func __tween_hold():
@@ -61,3 +79,8 @@ func __tween_out():
 	tween_out.tween_property(move_panel, "position", move_panel_og_pos + tween_pos_offset_horizontal, tween_out_duration)
 	tween_out.parallel()
 	tween_out.tween_property(turn_panel, "position", turn_panel_og_pos - tween_pos_offset_vertical, tween_out_duration)
+	tween_out.finished.connect(__tween_out_done)
+
+
+func __tween_out_done():
+	EventBus.anim_is_being_played.emit(false)
