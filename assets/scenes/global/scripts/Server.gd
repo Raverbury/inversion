@@ -12,11 +12,14 @@ var server_tile_map: GameTileMap
 var map_scene_path: String
 var is_loading_map_scene: bool = false
 
+var is_in_game: bool = false
+
 func wipe():
 	if is_initialized == false:
 		return
 	player_dict = {}
 	is_initialized = false
+	is_in_game = false
 	EventBus.player_list_updated.emit(player_dict)
 
 
@@ -25,9 +28,13 @@ func initialize():
 		return
 	is_initialized = true
 	player_dict = {}
+	is_in_game = false
 
 
 func add_player(pid, display_name):
+	if is_in_game == true:
+		Main.root_mp.multiplayer_peer.disconnect_peer(pid)
+		return
 	player_dict[pid] = Player.new(pid, display_name)
 	Rpc.update_player_list.rpc(serialize_player_dict())
 	check_room_readiness()
@@ -79,6 +86,7 @@ func all_players_picked_class():
 
 func request_start_room():
 	if room_is_ready:
+		is_in_game = true
 		var map_name = Global.Util.get_random_from_list(MAP_PATHS)
 		load_map(map_name)
 		Rpc.room_start.rpc(SRLZ.serialize(RoomStartMessage.new(map_name)))
