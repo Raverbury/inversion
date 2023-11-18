@@ -308,7 +308,7 @@ func __focus_camera_on_player(event: InputEvent):
 	if current_action_mode != ACTION_MODE.VIEW_MODE:
 		return
 	if event.is_action_released("tilde"):
-		__inner_focus_camera(__get_my_player().peer_id)
+		__inner_focus_camera(__get_my_player().peer_id if __get_my_player() != null else -1)
 	elif event.is_action_released("num_row_1"):
 		__inner_focus_camera(__get_pid_at_player_dict_index(0))
 	elif event.is_action_released("num_row_2"):
@@ -383,8 +383,8 @@ func highlight_tiles(list_of_coords, do_highlight, highlight_atlas_coord = Vecto
 
 
 func get_attackable_tiles(source: Vector2i, attack_range: int, ap: int, attack_cost: int): # say range of 3
-	if ap < attack_cost:
-		return []
+	# if ap < attack_cost:
+	# 	return []
 	var attackables = Global.Set.new()
 	for x in range(-attack_range, attack_range + 1): # x is [-3; 3]
 		var y_leftover = attack_range - abs(x) # we want y to be 0, 1, 2, 3, 2, 1, 0 given that range of x
@@ -448,6 +448,7 @@ func __game_started_handler(_game_state: GameState):
 		add_child(player_sprite)
 	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
+	EventBus.turn_color_updated.emit(game_state.turn_of_player)
 
 
 func __get_my_player() -> Player:
@@ -471,6 +472,7 @@ func __set_game_state(_game_state: GameState):
 	tile_map.set_reachables(cached_reachables)
 	tile_map.set_attackables(cached_attackables)
 	EventBus.player_info_updated.emit(__get_my_player(), tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position))
+	EventBus.turn_color_updated.emit(game_state.turn_of_player)
 
 
 func __player_move_updated_handler(pid, move_steps, _game_state):
