@@ -23,7 +23,8 @@ signal game_input_enabled(value)
 # server messages
 signal game_started(game_state: GameState)
 signal player_move_updated(pid, move_steps, game_state)
-signal player_attack_updated(pid, target_mapgrid, victims, game_state)
+signal player_attack_updated(pid, target_mapgrid, victims, game_state, result, victors)
+signal player_end_turn_updated(game_state)
 
 # player info ui
 signal player_info_updated(player: Player, stat_mods: Dictionary)
@@ -41,6 +42,13 @@ signal class_select_ui_freed()
 # turn ui
 signal turn_ui_freed()
 signal turn_displayed(player_name: String, is_me: bool, turn: int)
+signal game_resolved(result, victor_name)
+
+# end turn ui
+signal end_turn_prompt_ui_freed()
+signal end_turn_prompt_showed(has_remaining_ap: bool)
+signal end_turn_confirmed(do_not_remind: bool)
+signal end_turn_canceled()
 
 # camera
 signal camera_panned(pos: Vector2, duration: float)

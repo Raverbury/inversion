@@ -95,6 +95,7 @@ class Constant:
 		const CLASS_SELECT_UI = "res://assets/scenes/game/class_select_ui.tscn"
 		const TURN_UI = "res://assets/scenes/game/turn_ui.tscn"
 		const PLAYER_INFO_UI = "res://assets/scenes/game/player_info_ui.tscn"
+		const END_TURN_PROMPT_UI = "res://assets/scenes/game/end_turn_prompt_ui.tscn"
 
 		const PLAYER_SPRITE_SCENE = "res://assets/scenes/game/resources/player_sprite.tscn"
 		const GAME_SCENE = "res://assets/scenes/game/game.tscn"
@@ -119,7 +120,7 @@ class PlayerClassData:
 	const CLASS_DATA = {
 		# cid: name, hp, acc, eva, armor, fp, range, cost, ap, vision, description
 		0: ["Sniper", 20, 35, 5, 0, 7, 6, 4, 10, 10, "M14", "m14", "Long-range attacker with high accuracy"],
-		1: ["Scout", 20, 20, 25, 0, 3, 4, 3, 15, 10, "Desert Eagle", "desert_eagle", "Always on the move and evasive"],
+		1: ["Scout", 25, 20, 25, 0, 4, 4, 3, 12, 10, "Desert Eagle", "desert_eagle", "Always on the move and evasive"],
 	}
 
 	static func getPlayerGameDataBasedOnClass(class_id) -> PlayerGameData:

@@ -1,9 +1,11 @@
 class_name GameState extends Object
 
-var turn: int = -1
+var turn: int = 0
 var player_move_order: Array = []
 var turn_of_player: int = -1
 var player_dict: Dictionary = {}
+
+enum RESULT {ON_GOING, WIN_LOSE, DRAW}
 
 func _init(_pd = {}, spawn_pos = []):
 	player_dict = _pd
@@ -16,7 +18,7 @@ func _init(_pd = {}, spawn_pos = []):
 
 
 func advance_turn():
-	for pid in player_dict:
+	for pid in player_dict.keys():
 		var player: Player = player_dict[pid]
 		player.player_game_data.current_ap = player.player_game_data.max_ap
 	turn += 1
@@ -24,12 +26,34 @@ func advance_turn():
 
 
 func player_end_turn():
-	var next_player = player_move_order.find(turn_of_player) + 1
-	if next_player > len(player_move_order):
-		turn_of_player = -1
-		return true
-	turn_of_player = player_move_order[next_player]
-	return false
+	var next_player_id = __get_next_alive_player_id()
+	turn_of_player = next_player_id
+	if next_player_id == -1:
+		advance_turn()
+
+
+func __get_next_alive_player_id():
+	var player_ids = player_dict.keys()
+	var current_index = player_ids.find(turn_of_player)
+	var next_index = current_index + 1
+	while next_index < len(player_ids):
+		var player: Player = player_dict[player_ids[next_index]]
+		if player.player_game_data.current_hp > 0:
+			return player.peer_id
+		next_index += 1
+	return -1
+
+
+func get_alive_player_list():
+	var player_ids = player_dict.keys()
+	var current_index = 0
+	var result = []
+	while current_index < len(player_ids):
+		var player: Player = player_dict[player_ids[current_index]]
+		if player.player_game_data.current_hp > 0:
+			result.append(player_ids[current_index])
+		current_index += 1
+	return result
 
 
 func _to_string():

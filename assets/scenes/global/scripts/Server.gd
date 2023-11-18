@@ -123,6 +123,9 @@ func serialize_player_dict():
 
 
 func process_player_move_request(pid, move_steps: Array):
+	if pid != game_state.turn_of_player:
+		print("OMG HACKER")
+		return
 	var player: Player = game_state.player_dict[pid]
 	var step_to_mapgrid_offset = Global.Constant.Direction.STEP_TO_V2OFFSET
 	for step in move_steps:
@@ -136,6 +139,9 @@ func process_player_move_request(pid, move_steps: Array):
 
 
 func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
+	if attacker_id != game_state.turn_of_player:
+		print("OMG HACKER")
+		return
 	var attacked_players = []
 	var attacker: Player = game_state.player_dict[attacker_id]
 
@@ -182,5 +188,24 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 	print(victim_dict)
 
 	# send attack response
-	var message: PlayerAttackResponseMessage = PlayerAttackResponseMessage.new(attacker_id, target_mapgrid, victim_dict, game_state)
+	var alive_list = game_state.get_alive_player_list()
+	var result: GameState.RESULT
+	if len(alive_list) == 0:
+		result = GameState.RESULT.DRAW
+	elif len(alive_list) == 1 and len(game_state.player_dict.keys()) > 1:
+		result = GameState.RESULT.WIN_LOSE
+	else:
+		result = GameState.RESULT.ON_GOING
+	var message: PlayerAttackResponseMessage = PlayerAttackResponseMessage.new(attacker_id,
+		target_mapgrid, victim_dict, game_state, result, alive_list)
 	Rpc.player_attack_update.rpc(SRLZ.serialize(message))
+
+
+func process_player_end_turn_request(pid):
+	if pid != game_state.turn_of_player:
+		print("OMG HACKER")
+		return
+	game_state.player_end_turn()
+
+	var message: PlayerEndTurnResponseMessage = PlayerEndTurnResponseMessage.new(game_state)
+	Rpc.player_end_turn_update.rpc(SRLZ.serialize(message))

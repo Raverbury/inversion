@@ -21,9 +21,13 @@ var current_path_cost = 0
 var attack_targets: Array = []
 
 var cached_victims: Dictionary = {}
+var cached_result: GameState.RESULT = GameState.RESULT.ON_GOING
+var cached_victors: Array = []
 
 var menu_is_opened: bool = false
 var anim_is_playing: bool = false
+
+var do_not_confirm_to_end: bool = false
 
 func _ready():
 	EventBus.game_started.connect(__game_started_handler)
@@ -32,6 +36,8 @@ func _ready():
 	EventBus.attack_anim_finished.connect(__attack_anim_finished_handler)
 	EventBus.game_input_enabled.connect(__game_input_enabled_handler)
 	EventBus.anim_is_being_played.connect(__anim_is_being_played_handler)
+	EventBus.end_turn_confirmed.connect(__end_turn_confirmed_handler)
+	EventBus.player_end_turn_updated.connect(__player_end_turn_updated_handler)
 
 
 func _exit_tree():
@@ -39,6 +45,8 @@ func _exit_tree():
 	EventBus.tile_info_ui_freed.emit()
 	EventBus.turn_ui_freed.emit()
 	EventBus.player_info_ui_freed.emit()
+	EventBus.end_turn_prompt_ui_freed.emit()
+
 
 func load_map(scene_path):
 	ResourceLoader.load_threaded_request(scene_path)
@@ -47,7 +55,7 @@ func load_map(scene_path):
 
 
 func __should_listen_to_input() -> bool:
-	return not (menu_is_opened or anim_is_playing)
+	return not (menu_is_opened or anim_is_playing or cached_result != GameState.RESULT.ON_GOING)
 
 
 func __resolve_load_map():
@@ -64,6 +72,7 @@ func __resolve_load_map():
 	add_child(tile_map)
 	move_child(tile_map, 0)
 	is_loading_map_scene = false
+	Main.add_ui(Global.Constant.Scene.END_TURN_PROMPT_UI, 0)
 	Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TURN_UI, 0)
@@ -80,7 +89,7 @@ func _input(event):
 	if tile_map == null:
 		return
 	__get_tile_data(event)
-	__process_command_mode(event)
+	__process_command(event)
 	__focus_camera_on_player(event)
 	__make_movement_path(event)
 	__send_movement_path(event)
@@ -88,7 +97,7 @@ func _input(event):
 	__send_attack_target(event)
 
 
-func __process_command_mode(event: InputEvent):
+func __process_command(event: InputEvent):
 	if not __is_my_turn():
 		return
 	if event.is_action_released("move_command"):
@@ -96,11 +105,16 @@ func __process_command_mode(event: InputEvent):
 			__set_action_mode(ACTION_MODE.VIEW_MODE)
 		else:
 			__set_action_mode(ACTION_MODE.MOVE_MODE)
-	if event.is_action_released("attack_command"):
+	elif event.is_action_released("attack_command"):
 		if current_action_mode == ACTION_MODE.ATTACK_MODE:
 			__set_action_mode(ACTION_MODE.VIEW_MODE)
 		else:
 			__set_action_mode(ACTION_MODE.ATTACK_MODE)
+	elif event.is_action_released("end_command"):
+		if do_not_confirm_to_end == false:
+			EventBus.end_turn_prompt_showed.emit(__get_my_player().player_game_data.current_ap > 0)
+		else:
+			__send_end_turn()
 
 
 func __set_action_mode(new_action_mode: ACTION_MODE):
@@ -430,6 +444,7 @@ func __game_started_handler(_game_state: GameState):
 		player_sprite.player_id = pid
 		player_sprite.display_name = game_state.player_dict[pid].display_name
 		player_sprite.set_mapgrid_pos(game_state.player_dict[pid].player_game_data.mapgrid_position)
+		player_sprite.is_me = pid == __get_my_player().peer_id
 		add_child(player_sprite)
 	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
@@ -463,10 +478,13 @@ func __player_move_updated_handler(pid, move_steps, _game_state):
 	EventBus.player_moved.emit(pid, move_steps)
 
 
-func __player_attack_updated_handler(attacker_id: int, target_mapgrid: Vector2i, victims: Dictionary, _game_state: GameState):
+func __player_attack_updated_handler(attacker_id: int, target_mapgrid: Vector2i, victims: Dictionary, _game_state: GameState,
+		_result: GameState.RESULT, _victors: Array):
 	__set_game_state(_game_state)
 	EventBus.player_attacked.emit(attacker_id, target_mapgrid)
 	cached_victims = victims
+	cached_result = _result
+	cached_victors = _victors
 
 
 func __attack_anim_finished_handler():
@@ -474,6 +492,8 @@ func __attack_anim_finished_handler():
 		var hit = cached_victims[victim_id][0]
 		var damage_taken = cached_victims[victim_id][1]
 		EventBus.player_was_attacked.emit(victim_id, hit, damage_taken, game_state.player_dict[victim_id].player_game_data.current_hp <= 0)
+	if cached_result != GameState.RESULT.ON_GOING:
+		EventBus.game_resolved.emit(cached_result, game_state.player_dict[cached_victors[0]].display_name)
 
 
 func __game_input_enabled_handler(value: bool):
@@ -482,3 +502,19 @@ func __game_input_enabled_handler(value: bool):
 
 func __anim_is_being_played_handler(value: bool):
 	anim_is_playing = value
+
+
+func __end_turn_confirmed_handler(do_not_remind: bool):
+	do_not_confirm_to_end = do_not_remind
+	__send_end_turn()
+
+
+func __send_end_turn():
+	__set_action_mode(ACTION_MODE.VIEW_MODE)
+	Rpc.player_request_end_turn.rpc_id(1)
+
+
+func __player_end_turn_updated_handler(_game_state):
+	__set_game_state(_game_state)
+	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
+	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
