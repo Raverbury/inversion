@@ -15,6 +15,7 @@ var queued_movement: Array = []
 var attack_done_wait_tween_duration = 0.5
 var attack_feedback_tween_duration = 1.2
 
+var is_me: bool = false
 var is_dead: bool = false
 
 func _ready():
@@ -25,6 +26,7 @@ func _ready():
 	EventBus.player_moved.connect(__player_moved_handler)
 	EventBus.player_attacked.connect(__player_attacked_handler)
 	EventBus.player_was_attacked.connect(__player_was_attacked_handler)
+	display_name_label.self_modulate = Color.WHITE if is_me == true else Color.BLACK
 
 
 func __prepare_animations():
