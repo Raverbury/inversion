@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://fm7lte0vhbnj"
-path="res://.godot/imported/spritesheet_m14_idle.png-2a860343d3b71ee56deafffa8174221d.ctex"
+uid="uid://cis3r0o7o1tfw"
+path="res://.godot/imported/spritesheet_desert_eagle_idle.png-ee087944e93b1a9c7ed944908109f736.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/scenes/game/images/spritesheet_m14_idle.png"
-dest_files=["res://.godot/imported/spritesheet_m14_idle.png-2a860343d3b71ee56deafffa8174221d.ctex"]
+source_file="res://assets/scenes/game/images/spritesheets/desert_eagle/spritesheet_desert_eagle_idle.png"
+dest_files=["res://.godot/imported/spritesheet_desert_eagle_idle.png-ee087944e93b1a9c7ed944908109f736.ctex"]
 
 [params]
 

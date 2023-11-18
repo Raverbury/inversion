@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cqg6qvq5ydima"
-path="res://.godot/imported/spritesheet_m14_move.png-67a5634eb3c1b0a2d88594329a012207.ctex"
+uid="uid://blhluxup1k0qj"
+path="res://.godot/imported/spritesheet_m14_die.png-fab567adbf8391d4aaa1bfcaa7c0920f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/scenes/game/images/spritesheet_m14_move.png"
-dest_files=["res://.godot/imported/spritesheet_m14_move.png-67a5634eb3c1b0a2d88594329a012207.ctex"]
+source_file="res://assets/scenes/game/images/spritesheets/m14/spritesheet_m14_die.png"
+dest_files=["res://.godot/imported/spritesheet_m14_die.png-fab567adbf8391d4aaa1bfcaa7c0920f.ctex"]
 
 [params]
 

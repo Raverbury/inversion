@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2ihpj28c6jjn"
-path="res://.godot/imported/player_sprite_1.png-25c84c769505ef7a00a518db3982488d.ctex"
+uid="uid://bvsjdiuvc8ktb"
+path="res://.godot/imported/spritesheet_m14_idle.png-9b9e5f5674e91dbeb430b501d90e6443.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/scenes/game/images/player_sprite_1.png"
-dest_files=["res://.godot/imported/player_sprite_1.png-25c84c769505ef7a00a518db3982488d.ctex"]
+source_file="res://assets/scenes/game/images/spritesheets/m14/spritesheet_m14_idle.png"
+dest_files=["res://.godot/imported/spritesheet_m14_idle.png-9b9e5f5674e91dbeb430b501d90e6443.ctex"]
 
 [params]
 
