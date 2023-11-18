@@ -48,10 +48,12 @@ func __prepare_animations():
 func __process_queued_movement():
 	if queued_movement.is_empty():
 		play("idle")
+		EventBus.anim_is_being_played.emit(false)
 		return
 	if is_moving:
 		return
 	last_dir = queued_movement.pop_front()
+	EventBus.anim_is_being_played.emit(true)
 	play("move")
 	__move_with_lerp(last_dir)
 
@@ -106,6 +108,7 @@ func __player_attacked_handler(pid, _target_mapgrid):
 		return
 	if player_id != pid:
 		return
+	EventBus.anim_is_being_played.emit(true)
 	var global_target_pos = Global.Util.center_global_pos_at(_target_mapgrid)
 	if global_target_pos.x > global_position.x:
 		flip_h = false
@@ -126,6 +129,7 @@ func __attack_anim_finished():
 
 func __attack_wait_tween_finished():
 	play("idle")
+	EventBus.anim_is_being_played.emit(false)
 
 
 func __player_was_attacked_handler(pid: int, hit: bool, damage_taken: int, _is_dead: bool):
@@ -133,6 +137,7 @@ func __player_was_attacked_handler(pid: int, hit: bool, damage_taken: int, _is_d
 		return
 	if player_id != pid:
 		return
+	EventBus.anim_is_being_played.emit(true)
 	attack_feedback.clear()
 	attack_feedback.self_modulate = Color(1, 1, 1, 1)
 	attack_feedback.push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)
@@ -165,3 +170,4 @@ func __player_was_attacked_handler(pid: int, hit: bool, damage_taken: int, _is_d
 func __attack_feedback_tween_finished():
 	attack_feedback.position = Vector2(-100, 0)
 	attack_feedback.clear()
+	EventBus.anim_is_being_played.emit(false)

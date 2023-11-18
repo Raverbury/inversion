@@ -136,7 +136,7 @@ func set_display(value = true):
 	if value == true:
 		show_button.text = "Show"
 		unread_chat_message = 0
-	EventBus.game_input_enabled.emit(not is_shown)
+	EventBus.game_input_enabled.emit(is_shown)
 	var t = create_tween()
 	t.tween_property(self, "position", Vector2(0 if value else -1280, 0), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_EXPO)
 	# position.x = 0 if value else -1280

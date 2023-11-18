@@ -22,7 +22,8 @@ var attack_targets: Array = []
 
 var cached_victims: Dictionary = {}
 
-var should_listen_to_input: bool = true
+var menu_is_opened: bool = false
+var anim_is_playing: bool = false
 
 func _ready():
 	EventBus.game_started.connect(__game_started_handler)
@@ -30,6 +31,7 @@ func _ready():
 	EventBus.player_attack_updated.connect(__player_attack_updated_handler)
 	EventBus.attack_anim_finished.connect(__attack_anim_finished_handler)
 	EventBus.game_input_enabled.connect(__game_input_enabled_handler)
+	EventBus.anim_is_being_played.connect(__anim_is_being_played_handler)
 
 
 func _exit_tree():
@@ -42,6 +44,10 @@ func load_map(scene_path):
 	ResourceLoader.load_threaded_request(scene_path)
 	map_scene_path = scene_path
 	is_loading_map_scene = true
+
+
+func __should_listen_to_input() -> bool:
+	return not (menu_is_opened or anim_is_playing)
 
 
 func __resolve_load_map():
@@ -69,7 +75,7 @@ func _process(_delta):
 
 
 func _input(event):
-	if should_listen_to_input == false:
+	if __should_listen_to_input() == false:
 		return
 	if tile_map == null:
 		return
@@ -471,4 +477,8 @@ func __attack_anim_finished_handler():
 
 
 func __game_input_enabled_handler(value: bool):
-	should_listen_to_input = value
+	menu_is_opened = value
+
+
+func __anim_is_being_played_handler(value: bool):
+	anim_is_playing = value
