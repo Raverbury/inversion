@@ -5,7 +5,9 @@ class_name GameTileMap extends TileMap
 var selected_tile: Vector2
 var has_last_selected: bool = false
 var reachables: Array = []
+var attackables: Array = []
 var movement_path: Array = []
+var attack_targets: Array = []
 var not_enough_ap: bool
 
 enum TILE_LAYER {BACKGROUND, HIGHLIGHT, SELECT, HIGHLIGHT2}
@@ -66,3 +68,34 @@ func show_movement_path():
 func hide_movement_path():
 	for tile in movement_path:
 		set_cell(TILE_LAYER.HIGHLIGHT2, tile, -1, Vector2i(1, 0) if not_enough_ap else Vector2i(0, 1))
+
+
+func set_attackables(_attackables):
+	hide_attackables()
+	attackables = _attackables
+
+
+func show_attackables():
+	for attackable_tile in attackables:
+		set_cell(TILE_LAYER.HIGHLIGHT, attackable_tile, 1, Vector2i(1, 1))
+
+
+func hide_attackables():
+	for attackable_tile in attackables:
+		set_cell(TILE_LAYER.HIGHLIGHT, attackable_tile, -1, Vector2i(0, 0))
+
+
+func set_attack_target(_attack_target, _not_enough_ap):
+	hide_attack_target()
+	attack_targets = _attack_target
+	not_enough_ap = _not_enough_ap
+
+
+func show_attack_target():
+	for attack_target in attack_targets:
+		set_cell(TILE_LAYER.HIGHLIGHT2, attack_target, 1, Vector2i(0, 1) if not_enough_ap else Vector2i(1, 0))
+
+
+func hide_attack_target():
+	for attack_target in attack_targets:
+		set_cell(TILE_LAYER.HIGHLIGHT2, attack_target, -1, Vector2i(0, 1) if not_enough_ap else Vector2i(1, 0))

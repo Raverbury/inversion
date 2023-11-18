@@ -1,6 +1,6 @@
 class_name PlayerInfoUI extends Panel
 
-@onready var mode_label: Label = $Mode
+@onready var mode_label: RichTextLabel = $Mode
 @onready var display_name_label: Label = $DisplayName
 @onready var pid_label: Label = $PlayerID
 @onready var hp_label: Label = $HP
@@ -54,4 +54,4 @@ func __ap_cost_updated_handler(ap_cost):
 
 
 func __mode_updated_handler(mode_enum: int):
-	mode_label.text = "Mode: %s" % ["Move", "Attack", "View"][mode_enum]
+	mode_label.text = "Mode: %s" % ["[color=green]Move[/color]", "[color=yellow]Attack[/color]", "[color=cyan]View[/color]"][mode_enum]

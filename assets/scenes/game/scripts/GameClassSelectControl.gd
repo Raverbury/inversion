@@ -18,7 +18,7 @@ func create_class_panels():
 		var csp = GameClassPanel.new()
 		csp.game_class_id = class_id
 		var label = Label.new()
-		label.text = "%s\n%s" % [class_data[0], class_data[10]]
+		label.text = "%s\n%s\n%s" % [class_data[0], class_data[12], Global.PlayerClassData.getPlayerGameDataBasedOnClass(class_id).get_card_description()]
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

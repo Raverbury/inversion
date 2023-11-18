@@ -14,6 +14,13 @@ var attack_cost: int = 2
 var max_ap: int = 10
 var current_ap: int = 10
 var vision_range: int = 10
+var weapon_name: String = "Weapon"
+var doll_name: String = "id152"
 
 func _to_string():
 	return "%s, %d/%d at %s" % [cls_name, current_hp, max_hp, mapgrid_position]
+
+
+func get_card_description():
+	return ("HP: %s\nAP: %s\nACC: %s\nEVA: %s\nArmor: %s\nAttack power: %s\nAttack range: %s\nAttack cost: %s\nVision range: %s\nWeapon: %s" %
+		[max_hp, max_ap, accuracy, evasion, armor, attack_power, attack_range, attack_cost, "-----", weapon_name])

@@ -79,7 +79,7 @@ func all_players_picked_class():
 
 func request_start_room():
 	if room_is_ready:
-		var map_name = Global.get_random_from_list(MAP_PATHS)
+		var map_name = Global.Util.get_random_from_list(MAP_PATHS)
 		load_map(map_name)
 		Rpc.room_start.rpc(SRLZ.serialize(RoomStartMessage.new(map_name)))
 
@@ -115,14 +115,64 @@ func serialize_player_dict():
 
 
 func process_player_move_request(pid, move_steps: Array):
-	print("Here")
 	var player: Player = game_state.player_dict[pid]
 	var step_to_mapgrid_offset = Global.Constant.Direction.STEP_TO_V2OFFSET
 	for step in move_steps:
 		var next_cell = player.player_game_data.mapgrid_position + step_to_mapgrid_offset[step]
 		var ap_cost = server_tile_map.get_ap_cost_at(next_cell, -1)
 		if ap_cost == -1 or ap_cost > player.player_game_data.current_ap:
-			print("YO WTF STOP HOW TF")
+			print("YO WTF STOP HOW TF CHEAATER CONFIRMED OMG NICE GAME")
 		player.player_game_data.current_ap -= ap_cost
 		player.player_game_data.mapgrid_position = next_cell
-	Rpc.player_move_update(SRLZ.serialize(PlayerMoveResponseMessage.new(pid, move_steps, game_state)))
+	Rpc.player_move_update.rpc(SRLZ.serialize(PlayerMoveResponseMessage.new(pid, move_steps, game_state)))
+
+
+func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
+	var attacked_players = []
+	var attacker: Player = game_state.player_dict[attacker_id]
+
+	# validation
+	var attacker_attack_range = attacker.player_game_data.attack_range
+	var attacker_attack_cost = attacker.player_game_data.attack_cost
+	var attacker_mapgrid_position = attacker.player_game_data.mapgrid_position
+
+	if attacker_attack_cost > attacker.player_game_data.current_ap:
+		print("AYO WTF HACKER111")
+	if Global.Util.manhantan_distance(target_mapgrid, attacker_mapgrid_position) > attacker_attack_range:
+		print("AYO WTF HACKER222")
+
+	# get list of players at targeted mapgrid excluding self
+	for pid in game_state.player_dict.keys():
+		if pid == attacker_id:
+			continue
+		var player: Player = game_state.player_dict[pid]
+		if player.player_game_data.mapgrid_position == target_mapgrid:
+			attacked_players.append(player)
+
+	# dmg calculation
+	var victim_dict: Dictionary = {}
+	var attacker_attack_power = attacker.player_game_data.attack_power
+	var attacker_mod_stats = server_tile_map.get_stat_mods_at(attacker_mapgrid_position)
+	var final_attacker_accuracy = attacker.player_game_data.accuracy + attacker_mod_stats["accuracy_mod"]
+	for victim in attacked_players:
+		var victim_mod_stats = server_tile_map.get_stat_mods_at(target_mapgrid)
+		var final_victim_evasion = victim.player_game_data.evasion + victim_mod_stats["evasion_mod"]
+		var final_victim_armor = victim.player_game_data.armor + victim_mod_stats["armor_mod"]
+		var hit_rate: float = (float(final_attacker_accuracy) / float(final_attacker_accuracy + final_victim_evasion)) * 100.0
+		hit_rate = clampf(hit_rate, 5.0, 100.0)
+		var is_attack_a_hit = Global.Util.roll_acc_eva_check(hit_rate)
+		victim_dict[victim.peer_id] = [is_attack_a_hit, 0]
+		var damage: int = 0
+		if is_attack_a_hit == true:
+			damage = attacker_attack_power - final_victim_armor
+			damage = clamp(damage, 1, victim.player_game_data.current_hp)
+			victim.player_game_data.current_hp -= damage
+			victim_dict[victim.peer_id][1] = damage
+		print("Attacked %s %s, %s%% hit rate" % [victim.display_name, ("for %s damage" % damage)
+			if is_attack_a_hit else "and missed", hit_rate])
+	attacker.player_game_data.current_ap -= attacker_attack_cost
+	print(victim_dict)
+
+	# send attack response
+	var message: PlayerAttackResponseMessage = PlayerAttackResponseMessage.new(attacker_id, target_mapgrid, victim_dict, game_state)
+	Rpc.player_attack_update.rpc(SRLZ.serialize(message))

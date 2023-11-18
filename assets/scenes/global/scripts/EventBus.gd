@@ -17,9 +17,13 @@ signal game_is_ready(map_path)
 
 signal game_class_selected(gcid)
 
+# game controller
+signal game_input_enabled(value)
+
 # server messages
 signal game_started(game_state: GameState)
 signal player_move_updated(pid, move_steps, game_state)
+signal player_attack_updated(pid, target_mapgrid, victims, game_state)
 
 # player info ui
 signal player_info_updated(player: Player, stat_mods: Dictionary)
@@ -43,3 +47,6 @@ signal camera_panned(pos: Vector2, duration: float)
 
 # player
 signal player_moved(pid: int, movement_steps: Array)
+signal player_attacked(pid: int, target_mapgrid: Vector2i)
+signal player_was_attacked(pid: int, hit: bool, damage_taken: int)
+signal attack_anim_finished()

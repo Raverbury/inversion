@@ -102,7 +102,7 @@ func _input(event):
 
 func get_display_name():
 	if name_line_edit.text == "":
-		name_line_edit.text = DEFAULT_NAMES[randi_range(0, len(DEFAULT_NAMES) - 1)]
+		name_line_edit.text = Global.Util.get_random_from_list(DEFAULT_NAMES)
 	return name_line_edit.text
 
 func on_host_button_pressed():
@@ -136,6 +136,7 @@ func set_display(value = true):
 	if value == true:
 		show_button.text = "Show"
 		unread_chat_message = 0
+	EventBus.game_input_enabled.emit(not is_shown)
 	var t = create_tween()
 	t.tween_property(self, "position", Vector2(0 if value else -1280, 0), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_EXPO)
 	# position.x = 0 if value else -1280

@@ -7,6 +7,8 @@ var make_path_last_cell: Vector2i
 var make_path_has_last_cell: bool = false
 var cached_reachables: Array = []
 var cached_attackables: Array = []
+var last_attack_target: Vector2i
+var has_last_attack_target: bool = false
 
 var is_loading_map_scene: bool = false
 var map_scene_path: String
@@ -14,12 +16,20 @@ var map_scene_path: String
 enum ACTION_MODE {MOVE_MODE, ATTACK_MODE, VIEW_MODE}
 var current_action_mode = ACTION_MODE.VIEW_MODE
 
-var current_move_path = []
+var current_move_path: Array = []
 var current_path_cost = 0
+var attack_targets: Array = []
+
+var cached_victims: Dictionary = {}
+
+var should_listen_to_input: bool = true
 
 func _ready():
 	EventBus.game_started.connect(__game_started_handler)
-	EventBus.player_move_updated.connect(__player_move_updated)
+	EventBus.player_move_updated.connect(__player_move_updated_handler)
+	EventBus.player_attack_updated.connect(__player_attack_updated_handler)
+	EventBus.attack_anim_finished.connect(__attack_anim_finished_handler)
+	EventBus.game_input_enabled.connect(__game_input_enabled_handler)
 
 
 func _exit_tree():
@@ -52,7 +62,6 @@ func __resolve_load_map():
 	Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TURN_UI, 0)
 	Main.add_ui(Global.Constant.Scene.PLAYER_INFO_UI, 0)
-	# print(a_star(Vector2(-3, 2), Vector2(-2, -4)))
 
 
 func _process(_delta):
@@ -60,43 +69,16 @@ func _process(_delta):
 
 
 func _input(event):
+	if should_listen_to_input == false:
+		return
 	if tile_map == null:
 		return
 	__get_tile_data(event)
 	__process_command_mode(event)
 	__make_movement_path(event)
 	__send_movement_path(event)
-	# if event is InputEventMouseMotion:
-	# 	# get tm coord/"index" of tile
-	# 	var hovered_cell: Vector2i = tile_map.local_to_map(get_global_mouse_position())
-	# 	# get source id in tileset of said tile
-	# 	var tss_id: int = tile_map.get_cell_source_id(0, hovered_cell)
-	# 	# if not empty
-	# 	if tss_id != -1:
-	# 		# add select tile to tm layer 2
-	# 		tile_map.set_cell(2, hovered_cell, 2, Vector2i(0, 0))
-	# 		# when mouse leave tile basically
-	# 		# remove select tile on tm layer 2
-	# 		if make_path_has_last_cell == true && hovered_cell != make_path_last_cell:
-	# 			tile_map.set_cell(2, make_path_last_cell, -1, tile_map.get_cell_atlas_coords(0, make_path_last_cell))
-	# 			self.highlight_tiles(self.cached_reachables, false)
-	# 			# self.highlight_tiles(self.cached_attackables, false)
-	# 		if make_path_has_last_cell == false || hovered_cell != make_path_last_cell:
-	# 			# grab td
-	# 			var tile_data: TileData = tile_map.get_cell_tile_data(0, hovered_cell)
-	# 			# send info of td to ui
-	# 			var texture = tile_map.tile_set.get_source(0).texture
-	# 			var atlas_coord = tile_map.get_cell_atlas_coords(0, hovered_cell) as Vector2
-	# 			var tile_name = tile_data.get_custom_data("name")
-	# 			var tile_desc = tile_data.get_custom_data("description")
-	# 			EventBus.game_tile_hovered.emit(texture, atlas_coord, tile_name, tile_desc)
-	# 			self.cached_reachables = self.get_reachable_tiles(hovered_cell, 2)
-	# 			self.highlight_tiles(self.cached_reachables, true)
-	# 			# self.cached_attackables = self.get_attackable_tiles(hovered_cell, 7)
-	# 			# self.highlight_tiles(self.cached_attackables, true)
-	# 		# save current cell info to check against when "leaving"
-	# 		make_path_last_cell = hovered_cell
-	# 		make_path_has_last_cell = true
+	__choose_attack_target(event)
+	__send_attack_target(event)
 
 
 func __process_command_mode(event: InputEvent):
@@ -107,21 +89,44 @@ func __process_command_mode(event: InputEvent):
 			__set_action_mode(ACTION_MODE.VIEW_MODE)
 		else:
 			__set_action_mode(ACTION_MODE.MOVE_MODE)
+	if event.is_action_released("attack_command"):
+		if current_action_mode == ACTION_MODE.ATTACK_MODE:
+			__set_action_mode(ACTION_MODE.VIEW_MODE)
+		else:
+			__set_action_mode(ACTION_MODE.ATTACK_MODE)
 
 
 func __set_action_mode(new_action_mode: ACTION_MODE):
 	current_action_mode = new_action_mode
 	if current_action_mode == ACTION_MODE.VIEW_MODE:
+		# hide move stuff
 		tile_map.hide_reachables()
 		tile_map.hide_movement_path()
 		make_path_has_last_cell = false
 		current_move_path = []
 		current_path_cost = 0
-		EventBus.ap_cost_updated.emit(current_path_cost)
+		# hide attack stuff
+		tile_map.hide_attackables()
+		tile_map.hide_attack_target()
+		attack_targets = []
+		has_last_attack_target = false
+		EventBus.ap_cost_updated.emit(0)
+	elif current_action_mode == ACTION_MODE.ATTACK_MODE:
+		tile_map.hide_reachables()
+		tile_map.hide_movement_path()
+		make_path_has_last_cell = false
+		current_move_path = []
+		current_path_cost = 0
+		tile_map.show_attackables()
+		EventBus.ap_cost_updated.emit(0)
 	elif current_action_mode == ACTION_MODE.MOVE_MODE:
+		tile_map.hide_attackables()
+		tile_map.hide_attack_target()
+		attack_targets = []
+		has_last_attack_target = false
 		tile_map.show_reachables()
+		EventBus.ap_cost_updated.emit(0)
 	EventBus.mode_updated.emit(current_action_mode)
-
 
 
 func __get_tile_data(event: InputEvent):
@@ -236,6 +241,48 @@ func __tiles_are_neighbor(mapgrid1, mapgrid2):
 	return Global.Util.manhantan_distance(mapgrid1, mapgrid2) == 1
 
 
+func __choose_attack_target(event: InputEvent):
+	if not __is_my_turn():
+		return
+	if current_action_mode != ACTION_MODE.ATTACK_MODE:
+		return
+	if not event is InputEventMouseMotion:
+		return
+	var hovered_cell: Vector2i = tile_map.local_to_map(tile_map.to_local(get_global_mouse_position()))
+	if has_last_attack_target == true and attack_targets[0] == hovered_cell:
+		return
+	last_attack_target = hovered_cell
+	has_last_attack_target = true
+	attack_targets = [hovered_cell]
+	var player_attack_cost = __get_my_player().player_game_data.attack_cost
+	var player_current_ap = __get_my_player().player_game_data.current_ap
+
+	if not hovered_cell in cached_attackables:
+		attack_targets = []
+		has_last_attack_target = false
+		tile_map.set_attack_target(attack_targets, player_attack_cost > player_current_ap)
+		tile_map.show_attack_target()
+		EventBus.ap_cost_updated.emit(0)
+		return
+	tile_map.set_attack_target(attack_targets, player_attack_cost > player_current_ap)
+	tile_map.show_attack_target()
+	EventBus.ap_cost_updated.emit(player_attack_cost)
+
+
+func __send_attack_target(event: InputEvent):
+	if not __is_my_turn():
+		return
+	if current_action_mode != ACTION_MODE.ATTACK_MODE:
+		return
+	if event.is_action_released("mouse_1"):
+		var current_ap = __get_my_player().player_game_data.current_ap
+		var attack_cost = __get_my_player().player_game_data.attack_cost
+		if has_last_attack_target == false or attack_cost > current_ap or len(attack_targets) == 0 or not attack_targets[0] in cached_attackables:
+			return
+		Rpc.player_request_attack.rpc_id(1, SRLZ.serialize(PlayerAttackRequestMessage.new(attack_targets[0])))
+		__set_action_mode(ACTION_MODE.VIEW_MODE)
+
+
 func get_ap_cost(coord):
 	if self.tile_map == null:
 		return -1
@@ -284,7 +331,9 @@ func highlight_tiles(list_of_coords, do_highlight, highlight_atlas_coord = Vecto
 		self.tile_map.set_cell(1, coord, 1 if do_highlight else -1, highlight_atlas_coord)
 
 
-func get_attackable_tiles(source: Vector2i, attack_range: int): # say range of 3
+func get_attackable_tiles(source: Vector2i, attack_range: int, ap: int, attack_cost: int): # say range of 3
+	if ap < attack_cost:
+		return []
 	var attackables = Global.Set.new()
 	for x in range(-attack_range, attack_range + 1): # x is [-3; 3]
 		var y_leftover = attack_range - abs(x) # we want y to be 0, 1, 2, 3, 2, 1, 0 given that range of x
@@ -311,8 +360,6 @@ func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i):
 
 	while not pq.is_empty():
 		var current_node: Vector2i = pq.pop()
-		# print("New loop")
-		# print(current_node)
 		if current_node == goal_mapgrid:
 			var path = [current_node]
 			while current_node in came_from.keys():
@@ -340,8 +387,9 @@ func __game_started_handler(_game_state: GameState):
 	EventBus.class_select_ui_freed.emit()
 	__set_game_state(_game_state)
 	for pid in game_state.player_dict:
-		var player_sprite_ps = load("res://assets/scenes/game/resources/player_sprite_prefab_m14.tscn") as PackedScene
+		var player_sprite_ps = load(Global.Constant.Scene.PLAYER_SPRITE_SCENE) as PackedScene
 		var player_sprite: GamePlayerSprite = player_sprite_ps.instantiate()
+		player_sprite.doll_name = game_state.player_dict[pid].player_game_data.doll_name
 		player_sprite.player_id = pid
 		player_sprite.display_name = game_state.player_dict[pid].display_name
 		player_sprite.set_mapgrid_pos(game_state.player_dict[pid].player_game_data.mapgrid_position)
@@ -366,11 +414,30 @@ func __set_game_state(_game_state: GameState):
 	game_state = _game_state
 	var my_player: Player = __get_my_player()
 	cached_reachables = get_reachable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.current_ap)
-	cached_attackables = get_attackable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.attack_range)
+	cached_attackables = get_attackable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.attack_range,
+		my_player.player_game_data.current_ap, my_player.player_game_data.attack_cost)
 	tile_map.set_reachables(cached_reachables)
+	tile_map.set_attackables(cached_attackables)
 	EventBus.player_info_updated.emit(__get_my_player(), tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position))
 
 
-func __player_move_updated(pid, move_steps, _game_state):
+func __player_move_updated_handler(pid, move_steps, _game_state):
 	__set_game_state(_game_state)
 	EventBus.player_moved.emit(pid, move_steps)
+
+
+func __player_attack_updated_handler(attacker_id: int, target_mapgrid: Vector2i, victims: Dictionary, _game_state: GameState):
+	__set_game_state(_game_state)
+	EventBus.player_attacked.emit(attacker_id, target_mapgrid)
+	cached_victims = victims
+
+
+func __attack_anim_finished_handler():
+	for victim_id in cached_victims:
+		var hit = cached_victims[victim_id][0]
+		var damage_taken = cached_victims[victim_id][1]
+		EventBus.player_was_attacked.emit(victim_id, hit, damage_taken)
+
+
+func __game_input_enabled_handler(value: bool):
+	should_listen_to_input = value

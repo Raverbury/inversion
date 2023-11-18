@@ -31,4 +31,4 @@ layer_3/z_index = 0
 layer_3/tile_data = PackedInt32Array()
 script = ExtResource("2_txco8")
 map_name = "Default"
-spawn_points = Array[Vector2i]([Vector2i(-18, 8), Vector2i(17, 8), Vector2i(17, -9), Vector2i(-18, -9)])
+spawn_points = Array[Vector2i]([Vector2i(-18, 8), Vector2i(-15, 8), Vector2i(17, -9), Vector2i(-18, -9)])
