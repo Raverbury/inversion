@@ -94,6 +94,12 @@ func _process(_delta):
 		Main.set_enable(name_line_edit, false)
 	ready_check_box.button_pressed = Main.client_is_ready
 
+
+func _input(event):
+	if event.is_action_released("ui_cancel"):
+		set_display(not is_shown)
+
+
 func get_display_name():
 	if name_line_edit.text == "":
 		name_line_edit.text = DEFAULT_NAMES[randi_range(0, len(DEFAULT_NAMES) - 1)]
@@ -115,8 +121,6 @@ func on_hide_button_pressed():
 	set_display(false)
 
 func on_show_button_pressed():
-	show_button.text = "Show"
-	unread_chat_message = 0
 	set_display(true)
 
 func on_ready_button_pressed():
@@ -129,6 +133,9 @@ func set_display(value = true):
 	if is_shown == value:
 		return
 	is_shown = value
+	if value == true:
+		show_button.text = "Show"
+		unread_chat_message = 0
 	var t = create_tween()
 	t.tween_property(self, "position", Vector2(0 if value else -1280, 0), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_EXPO)
 	# position.x = 0 if value else -1280
