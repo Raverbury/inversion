@@ -48,5 +48,5 @@ signal camera_panned(pos: Vector2, duration: float)
 # player
 signal player_moved(pid: int, movement_steps: Array)
 signal player_attacked(pid: int, target_mapgrid: Vector2i)
-signal player_was_attacked(pid: int, hit: bool, damage_taken: int)
+signal player_was_attacked(pid: int, hit: bool, damage_taken: int, is_dead: bool)
 signal attack_anim_finished()

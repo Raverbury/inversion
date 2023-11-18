@@ -15,6 +15,8 @@ var queued_movement: Array = []
 var attack_done_wait_tween_duration = 0.5
 var attack_feedback_tween_duration = 1.2
 
+var is_dead: bool = false
+
 func _ready():
 	pause()
 	__prepare_animations()
@@ -76,6 +78,8 @@ func set_mapgrid_pos(mapgrid_position: Vector2):
 
 
 func __player_moved_handler(pid: int, steps: Array):
+	if is_dead == true:
+		return
 	if player_id != pid:
 		return
 	if is_moving == true:
@@ -98,6 +102,8 @@ func __add_anim_from_spritesheet(_doll_name: String, anim: String):
 
 
 func __player_attacked_handler(pid, _target_mapgrid):
+	if is_dead == true:
+		return
 	if player_id != pid:
 		return
 	var global_target_pos = Global.Util.center_global_pos_at(_target_mapgrid)
@@ -122,7 +128,9 @@ func __attack_wait_tween_finished():
 	play("idle")
 
 
-func __player_was_attacked_handler(pid: int, hit: bool, damage_taken: int):
+func __player_was_attacked_handler(pid: int, hit: bool, damage_taken: int, _is_dead: bool):
+	if is_dead == true:
+		return
 	if player_id != pid:
 		return
 	attack_feedback.clear()
@@ -149,6 +157,9 @@ func __player_was_attacked_handler(pid: int, hit: bool, damage_taken: int):
 	(attack_feedback_tween.tween_property(attack_feedback, "self_modulate", Color(1, 1, 1, 0), attack_feedback_tween_duration)
 		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUART))
 	attack_feedback_tween.finished.connect(__attack_feedback_tween_finished)
+	if _is_dead == true:
+		play("die")
+	is_dead = _is_dead
 
 
 func __attack_feedback_tween_finished():
