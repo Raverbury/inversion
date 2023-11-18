@@ -75,6 +75,7 @@ func _input(event):
 		return
 	__get_tile_data(event)
 	__process_command_mode(event)
+	__focus_camera_on_player(event)
 	__make_movement_path(event)
 	__send_movement_path(event)
 	__choose_attack_target(event)
@@ -283,6 +284,36 @@ func __send_attack_target(event: InputEvent):
 		__set_action_mode(ACTION_MODE.VIEW_MODE)
 
 
+func __focus_camera_on_player(event: InputEvent):
+	if current_action_mode != ACTION_MODE.VIEW_MODE:
+		return
+	if event.is_action_released("tilde"):
+		__inner_focus_camera(__get_my_player().peer_id)
+	elif event.is_action_released("num_row_1"):
+		__inner_focus_camera(__get_pid_at_player_dict_index(0))
+	elif event.is_action_released("num_row_2"):
+		__inner_focus_camera(__get_pid_at_player_dict_index(1))
+	elif event.is_action_released("num_row_3"):
+		__inner_focus_camera(__get_pid_at_player_dict_index(2))
+	elif event.is_action_released("num_row_4"):
+		__inner_focus_camera(__get_pid_at_player_dict_index(3))
+
+
+func __get_pid_at_player_dict_index(index: int):
+	if game_state == null:
+		return -1
+	if index >= len(game_state.player_dict.keys()):
+		return -1
+	return game_state.player_dict.keys()[index]
+
+
+func __inner_focus_camera(pid: int):
+	if pid == -1:
+		return
+	var target = game_state.player_dict[pid].player_game_data.mapgrid_position
+	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(target), 0.1)
+
+
 func get_ap_cost(coord):
 	if self.tile_map == null:
 		return -1
@@ -394,7 +425,7 @@ func __game_started_handler(_game_state: GameState):
 		player_sprite.display_name = game_state.player_dict[pid].display_name
 		player_sprite.set_mapgrid_pos(game_state.player_dict[pid].player_game_data.mapgrid_position)
 		add_child(player_sprite)
-	EventBus.camera_panned.emit(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position) * 32 + Vector2(16, 16), 1)
+	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
 
 
@@ -436,7 +467,7 @@ func __attack_anim_finished_handler():
 	for victim_id in cached_victims:
 		var hit = cached_victims[victim_id][0]
 		var damage_taken = cached_victims[victim_id][1]
-		EventBus.player_was_attacked.emit(victim_id, hit, damage_taken)
+		EventBus.player_was_attacked.emit(victim_id, hit, damage_taken, game_state.player_dict[victim_id].player_game_data.current_hp <= 0)
 
 
 func __game_input_enabled_handler(value: bool):
