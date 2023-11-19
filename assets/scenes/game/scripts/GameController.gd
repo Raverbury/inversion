@@ -525,7 +525,6 @@ func __player_end_turn_updated_handler(_game_state):
 
 
 func __get_tooltip_stats_for_player(pid: int):
-	print("Uh")
 	if game_state == null:
 		return ""
 	# if __get_my_player().peer_id == pid:

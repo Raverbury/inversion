@@ -47,7 +47,6 @@ func player_set_class(pid, class_id):
 		return
 	player.player_game_data = Global.PlayerClassData.getPlayerGameDataBasedOnClass(class_id)
 	player_dict[pid] = player
-	print(player_dict)
 	if all_players_picked_class() == true:
 		game_state = GameState.new(player_dict, server_tile_map.spawn_points)
 		game_state.advance_turn()
@@ -124,7 +123,7 @@ func serialize_player_dict():
 
 func process_player_move_request(pid, move_steps: Array):
 	if pid != game_state.turn_of_player:
-		print("OMG HACKER")
+		print("MOVE TURN HACK")
 		return
 	var player: Player = game_state.player_dict[pid]
 	var step_to_mapgrid_offset = Global.Constant.Direction.STEP_TO_V2OFFSET
@@ -132,7 +131,7 @@ func process_player_move_request(pid, move_steps: Array):
 		var next_cell = player.player_game_data.mapgrid_position + step_to_mapgrid_offset[step]
 		var ap_cost = server_tile_map.get_ap_cost_at(next_cell, -1)
 		if ap_cost == -1 or ap_cost > player.player_game_data.current_ap:
-			print("YO WTF STOP HOW TF CHEAATER CONFIRMED OMG NICE GAME")
+			print("MOVE COST HACK")
 		player.player_game_data.current_ap -= ap_cost
 		player.player_game_data.mapgrid_position = next_cell
 	Rpc.player_move_update.rpc(SRLZ.serialize(PlayerMoveResponseMessage.new(pid, move_steps, game_state)))
@@ -140,7 +139,7 @@ func process_player_move_request(pid, move_steps: Array):
 
 func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 	if attacker_id != game_state.turn_of_player:
-		print("OMG HACKER")
+		print("ATTACK TURN HACK")
 		return
 	var attacked_players = []
 	var attacker: Player = game_state.player_dict[attacker_id]
@@ -151,9 +150,9 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 	var attacker_mapgrid_position = attacker.player_game_data.mapgrid_position
 
 	if attacker_attack_cost > attacker.player_game_data.current_ap:
-		print("AYO WTF HACKER111")
+		print("ATTACK COST HACK")
 	if Global.Util.manhantan_distance(target_mapgrid, attacker_mapgrid_position) > attacker_attack_range:
-		print("AYO WTF HACKER222")
+		print("ATTACK RANGE HACK")
 
 	# get list of players at targeted mapgrid excluding self
 	for pid in game_state.player_dict.keys():
@@ -184,7 +183,6 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 		print("Attacked %s %s, %s%% hit rate" % [victim.display_name, ("for %s damage" % damage)
 			if is_attack_a_hit else "and missed", hit_rate])
 	attacker.player_game_data.current_ap -= attacker_attack_cost
-	print(victim_dict)
 
 	# send attack response
 	var alive_list = game_state.get_alive_player_list()
@@ -202,7 +200,7 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 
 func process_player_end_turn_request(pid):
 	if pid != game_state.turn_of_player:
-		print("OMG HACKER")
+		print("END TURN HACK")
 		return
 	game_state.player_end_turn()
 

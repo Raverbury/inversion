@@ -183,7 +183,6 @@ func __attack_feedback_tween_finished():
 
 
 func __tooltip_updated_handler(pid, _tooltip_text):
-	print(pid, _tooltip_text)
 	if player_id != pid:
 		return
 	hover_control.tooltip_text = _tooltip_text
