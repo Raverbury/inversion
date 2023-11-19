@@ -7,8 +7,8 @@ signal pressed_ready()
 signal pressed_start()
 signal pressed_disconnect()
 signal sent_feedback(message)
-signal sent_chat_message(message)
-signal chat_message_sent(text)
+signal sent_chat_message(message, color)
+signal chat_message_sent(message)
 
 signal player_list_updated(dict)
 
@@ -60,3 +60,4 @@ signal player_was_attacked(pid: int, hit: bool, damage_taken: int, is_dead: bool
 signal attack_anim_finished()
 signal anim_is_being_played(value: bool)
 signal turn_color_updated(turn_of_player)
+signal tooltip_updated(pid: int, tooltip_text: String)
