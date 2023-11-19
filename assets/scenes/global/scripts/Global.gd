@@ -142,7 +142,7 @@ class PlayerClassData:
 	const CLASS_DATA = {
 		# cid: name, hp, acc, eva, armor, fp, range, cost, ap, vision, description
 		0: ["Sniper", 20, 35, 5, 0, 7, 6, 4, 10, 10, "M14", "m14", "Long-range attacker with high accuracy"],
-		1: ["Scout", 25, 20, 25, 0, 4, 4, 3, 12, 10, "Desert Eagle", "desert_eagle", "Always on the move and evasive"],
+		1: ["Scout", 25, 20, 25, 0, 4, 4, 3, 15, 10, "Desert Eagle", "desert_eagle", "Always on the move and evasive"],
 	}
 
 	static func getPlayerGameDataBasedOnClass(class_id) -> PlayerGameData:

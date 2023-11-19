@@ -369,6 +369,8 @@ func traverse(ap, coord, reachables, coming_from, cache):
 		reachables.add(coord)
 	else:
 		return
+	if ap <= 0:
+		return
 	var next_tiles = [[Vector2i(coord.x - 1, coord.y), 2], [Vector2i(coord.x, coord.y - 1), 3], [Vector2i(coord.x + 1, coord.y), 0], [Vector2i(coord.x, coord.y + 1), 1]]
 	next_tiles.pop_at(coming_from)
 	for next_tile in next_tiles:
@@ -382,7 +384,7 @@ func highlight_tiles(list_of_coords, do_highlight, highlight_atlas_coord = Vecto
 		self.tile_map.set_cell(1, coord, 1 if do_highlight else -1, highlight_atlas_coord)
 
 
-func get_attackable_tiles(source: Vector2i, attack_range: int, ap: int, attack_cost: int): # say range of 3
+func get_attackable_tiles(source: Vector2i, attack_range: int, _ap: int, _attack_cost: int): # say range of 3
 	# if ap < attack_cost:
 	# 	return []
 	var attackables = Global.Set.new()
