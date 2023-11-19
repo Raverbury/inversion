@@ -7,8 +7,8 @@ signal pressed_ready()
 signal pressed_start()
 signal pressed_disconnect()
 signal sent_feedback(message)
-signal sent_chat_message(message, color)
-signal chat_message_sent(message)
+signal server_sent_chat_message(message, color)
+signal client_sent_chat_message(message)
 
 signal player_list_updated(dict)
 

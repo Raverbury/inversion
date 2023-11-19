@@ -46,11 +46,11 @@ func _ready():
 	start_button.pressed.connect(on_start_button_pressed)
 
 	EventBus.sent_feedback.connect(on_feedback_sent)
-	EventBus.sent_chat_message.connect(__sent_chat_message_handler)
+	EventBus.server_sent_chat_message.connect(__server_sent_chat_message_handler)
 	EventBus.player_list_updated.connect(on_player_list_updated)
 	EventBus.game_is_ready.connect(on_game_is_ready)
 
-	chat_line_edit.text_submitted.connect(__chat_message_sent_handler)
+	chat_line_edit.text_submitted.connect(__client_sent_chat_message_handler)
 
 func _process(_delta):
 	if Main.app_state == Main.AppState.DISCONNECTED:
@@ -196,12 +196,12 @@ func on_game_is_ready(_map_name):
 	set_display(false)
 
 
-func __chat_message_sent_handler(text):
-	EventBus.chat_message_sent.emit(text)
+func __client_sent_chat_message_handler(text):
+	EventBus.client_sent_chat_message.emit(text)
 	chat_line_edit.clear()
 
 
-func __sent_chat_message_handler(text, color):
+func __server_sent_chat_message_handler(text, color):
 	feedback_rich_text_label.push_color(color)
 	feedback_rich_text_label.append_text(str(text) + "\n")
 	feedback_rich_text_label.pop()

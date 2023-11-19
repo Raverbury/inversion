@@ -23,7 +23,7 @@ func _ready():
 	EventBus.pressed_ready.connect(on_ready_pressed)
 	EventBus.pressed_start.connect(on_start_pressed)
 	EventBus.game_is_ready.connect(on_game_is_ready)
-	EventBus.chat_message_sent.connect(__chat_message_sent_handler)
+	EventBus.client_sent_chat_message.connect(__client_sent_chat_message_handler)
 	global_canvas_layer = CanvasLayer.new()
 	add_child(global_canvas_layer)
 	add_ui(Global.Constant.Scene.MENU_UI)
@@ -137,7 +137,7 @@ func on_game_is_ready(map_path):
 	EventBus.sent_feedback.emit("[color=green]Game started[/color]")
 
 
-func __chat_message_sent_handler(text):
+func __client_sent_chat_message_handler(text):
 	if app_state in [AppState.CONNECTING, AppState.DISCONNECTED]:
 		return
 	Rpc.player_send_chat_message_request.rpc_id(1, SRLZ.serialize(PlayerSendChatMessageRequest.new(client_display_name, text)))

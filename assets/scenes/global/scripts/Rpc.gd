@@ -20,7 +20,7 @@ func player_send_chat_message_respond(data: Dictionary):
 	var display_name = message.display_name.replace("[", "[lb]")
 	var content = message.chat_text.replace("[", "[lb]")
 	var color = message.server_assigned_color
-	EventBus.sent_chat_message.emit("%s (%d): %s" % [display_name, pid, content], color)
+	EventBus.server_sent_chat_message.emit("%s (%d): %s" % [display_name, pid, content], color)
 
 
 @rpc("any_peer", "call_remote", "reliable", 0)
