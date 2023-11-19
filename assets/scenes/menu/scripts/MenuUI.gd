@@ -116,6 +116,7 @@ func on_disconnect_button_pressed():
 
 func on_feedback_sent(message):
 	feedback_rich_text_label.append_text(str(message) + "\n")
+	feedback_rich_text_label.scroll_to_line(feedback_rich_text_label.get_line_count())
 
 func on_hide_button_pressed():
 	set_display(false)
@@ -202,6 +203,7 @@ func __chat_message_sent_handler(text):
 
 func __sent_chat_message_handler(text):
 	feedback_rich_text_label.append_text(str(text) + "\n")
+	feedback_rich_text_label.scroll_to_line(feedback_rich_text_label.get_line_count())
 	if is_shown == false:
 		unread_chat_message += 1
 		show_button.text = "Show\n(%d)" % unread_chat_message
