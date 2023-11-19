@@ -23,4 +23,4 @@ func _to_string():
 
 func get_card_description():
 	return ("HP: %s\nAP: %s\nACC: %s\nEVA: %s\nArmor: %s\nAttack power: %s\nAttack range: %s\nAttack cost: %s\nVision range: %s\nWeapon: %s" %
-		[max_hp, max_ap, accuracy, evasion, armor, attack_power, attack_range, attack_cost, "-----", weapon_name])
+		[max_hp, max_ap, accuracy, evasion, armor, attack_power, attack_range, attack_cost, vision_range, weapon_name])

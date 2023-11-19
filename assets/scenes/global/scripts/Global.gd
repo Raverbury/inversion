@@ -25,6 +25,20 @@ class Util:
 		return mapgrid_position * 32 + Vector2i(16, 16)
 
 
+	static func format_stat_mod_as_string(value: int):
+		return str(value) if value < 0 else ("+%s" % str(value))
+
+
+	static func calc_hit_rate(acc, eva):
+		acc = float(acc)
+		eva = float(eva)
+		acc = clampf(acc, 5.0, acc)
+		eva = clampf(eva, 0.0, eva)
+		var hit_rate = (float(acc) / float(acc + eva)) * 100.0
+		hit_rate = clampf(hit_rate, 5.0, 100.0)
+		return hit_rate
+
+
 class Set:
 
 	var dic: Dictionary = {}
@@ -90,6 +104,7 @@ class PriorityQueue:
 class Constant:
 
 	class Scene:
+
 		const MENU_UI = "res://assets/scenes/menu/menu_ui.tscn"
 		const TILE_INFO_UI = "res://assets/scenes/game/tile_info_ui.tscn"
 		const CLASS_SELECT_UI = "res://assets/scenes/game/class_select_ui.tscn"
@@ -103,16 +118,23 @@ class Constant:
 
 
 	class Spritesheet:
+
 		static func make_path(doll_name, anim):
 			return "res://assets/scenes/game/images/spritesheets/%s/spritesheet_%s_%s.png" % [doll_name, doll_name, anim]
 
 
 	class Direction:
+
 		const LEFT = 0
 		const UP = 1
 		const RIGHT = 2
 		const DOWN = 3
 		const STEP_TO_V2OFFSET = [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1)]
+
+
+	class Misc:
+
+		const CHAT_COLOR = [Color.SKY_BLUE, Color.DARK_SEA_GREEN, Color.LIGHT_PINK, Color.LIGHT_SALMON]
 
 
 class PlayerClassData:

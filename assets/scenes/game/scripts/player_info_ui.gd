@@ -42,8 +42,7 @@ func __player_info_updated_handler(player: Player, stat_mods: Dictionary):
 	attack_power_label.text = "Attack power: %s" % [player_game_data.attack_power]
 	attack_range_label.text = "Attack range: %s" % [player_game_data.attack_range]
 	attack_cost_label.text = "Attack cost: %s" % [player_game_data.attack_cost]
-	# vision_range_label.text = "Vision range: %s" % [player_game_data.vision_range]
-	vision_range_label.text = "Vision range: -----"
+	vision_range_label.text = "Vision range: %s" % [player_game_data.vision_range]
 
 
 func __ap_cost_updated_handler(ap_cost):
