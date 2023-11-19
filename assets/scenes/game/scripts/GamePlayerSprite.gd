@@ -10,6 +10,8 @@ var last_dir: int = 0
 @onready var display_name_label = $DisplayName
 @onready var attack_feedback = $AttackFeedback
 
+@onready var hover_control: Control = $HoverControl
+
 var queued_movement: Array = []
 
 var attack_done_wait_tween_duration = 0.5
@@ -27,6 +29,7 @@ func _ready():
 	EventBus.player_attacked.connect(__player_attacked_handler)
 	EventBus.player_was_attacked.connect(__player_was_attacked_handler)
 	EventBus.turn_color_updated.connect(__turn_color_updated_handler)
+	EventBus.tooltip_updated.connect(__tooltip_updated_handler)
 	display_name_label.self_modulate = Color.WHITE if is_me == true else Color.BLACK
 
 
@@ -177,3 +180,10 @@ func __attack_feedback_tween_finished():
 	attack_feedback.position = Vector2(-100, 0)
 	attack_feedback.clear()
 	EventBus.anim_is_being_played.emit(false)
+
+
+func __tooltip_updated_handler(pid, _tooltip_text):
+	print(pid, _tooltip_text)
+	if player_id != pid:
+		return
+	hover_control.tooltip_text = _tooltip_text

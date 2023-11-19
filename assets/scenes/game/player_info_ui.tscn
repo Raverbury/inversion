@@ -7,6 +7,7 @@ anchors_preset = -1
 anchor_top = 0.79
 anchor_right = 0.7
 anchor_bottom = 1.0
+mouse_filter = 2
 script = ExtResource("1_gv0rm")
 
 [node name="DisplayName" type="Label" parent="."]
@@ -66,6 +67,7 @@ offset_left = 430.0
 offset_top = 50.0
 offset_right = 630.0
 offset_bottom = 80.0
+mouse_filter = 2
 bbcode_enabled = true
 text = "AP: -----/-----"
 scroll_active = false
@@ -127,5 +129,6 @@ offset_left = 20.0
 offset_top = 110.0
 offset_right = 220.0
 offset_bottom = 140.0
+mouse_filter = 2
 bbcode_enabled = true
 text = "Mode: [color=cyan]View[/color]"

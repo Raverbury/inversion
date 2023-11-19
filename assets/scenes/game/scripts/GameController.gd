@@ -436,19 +436,18 @@ func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i):
 
 func __game_started_handler(_game_state: GameState):
 	EventBus.class_select_ui_freed.emit()
-	__set_game_state(_game_state)
-	for pid in game_state.player_dict:
+	for pid in _game_state.player_dict:
 		var player_sprite_ps = load(Global.Constant.Scene.PLAYER_SPRITE_SCENE) as PackedScene
 		var player_sprite: GamePlayerSprite = player_sprite_ps.instantiate()
-		player_sprite.doll_name = game_state.player_dict[pid].player_game_data.doll_name
+		player_sprite.doll_name = _game_state.player_dict[pid].player_game_data.doll_name
 		player_sprite.player_id = pid
-		player_sprite.display_name = game_state.player_dict[pid].display_name
-		player_sprite.set_mapgrid_pos(game_state.player_dict[pid].player_game_data.mapgrid_position)
-		player_sprite.is_me = pid == __get_my_player().peer_id
+		player_sprite.display_name = _game_state.player_dict[pid].display_name
+		player_sprite.set_mapgrid_pos(_game_state.player_dict[pid].player_game_data.mapgrid_position)
+		player_sprite.is_me = pid == Main.root_mp.get_unique_id()
 		add_child(player_sprite)
+	__set_game_state(_game_state)
 	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
-	EventBus.turn_color_updated.emit(game_state.turn_of_player)
 
 
 func __get_my_player() -> Player:
@@ -473,6 +472,9 @@ func __set_game_state(_game_state: GameState):
 	tile_map.set_attackables(cached_attackables)
 	EventBus.player_info_updated.emit(__get_my_player(), tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position))
 	EventBus.turn_color_updated.emit(game_state.turn_of_player)
+	for pid in game_state.player_dict.keys():
+		var tooltip_text = __get_tooltip_stats_for_player(pid)
+		EventBus.tooltip_updated.emit(pid, tooltip_text)
 
 
 func __player_move_updated_handler(pid, move_steps, _game_state):
@@ -520,3 +522,31 @@ func __player_end_turn_updated_handler(_game_state):
 	__set_game_state(_game_state)
 	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
+
+
+func __get_tooltip_stats_for_player(pid: int):
+	print("Uh")
+	if game_state == null:
+		return ""
+	# if __get_my_player().peer_id == pid:
+	# 	return ""
+	var player: Player = game_state.player_dict[pid]
+	var pgd: PlayerGameData = player.player_game_data
+	var their_stat_mods_dict = tile_map.get_stat_mods_at(pgd.mapgrid_position)
+	var my_stat_mods_dict = tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position)
+	var final_my_acc = __get_my_player().player_game_data.accuracy + my_stat_mods_dict["accuracy_mod"]
+	var final_their_acc = pgd.evasion + their_stat_mods_dict["evasion_mod"]
+	var result: String = (
+		("%s %s (%s)\n" % [pgd.cls_name, player.display_name, player.peer_id]) +
+		("HP: %s/%s\n" % [pgd.current_hp, pgd.max_hp]) +
+		("AP: %s/%s\n" % [pgd.current_ap, pgd.max_ap]) +
+		("ACC: %s (%s)\n" % [pgd.accuracy, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["accuracy_mod"])]) +
+		("EVA: %s (%s)\n" % [pgd.evasion, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["evasion_mod"])]) +
+		("Armor: %s (%s)\n" % [pgd.armor, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["armor_mod"])]) +
+		("Attack power: %s\n" % pgd.attack_power) +
+		("Attack range: %s\n" % pgd.attack_range) +
+		("Attack cost: %s\n" % pgd.attack_cost) +
+		("Vision range: %s\n" % pgd.vision_range) +
+		("Hit rate: %.2f%%" % Global.Util.calc_hit_rate(final_my_acc, final_their_acc))
+	)
+	return result
