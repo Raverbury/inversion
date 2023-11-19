@@ -7,12 +7,20 @@ func test(data):
 
 
 @rpc("any_peer", "call_local", "reliable", 0)
-func player_send_chat_message(data: Dictionary):
-	var message: PlayerSendChatMessage = SRLZ.deserialize(data)
+func player_send_chat_message_request(data: Dictionary):
+	var message: PlayerSendChatMessageRequest = SRLZ.deserialize(data)
+	var pid = Main.root_mp.get_remote_sender_id()
+	Server.process_player_send_chat_message(pid, message.display_name, message.chat_text)
+
+
+@rpc("authority", "call_local", "reliable", 0)
+func player_send_chat_message_respond(data: Dictionary):
+	var message: PlayerSendChatMessageResponse = SRLZ.deserialize(data)
 	var pid = Main.root_mp.get_remote_sender_id()
 	var display_name = message.display_name.replace("[", "[lb]")
 	var content = message.chat_text.replace("[", "[lb]")
-	EventBus.sent_chat_message.emit("%s (%d): %s" % [display_name, pid, content])
+	var color = message.server_assigned_color
+	EventBus.sent_chat_message.emit("%s (%d): %s" % [display_name, pid, content], color)
 
 
 @rpc("any_peer", "call_remote", "reliable", 0)

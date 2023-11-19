@@ -172,8 +172,7 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 		var victim_mod_stats = server_tile_map.get_stat_mods_at(target_mapgrid)
 		var final_victim_evasion = victim.player_game_data.evasion + victim_mod_stats["evasion_mod"]
 		var final_victim_armor = victim.player_game_data.armor + victim_mod_stats["armor_mod"]
-		var hit_rate: float = (float(final_attacker_accuracy) / float(final_attacker_accuracy + final_victim_evasion)) * 100.0
-		hit_rate = clampf(hit_rate, 5.0, 100.0)
+		var hit_rate: float = Global.Util.calc_hit_rate(final_attacker_accuracy, final_victim_evasion)
 		var is_attack_a_hit = Global.Util.roll_acc_eva_check(hit_rate)
 		victim_dict[victim.peer_id] = [is_attack_a_hit, 0]
 		var damage: int = 0
@@ -209,3 +208,12 @@ func process_player_end_turn_request(pid):
 
 	var message: PlayerEndTurnResponseMessage = PlayerEndTurnResponseMessage.new(game_state)
 	Rpc.player_end_turn_update.rpc(SRLZ.serialize(message))
+
+
+func process_player_send_chat_message(pid, display_name, text_message):
+	if player_dict == null:
+		return
+	var pids = player_dict.keys()
+	var color = Global.Constant.Misc.CHAT_COLOR[pids.find(pid)]
+	var message = PlayerSendChatMessageResponse.new(display_name, text_message, color)
+	Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))

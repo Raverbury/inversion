@@ -140,4 +140,4 @@ func on_game_is_ready(map_path):
 func __chat_message_sent_handler(text):
 	if app_state in [AppState.CONNECTING, AppState.DISCONNECTED]:
 		return
-	Rpc.player_send_chat_message.rpc(SRLZ.serialize(PlayerSendChatMessage.new(client_display_name, text)))
+	Rpc.player_send_chat_message_request.rpc_id(1, SRLZ.serialize(PlayerSendChatMessageRequest.new(client_display_name, text)))

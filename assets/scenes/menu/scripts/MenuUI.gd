@@ -201,8 +201,10 @@ func __chat_message_sent_handler(text):
 	chat_line_edit.clear()
 
 
-func __sent_chat_message_handler(text):
+func __sent_chat_message_handler(text, color):
+	feedback_rich_text_label.push_color(color)
 	feedback_rich_text_label.append_text(str(text) + "\n")
+	feedback_rich_text_label.pop()
 	feedback_rich_text_label.scroll_to_line(feedback_rich_text_label.get_line_count())
 	if is_shown == false:
 		unread_chat_message += 1

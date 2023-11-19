@@ -1,4 +1,4 @@
-class_name PlayerSendChatMessage extends Message
+class_name PlayerSendChatMessageRequest extends Message
 
 
 var display_name: String = "Guest"
