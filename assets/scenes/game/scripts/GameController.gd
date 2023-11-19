@@ -362,6 +362,8 @@ func traverse(ap, coord, reachables, coming_from, cache):
 	if cache.has(coord):
 		if cache[coord] >= ap:
 			return
+		else:
+			cache[coord] = ap
 	else:
 		cache[coord] = ap
 	if ap_cost <= ap:
