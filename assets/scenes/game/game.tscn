@@ -10,3 +10,7 @@ script = ExtResource("1_6asbp")
 script = ExtResource("2_mv12j")
 min_zoom = Vector2(0.75, 0.75)
 edge_pan_margin = 50.0
+pan_up = "no_op"
+pan_down = "no_op"
+pan_left = "no_op"
+pan_right = "no_op"

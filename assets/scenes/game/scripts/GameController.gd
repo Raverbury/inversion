@@ -307,7 +307,7 @@ func __send_attack_target(event: InputEvent):
 func __focus_camera_on_player(event: InputEvent):
 	if current_action_mode != ACTION_MODE.VIEW_MODE:
 		return
-	if event.is_action_released("tilde"):
+	if event.is_action_released("space_bar"):
 		__inner_focus_camera(__get_my_player().peer_id if __get_my_player() != null else -1)
 	elif event.is_action_released("num_row_1"):
 		__inner_focus_camera(__get_pid_at_player_dict_index(0))
@@ -331,7 +331,7 @@ func __inner_focus_camera(pid: int):
 	if pid == -1:
 		return
 	var target = game_state.player_dict[pid].player_game_data.mapgrid_position
-	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(target), 0.1)
+	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(target), 0.0)
 
 
 func get_ap_cost(coord):
