@@ -30,7 +30,11 @@ func _ready():
 	EventBus.player_was_attacked.connect(__player_was_attacked_handler)
 	EventBus.turn_color_updated.connect(__turn_color_updated_handler)
 	EventBus.tooltip_updated.connect(__tooltip_updated_handler)
-	display_name_label.self_modulate = Color.WHITE if is_me == true else Color.BLACK
+	display_name_label.label_settings = LabelSettings.new()
+	display_name_label.label_settings.font_size = 22
+	display_name_label.label_settings.outline_size = 5
+	display_name_label.label_settings.outline_color = Color.BLACK
+	display_name_label.label_settings.font_color = Color.WHITE if is_me == true else Color.DARK_GRAY
 
 
 func __prepare_animations():
@@ -48,10 +52,11 @@ func __prepare_animations():
 
 
 func __turn_color_updated_handler(turn_of_player):
+	print(turn_of_player, player_id)
 	if player_id == turn_of_player:
 		display_name_label.label_settings.font_color = Color.RED
 	else:
-		display_name_label.label_settings.font_color = Color.WHITE if is_me == true else Color.BLACK
+		display_name_label.label_settings.font_color = Color.WHITE if is_me == true else Color.DARK_GRAY
 
 
 func __process_queued_movement():
