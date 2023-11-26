@@ -81,6 +81,11 @@ func __resolve_load_map():
 
 func _process(_delta):
 	__resolve_load_map()
+	if __should_listen_to_input() == false:
+		return
+	if tile_map == null:
+		return
+	__control_camera()
 
 
 func _input(event):
@@ -331,7 +336,24 @@ func __inner_focus_camera(pid: int):
 	if pid == -1:
 		return
 	var target = game_state.player_dict[pid].player_game_data.mapgrid_position
-	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(target), 0.0)
+	EventBus.camera_force_panned.emit(Global.Util.center_global_pos_at(target), 0.0)
+
+
+func __control_camera():
+	# pan camera
+	var pan_direction = Vector2.ZERO
+	var mouse_pos = get_viewport().get_mouse_position()
+	var viewport_size = get_viewport().get_visible_rect().size
+	var margin = Global.Constant.Misc.SCREEN_EDGE_PAN_MARGIN
+	pan_direction.x = -1 if mouse_pos.x <= margin else (1 if mouse_pos.x >= (viewport_size.x - margin) else 0)
+	pan_direction.y = -1 if mouse_pos.y <= margin else (1 if mouse_pos.y >= (viewport_size.y - margin) else 0)
+	if pan_direction != Vector2.ZERO:
+		EventBus.camera_panned.emit(pan_direction)
+
+	# zoom camera
+	var zoom_direction = 1 if Input.is_action_just_released("scroll_up") else (-1 if Input.is_action_just_pressed("scroll_down") else 0)
+	if zoom_direction != 0:
+		EventBus.camera_zoomed.emit(zoom_direction)
 
 
 func get_ap_cost(coord):
@@ -450,7 +472,7 @@ func __game_started_handler(_game_state: GameState):
 		player_sprite.is_me = pid == Main.root_mp.get_unique_id()
 		add_child(player_sprite)
 	__set_game_state(_game_state)
-	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
+	EventBus.camera_force_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
 
 
@@ -524,7 +546,7 @@ func __send_end_turn():
 
 func __player_end_turn_updated_handler(_game_state):
 	__set_game_state(_game_state)
-	EventBus.camera_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
+	EventBus.camera_force_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
 
 

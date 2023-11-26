@@ -135,14 +135,17 @@ class Constant:
 	class Misc:
 
 		const CHAT_COLOR = [Color.SKY_BLUE, Color.DARK_SEA_GREEN, Color.LIGHT_PINK, Color.LIGHT_SALMON]
+		const SCREEN_EDGE_PAN_MARGIN = 60
 
 
 class PlayerClassData:
 
 	const CLASS_DATA = {
-		# cid: name, hp, acc, eva, armor, fp, range, cost, ap, vision, description
-		0: ["Sniper", 20, 35, 5, 0, 7, 6, 4, 10, 10, "M14", "m14", "Long-range attacker with high accuracy"],
-		1: ["Scout", 25, 20, 25, 0, 4, 4, 3, 15, 10, "Desert Eagle", "desert_eagle", "Always on the move and evasive"],
+		# cid: name,    hp, acc, eva, armor, fp, range, cost, ap, vision, description
+		0: ["Sniper",   20, 35,  10,  0,     7,  6,     5,    12, 10,
+			"M14", "m14", "Long-range attacker with high accuracy"],
+		1: ["Scout",    25, 25,  30,  0,     4,  4,     4,    18, 10,
+			"Desert Eagle", "desert_eagle", "Always on the move and evasive"],
 	}
 
 	static func getPlayerGameDataBasedOnClass(class_id) -> PlayerGameData:

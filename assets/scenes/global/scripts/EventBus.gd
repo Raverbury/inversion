@@ -51,7 +51,9 @@ signal end_turn_confirmed(do_not_remind: bool)
 signal end_turn_canceled()
 
 # camera
-signal camera_panned(pos: Vector2, duration: float)
+signal camera_force_panned(pos: Vector2, duration: float)
+signal camera_panned(pan_direction: Vector2)
+signal camera_zoomed(direction: int)
 
 # player
 signal player_moved(pid: int, movement_steps: Array)
