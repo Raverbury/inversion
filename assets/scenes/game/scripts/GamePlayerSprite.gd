@@ -49,9 +49,9 @@ func __prepare_animations():
 
 func __turn_color_updated_handler(turn_of_player):
 	if player_id == turn_of_player:
-		display_name_label.self_modulate = Color.RED
+		display_name_label.label_settings.font_color = Color.RED
 	else:
-		display_name_label.self_modulate = Color.WHITE if is_me == true else Color.BLACK
+		display_name_label.label_settings.font_color = Color.WHITE if is_me == true else Color.BLACK
 
 
 func __process_queued_movement():
@@ -125,7 +125,6 @@ func __player_attacked_handler(pid, _target_mapgrid):
 		flip_h = true
 	animation_finished.connect(__attack_anim_finished)
 	play("attack")
-	"[font_size=30][outline_size=11][center][b][color=red]-5[/color][/b][/center][/outline_size][/font_size]"
 
 
 func __attack_anim_finished():

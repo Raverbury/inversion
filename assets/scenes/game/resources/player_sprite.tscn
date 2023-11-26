@@ -5,7 +5,9 @@
 [sub_resource type="SpriteFrames" id="SpriteFrames_ssw3h"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_k6skb"]
-font_size = 15
+font_size = 22
+outline_size = 5
+outline_color = Color(0, 0, 0, 1)
 
 [node name="GamePlayer" type="AnimatedSprite2D"]
 position = Vector2(-16, -16)
@@ -29,10 +31,10 @@ grow_vertical = 2
 
 [node name="DisplayName" type="Label" parent="."]
 self_modulate = Color(0, 0, 0, 1)
-offset_left = -100.0
-offset_top = 15.0
-offset_right = 100.0
-offset_bottom = 45.0
+offset_left = -200.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 60.0
 label_settings = SubResource("LabelSettings_k6skb")
 horizontal_alignment = 1
 vertical_alignment = 1
