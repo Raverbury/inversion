@@ -5,12 +5,16 @@ class_name GameTileMap extends TileMap
 var selected_tile: Vector2
 var has_last_selected: bool = false
 var reachables: Array = []
-var attackables: Array = []
+var attackables: Dictionary = {}
 var movement_path: Array = []
 var attack_targets: Array = []
 var not_enough_ap: bool
 
 enum TILE_LAYER {BACKGROUND, HIGHLIGHT, SELECT, HIGHLIGHT2}
+const HIGHLIGHT_GREEN = Vector2i(0, 0)
+const HIGHLIGHT_RED = Vector2i(1, 0)
+const HIGHLIGHT_BLUE = Vector2i(0, 1)
+const HIGHLIGHT_YELLOW = Vector2i(1, 1)
 
 
 func get_data_at(mapgrid: Vector2, data_name: String, fallback_value):
@@ -46,12 +50,12 @@ func set_reachables(_reachables):
 
 func show_reachables():
 	for reachable_tile in reachables:
-		set_cell(TILE_LAYER.HIGHLIGHT, reachable_tile, 1, Vector2i(0, 0))
+		set_cell(TILE_LAYER.HIGHLIGHT, reachable_tile, 1, HIGHLIGHT_GREEN)
 
 
 func hide_reachables():
 	for reachable_tile in reachables:
-		set_cell(TILE_LAYER.HIGHLIGHT, reachable_tile, -1, Vector2i(0, 0))
+		set_cell(TILE_LAYER.HIGHLIGHT, reachable_tile, -1, Vector2i(-1, -1))
 
 
 func set_movement_path(_movement_path, _not_enough_ap):
@@ -62,12 +66,12 @@ func set_movement_path(_movement_path, _not_enough_ap):
 
 func show_movement_path():
 	for tile in movement_path:
-		set_cell(TILE_LAYER.HIGHLIGHT2, tile, 1, Vector2i(1, 0) if not_enough_ap else Vector2i(0, 1))
+		set_cell(TILE_LAYER.HIGHLIGHT2, tile, 1, HIGHLIGHT_RED if not_enough_ap else HIGHLIGHT_BLUE)
 
 
 func hide_movement_path():
 	for tile in movement_path:
-		set_cell(TILE_LAYER.HIGHLIGHT2, tile, -1, Vector2i(1, 0) if not_enough_ap else Vector2i(0, 1))
+		set_cell(TILE_LAYER.HIGHLIGHT2, tile, -1, Vector2i(-1, -1))
 
 
 func set_attackables(_attackables):
@@ -76,13 +80,15 @@ func set_attackables(_attackables):
 
 
 func show_attackables():
-	for attackable_tile in attackables:
-		set_cell(TILE_LAYER.HIGHLIGHT, attackable_tile, 1, Vector2i(1, 1))
+	for attackable_tile in attackables.keys():
+		var ranged_acc_mod = attackables[attackable_tile]
+		set_cell(TILE_LAYER.HIGHLIGHT, attackable_tile, 1, HIGHLIGHT_RED if ranged_acc_mod < 1.0 else
+			(HIGHLIGHT_YELLOW if ranged_acc_mod == 1.0 else HIGHLIGHT_GREEN))
 
 
 func hide_attackables():
-	for attackable_tile in attackables:
-		set_cell(TILE_LAYER.HIGHLIGHT, attackable_tile, -1, Vector2i(0, 0))
+	for attackable_tile in attackables.keys():
+		set_cell(TILE_LAYER.HIGHLIGHT, attackable_tile, -1, Vector2i(-1, -1))
 
 
 func set_attack_target(_attack_target, _not_enough_ap):
@@ -93,9 +99,9 @@ func set_attack_target(_attack_target, _not_enough_ap):
 
 func show_attack_target():
 	for attack_target in attack_targets:
-		set_cell(TILE_LAYER.HIGHLIGHT2, attack_target, 1, Vector2i(0, 1) if not_enough_ap else Vector2i(1, 0))
+		set_cell(TILE_LAYER.HIGHLIGHT2, attack_target, 1, HIGHLIGHT_RED if not_enough_ap else HIGHLIGHT_GREEN)
 
 
 func hide_attack_target():
 	for attack_target in attack_targets:
-		set_cell(TILE_LAYER.HIGHLIGHT2, attack_target, -1, Vector2i(0, 1) if not_enough_ap else Vector2i(1, 0))
+		set_cell(TILE_LAYER.HIGHLIGHT2, attack_target, -1, Vector2i(-1, -1))

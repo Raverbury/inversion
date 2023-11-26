@@ -14,6 +14,7 @@ var attack_cost: int = 2
 var max_ap: int = 10
 var current_ap: int = 10
 var vision_range: int = 10
+var ranged_accuracy_modifier: Array = []
 var weapon_name: String = "Weapon"
 var doll_name: String = "id152"
 

@@ -6,7 +6,7 @@ var tile_map: GameTileMap = null
 var make_path_last_cell: Vector2i
 var make_path_has_last_cell: bool = false
 var cached_reachables: Array = []
-var cached_attackables: Array = []
+var cached_attackables: Dictionary = {}
 var last_attack_target: Vector2i
 var has_last_attack_target: bool = false
 
@@ -283,7 +283,7 @@ func __choose_attack_target(event: InputEvent):
 	var player_attack_cost = __get_my_player().player_game_data.attack_cost
 	var player_current_ap = __get_my_player().player_game_data.current_ap
 
-	if not hovered_cell in cached_attackables:
+	if not hovered_cell in cached_attackables.keys():
 		attack_targets = []
 		has_last_attack_target = false
 		tile_map.set_attack_target(attack_targets, player_attack_cost > player_current_ap)
@@ -303,7 +303,7 @@ func __send_attack_target(event: InputEvent):
 	if event.is_action_released("mouse_1"):
 		var current_ap = __get_my_player().player_game_data.current_ap
 		var attack_cost = __get_my_player().player_game_data.attack_cost
-		if has_last_attack_target == false or attack_cost > current_ap or len(attack_targets) == 0 or not attack_targets[0] in cached_attackables:
+		if has_last_attack_target == false or attack_cost > current_ap or len(attack_targets) == 0 or not attack_targets[0] in cached_attackables.keys():
 			return
 		Rpc.player_request_attack.rpc_id(1, SRLZ.serialize(PlayerAttackRequestMessage.new(attack_targets[0])))
 		__set_action_mode(ACTION_MODE.VIEW_MODE)
@@ -409,15 +409,15 @@ func highlight_tiles(list_of_coords, do_highlight, highlight_atlas_coord = Vecto
 
 
 func get_attackable_tiles(source: Vector2i, attack_range: int, _ap: int, _attack_cost: int): # say range of 3
-	# if ap < attack_cost:
-	# 	return []
-	var attackables = Global.Set.new()
+	var attackables = {}
 	for x in range(-attack_range, attack_range + 1): # x is [-3; 3]
 		var y_leftover = attack_range - abs(x) # we want y to be 0, 1, 2, 3, 2, 1, 0 given that range of x
 		for y in range(-y_leftover, y_leftover + 1):
 			var tile_coord = Vector2i(source.x + x, source.y + y)
-			attackables.add(tile_coord)
-	return attackables.items()
+			var manhantan_distance = abs(x) + abs(y)
+			var ranged_acc_mod = __get_my_player().player_game_data.ranged_accuracy_modifier[manhantan_distance]
+			attackables[tile_coord] = ranged_acc_mod
+	return attackables
 
 
 func a_star_h(node_mapgrid: Vector2i, goal_mapgrid: Vector2i):
@@ -490,12 +490,16 @@ func __is_my_turn():
 
 func __set_game_state(_game_state: GameState):
 	game_state = _game_state
+
+	# recalculate client highlight stuff
 	var my_player: Player = __get_my_player()
 	cached_reachables = get_reachable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.current_ap)
 	cached_attackables = get_attackable_tiles(my_player.player_game_data.mapgrid_position, my_player.player_game_data.attack_range,
 		my_player.player_game_data.current_ap, my_player.player_game_data.attack_cost)
 	tile_map.set_reachables(cached_reachables)
 	tile_map.set_attackables(cached_attackables)
+
+	# update ui-esque tuff
 	EventBus.player_info_updated.emit(__get_my_player(), tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position))
 	EventBus.turn_color_updated.emit(game_state.turn_of_player)
 	for pid in game_state.player_dict.keys():
@@ -559,8 +563,6 @@ func __get_tooltip_stats_for_player(pid: int):
 	var pgd: PlayerGameData = player.player_game_data
 	var their_stat_mods_dict = tile_map.get_stat_mods_at(pgd.mapgrid_position)
 	var my_stat_mods_dict = tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position)
-	var final_my_acc = __get_my_player().player_game_data.accuracy + my_stat_mods_dict["accuracy_mod"]
-	var final_their_acc = pgd.evasion + their_stat_mods_dict["evasion_mod"]
 	var result: String = (
 		("%s %s (%s)\n" % [pgd.cls_name, player.display_name, player.peer_id]) +
 		("HP: %s/%s\n" % [pgd.current_hp, pgd.max_hp]) +
@@ -572,6 +574,7 @@ func __get_tooltip_stats_for_player(pid: int):
 		("Attack range: %s\n" % pgd.attack_range) +
 		("Attack cost: %s\n" % pgd.attack_cost) +
 		("Vision range: %s\n" % pgd.vision_range) +
-		("Hit rate: %.2f%%" % Global.Util.calc_hit_rate(final_my_acc, final_their_acc))
+		("Hit rate: %.2f%%" % Global.Util.calc_hit_rate(__get_my_player().player_game_data,
+			pgd, my_stat_mods_dict, their_stat_mods_dict))
 	)
 	return result

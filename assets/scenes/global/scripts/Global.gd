@@ -29,12 +29,22 @@ class Util:
 		return str(value) if value < 0 else ("+%s" % str(value))
 
 
-	static func calc_hit_rate(acc, eva):
-		acc = float(acc)
-		eva = float(eva)
-		acc = clampf(acc, 5.0, acc)
-		eva = clampf(eva, 0.0, eva)
-		var hit_rate = (float(acc) / float(acc + eva)) * 100.0
+	static func calc_hit_rate(attacker: PlayerGameData, victim: PlayerGameData,
+		attacker_stat_mod: Dictionary, victim_stat_mod: Dictionary):
+		var distance = Global.Util.manhantan_distance(attacker.mapgrid_position,
+			victim.mapgrid_position)
+		var ranged_acc_mod = (attacker.ranged_accuracy_modifier[distance] if
+			(distance <= attacker.attack_range) else 0.0)
+		if ranged_acc_mod == 0.0:
+			return 0.0
+		var final_accuracy = (attacker.accuracy + attacker_stat_mod["accuracy_mod"])
+		final_accuracy = clampf(final_accuracy, 0.0, final_accuracy)
+		var final_evasion = victim.evasion + victim_stat_mod["evasion_mod"]
+		final_evasion = clampf(final_evasion, 0.0, final_evasion)
+		if final_accuracy + final_evasion == 0.0:
+			return 50.0
+		var hit_rate = ((float(final_accuracy) * ranged_acc_mod) /
+			float(final_accuracy + final_evasion)) * 100.0
 		hit_rate = clampf(hit_rate, 5.0, 100.0)
 		return hit_rate
 
@@ -141,11 +151,20 @@ class Constant:
 class PlayerClassData:
 
 	const CLASS_DATA = {
-		# cid: name,    hp, acc, eva, armor, fp, range, cost, ap, vision, description
-		0: ["Sniper",   20, 35,  10,  0,     7,  6,     5,    12, 10,
+		# cid: name,    hp, acc, eva, armor, fp, cost, ap, vision,
+		# ranged acc mod, weapon name, doll id, description
+		0: ["Sniper",   20, 30,  10,  0,     7,  5,    12, 10,
+			[0.6, 0.6, 0.6, 0.6, 1.0, 1.0, 1.8, 1.8], # range of 7
 			"M14", "m14", "Long-range attacker with high accuracy"],
-		1: ["Scout",    25, 25,  30,  0,     4,  4,     4,    18, 10,
+		1: ["Scout",    25, 15,  30,  0,     4,  3,    18, 10,
+			[1.5, 1.5, 1.5, 1.5, 1.0, 0.6], # range of 5
 			"Desert Eagle", "desert_eagle", "Always on the move and evasive"],
+		2: ["Vanguard", 35, 15,  5,   2,     5,  4,    14, 10,
+			[2.0, 2.0, 2.0, 1.0, 0.8], # range of 4
+			"Winchester M1887", "m1887", "Armored and devastating with point-blank blasts"],
+		3: ["Assault",  25, 20,  15,  0,     5,  4,    14, 10,
+			[1.0, 1.4, 1.4, 1.4, 1.0, 1.0, 0.6], # range of 6
+			"Zastava M21", "zas_m21", "Stock standard all-rounder"],
 	}
 
 	static func getPlayerGameDataBasedOnClass(class_id) -> PlayerGameData:
@@ -159,11 +178,12 @@ class PlayerClassData:
 		pgd.evasion = obj[3]
 		pgd.armor = obj[4]
 		pgd.attack_power = obj[5]
-		pgd.attack_range = obj[6]
-		pgd.attack_cost = obj[7]
-		pgd.max_ap = obj[8]
-		pgd.current_ap = obj[8]
-		pgd.vision_range = obj[9]
+		pgd.attack_range = len(obj[9]) - 1
+		pgd.attack_cost = obj[6]
+		pgd.max_ap = obj[7]
+		pgd.current_ap = obj[7]
+		pgd.vision_range = obj[8]
+		pgd.ranged_accuracy_modifier = obj[9]
 		pgd.weapon_name = obj[10]
 		pgd.doll_name = obj[11]
 		return pgd

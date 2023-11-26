@@ -166,12 +166,11 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 	var victim_dict: Dictionary = {}
 	var attacker_attack_power = attacker.player_game_data.attack_power
 	var attacker_mod_stats = server_tile_map.get_stat_mods_at(attacker_mapgrid_position)
-	var final_attacker_accuracy = attacker.player_game_data.accuracy + attacker_mod_stats["accuracy_mod"]
 	for victim in attacked_players:
 		var victim_mod_stats = server_tile_map.get_stat_mods_at(target_mapgrid)
-		var final_victim_evasion = victim.player_game_data.evasion + victim_mod_stats["evasion_mod"]
 		var final_victim_armor = victim.player_game_data.armor + victim_mod_stats["armor_mod"]
-		var hit_rate: float = Global.Util.calc_hit_rate(final_attacker_accuracy, final_victim_evasion)
+		var hit_rate: float = Global.Util.calc_hit_rate(attacker.player_game_data, victim.player_game_data,
+			attacker_mod_stats, victim_mod_stats)
 		var is_attack_a_hit = Global.Util.roll_acc_eva_check(hit_rate)
 		victim_dict[victim.peer_id] = [is_attack_a_hit, 0]
 		var damage: int = 0
