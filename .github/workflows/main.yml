@@ -9,11 +9,11 @@ jobs:
     strategy:
       matrix:
         platform:
-          - name: Windows
+          - name: windows
             file: game.exe
-          - name: MacOS
+          - name: mac
             file: game.zip
-          - name: Linux
+          - name: linux
             file: game.zip
           
     steps:
