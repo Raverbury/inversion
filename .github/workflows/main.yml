@@ -2,6 +2,9 @@ name: Build Godot Project
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   Godot:
