@@ -33,12 +33,14 @@ stretch_mode = 1
 [node name="TileName" type="Label" parent="."]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 110.0
+offset_top = 100.0
 offset_right = 100.0
-offset_bottom = 140.0
-text = "Path"
+offset_bottom = 152.0
+text = "LONG PATH"
 horizontal_alignment = 1
-autowrap_mode = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text_overrun_behavior = 4
 
 [node name="TileDescription" type="Label" parent="."]
 layout_mode = 0
