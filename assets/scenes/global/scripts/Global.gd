@@ -35,14 +35,19 @@ class Util:
 			victim.mapgrid_position)
 		var ranged_acc_mod = (attacker.ranged_accuracy_modifier[distance] if
 			(distance <= attacker.attack_range) else 0.0)
+		# out of range then always miss
 		if ranged_acc_mod == 0.0:
 			return 0.0
 		var final_accuracy = (attacker.accuracy + attacker_stat_mod["accuracy_mod"])
 		final_accuracy = clampf(final_accuracy, 0.0, final_accuracy)
 		var final_evasion = victim.evasion + victim_stat_mod["evasion_mod"]
 		final_evasion = clampf(final_evasion, 0.0, final_evasion)
+		# cases where both acc and eva are 0 then 50/50
 		if final_accuracy + final_evasion == 0.0:
 			return 50.0
+		# if only eva is 0 then always hit
+		if final_evasion == 0:
+			return 100.0
 		var hit_rate = ((float(final_accuracy) * ranged_acc_mod) /
 			float(final_accuracy + final_evasion)) * 100.0
 		hit_rate = clampf(hit_rate, 5.0, 100.0)
