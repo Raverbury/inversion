@@ -14,6 +14,8 @@ var is_loading_map_scene: bool = false
 
 var is_in_game: bool = false
 
+var tween_timer: Tween
+
 func wipe():
 	if is_initialized == false:
 		return
@@ -51,6 +53,7 @@ func player_set_class(pid, class_id):
 		game_state = GameState.new(player_dict, server_tile_map.spawn_points)
 		game_state.advance_turn()
 		Rpc.game_start.rpc(SRLZ.serialize(GameStartMessage.new(game_state)))
+		__refresh_turn_timer()
 
 
 func remove_player(pid):
@@ -205,6 +208,7 @@ func process_player_end_turn_request(pid):
 
 	var message: PlayerEndTurnResponseMessage = PlayerEndTurnResponseMessage.new(game_state)
 	Rpc.player_end_turn_update.rpc(SRLZ.serialize(message))
+	__refresh_turn_timer()
 
 
 func process_player_send_chat_message(pid, display_name, text_message):
@@ -214,3 +218,17 @@ func process_player_send_chat_message(pid, display_name, text_message):
 	var color = Global.Constant.Misc.CHAT_COLOR[pids.find(pid)]
 	var message = PlayerSendChatMessageResponse.new(display_name, text_message, color)
 	Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+
+
+func __refresh_turn_timer():
+	if tween_timer != null:
+		tween_timer.kill()
+		tween_timer = null
+	tween_timer = create_tween()
+	tween_timer.tween_interval(Global.Constant.Misc.TURN_TIMER_DURATION)
+	tween_timer.finished.connect(__turn_timer_timed_out)
+
+
+func __turn_timer_timed_out():
+	tween_timer = null
+	process_player_end_turn_request(game_state.turn_of_player)

@@ -52,7 +52,6 @@ func __prepare_animations():
 
 
 func __turn_color_updated_handler(turn_of_player):
-	print(turn_of_player, player_id)
 	if player_id == turn_of_player:
 		display_name_label.label_settings.font_color = Color.RED
 	else:

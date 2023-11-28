@@ -46,6 +46,7 @@ func _exit_tree():
 	EventBus.turn_ui_freed.emit()
 	EventBus.player_info_ui_freed.emit()
 	EventBus.end_turn_prompt_ui_freed.emit()
+	EventBus.turn_timer_ui_freed.emit()
 
 
 func load_map(scene_path):
@@ -74,6 +75,7 @@ func __resolve_load_map():
 	is_loading_map_scene = false
 	Main.add_ui(Global.Constant.Scene.END_TURN_PROMPT_UI, 0)
 	Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
+	Main.add_ui(Global.Constant.Scene.TURN_TIMER_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TURN_UI, 0)
 	Main.add_ui(Global.Constant.Scene.PLAYER_INFO_UI, 0)
@@ -474,6 +476,7 @@ func __game_started_handler(_game_state: GameState):
 	__set_game_state(_game_state)
 	EventBus.camera_force_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
+	EventBus.turn_timer_refreshed.emit()
 
 
 func __get_my_player() -> Player:
@@ -552,6 +555,7 @@ func __player_end_turn_updated_handler(_game_state):
 	__set_game_state(_game_state)
 	EventBus.camera_force_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
+	EventBus.turn_timer_refreshed.emit()
 
 
 func __get_tooltip_stats_for_player(pid: int):

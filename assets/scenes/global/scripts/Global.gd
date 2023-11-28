@@ -121,6 +121,7 @@ class Constant:
 		const TURN_UI = "res://assets/scenes/game/turn_ui.tscn"
 		const PLAYER_INFO_UI = "res://assets/scenes/game/player_info_ui.tscn"
 		const END_TURN_PROMPT_UI = "res://assets/scenes/game/end_turn_prompt_ui.tscn"
+		const TURN_TIMER_UI = "res://assets/scenes/game/turn_timer_ui.tscn"
 
 		const PLAYER_SPRITE_SCENE = "res://assets/scenes/game/resources/player_sprite.tscn"
 		const GAME_SCENE = "res://assets/scenes/game/game.tscn"
@@ -145,7 +146,10 @@ class Constant:
 	class Misc:
 
 		const CHAT_COLOR = [Color.SKY_BLUE, Color.DARK_SEA_GREEN, Color.LIGHT_PINK, Color.LIGHT_SALMON]
+
 		const SCREEN_EDGE_PAN_MARGIN = 60
+
+		const TURN_TIMER_DURATION = 60
 
 
 class PlayerClassData:
