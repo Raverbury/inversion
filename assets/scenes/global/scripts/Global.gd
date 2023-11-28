@@ -21,8 +21,12 @@ class Util:
 		return hit_rate >= roll
 
 
-	static func center_global_pos_at(mapgrid_position: Vector2i):
-		return mapgrid_position * 32 + Vector2i(16, 16)
+	static func global_coord_at(mapgrid_coordinate: Vector2i):
+		return mapgrid_coordinate * 32 + Vector2i(16, 16)
+
+
+	static func global_pos_at(mapgrid_position: int):
+		return mapgrid_position * 32 + 16
 
 
 	static func format_stat_mod_as_string(value: int):
@@ -131,6 +135,7 @@ class Constant:
 		const PLAYER_SPRITE_SCENE = "res://assets/scenes/game/resources/player_sprite.tscn"
 		const GAME_SCENE = "res://assets/scenes/game/game.tscn"
 		const MAP_0_SCENE = "res://assets/scenes/game/map_0.tscn"
+		const MAP_POOL = ["res://assets/scenes/game/maps/mapv2_grassy_field.tscn"]
 
 
 	class Spritesheet:

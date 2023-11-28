@@ -6,7 +6,7 @@ var room_is_ready = false
 
 var game_state: GameState
 
-var MAP_PATHS = [Global.Constant.Scene.MAP_0_SCENE]
+var MAP_POOL = Global.Constant.Scene.MAP_POOL
 
 var server_tile_map: GameTileMap
 var map_scene_path: String
@@ -23,6 +23,9 @@ func wipe():
 	is_initialized = false
 	is_in_game = false
 	EventBus.player_list_updated.emit(player_dict)
+	if tween_timer != null:
+		tween_timer.kill()
+		tween_timer = null
 
 
 func initialize():
@@ -89,7 +92,7 @@ func all_players_picked_class():
 func request_start_room():
 	if room_is_ready:
 		is_in_game = true
-		var map_name = Global.Util.get_random_from_list(MAP_PATHS)
+		var map_name = Global.Util.get_random_from_list(MAP_POOL)
 		load_map(map_name)
 		Rpc.room_start.rpc(SRLZ.serialize(RoomStartMessage.new(map_name)))
 

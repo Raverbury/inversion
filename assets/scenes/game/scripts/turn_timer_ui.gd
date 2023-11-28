@@ -5,7 +5,7 @@ class_name TurnTimerUI extends Panel
 var tween_timer: Tween
 
 func _ready():
-	EventBus.turn_timer_ui_freed.connect(queue_free)
+	EventBus.turn_timer_ui_freed.connect(__freed_handler)
 	EventBus.turn_timer_refreshed.connect(__turn_timer_refreshed_handler)
 
 
@@ -27,3 +27,10 @@ func __set_timer_text(duration_left):
 			timer.label_settings.font_color = Color.WHITE
 	else:
 		timer.label_settings.font_color = Color.WHITE
+
+
+func __freed_handler():
+	if tween_timer != null:
+		tween_timer.kill()
+		tween_timer = null
+	queue_free()
