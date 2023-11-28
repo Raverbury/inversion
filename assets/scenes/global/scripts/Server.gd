@@ -6,13 +6,15 @@ var room_is_ready = false
 
 var game_state: GameState
 
-var MAP_PATHS = [Global.Constant.Scene.MAP_0_SCENE]
+var MAP_POOL = Global.Constant.Scene.MAP_POOL
 
 var server_tile_map: GameTileMap
 var map_scene_path: String
 var is_loading_map_scene: bool = false
 
 var is_in_game: bool = false
+
+var tween_timer: Tween
 
 func wipe():
 	if is_initialized == false:
@@ -21,6 +23,9 @@ func wipe():
 	is_initialized = false
 	is_in_game = false
 	EventBus.player_list_updated.emit(player_dict)
+	if tween_timer != null:
+		tween_timer.kill()
+		tween_timer = null
 
 
 func initialize():
@@ -51,6 +56,7 @@ func player_set_class(pid, class_id):
 		game_state = GameState.new(player_dict, server_tile_map.spawn_points)
 		game_state.advance_turn()
 		Rpc.game_start.rpc(SRLZ.serialize(GameStartMessage.new(game_state)))
+		__refresh_turn_timer()
 
 
 func remove_player(pid):
@@ -86,7 +92,7 @@ func all_players_picked_class():
 func request_start_room():
 	if room_is_ready:
 		is_in_game = true
-		var map_name = Global.Util.get_random_from_list(MAP_PATHS)
+		var map_name = Global.Util.get_random_from_list(MAP_POOL)
 		load_map(map_name)
 		Rpc.room_start.rpc(SRLZ.serialize(RoomStartMessage.new(map_name)))
 
@@ -205,6 +211,7 @@ func process_player_end_turn_request(pid):
 
 	var message: PlayerEndTurnResponseMessage = PlayerEndTurnResponseMessage.new(game_state)
 	Rpc.player_end_turn_update.rpc(SRLZ.serialize(message))
+	__refresh_turn_timer()
 
 
 func process_player_send_chat_message(pid, display_name, text_message):
@@ -214,3 +221,17 @@ func process_player_send_chat_message(pid, display_name, text_message):
 	var color = Global.Constant.Misc.CHAT_COLOR[pids.find(pid)]
 	var message = PlayerSendChatMessageResponse.new(display_name, text_message, color)
 	Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+
+
+func __refresh_turn_timer():
+	if tween_timer != null:
+		tween_timer.kill()
+		tween_timer = null
+	tween_timer = create_tween()
+	tween_timer.tween_interval(Global.Constant.Misc.TURN_TIMER_DURATION)
+	tween_timer.finished.connect(__turn_timer_timed_out)
+
+
+func __turn_timer_timed_out():
+	tween_timer = null
+	process_player_end_turn_request(game_state.turn_of_player)

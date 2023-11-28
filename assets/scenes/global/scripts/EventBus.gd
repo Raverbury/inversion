@@ -50,10 +50,15 @@ signal end_turn_prompt_showed(has_remaining_ap: bool)
 signal end_turn_confirmed(do_not_remind: bool)
 signal end_turn_canceled()
 
+# turn timer ui
+signal turn_timer_ui_freed()
+signal turn_timer_refreshed()
+
 # camera
 signal camera_force_panned(pos: Vector2, duration: float)
 signal camera_panned(pan_direction: Vector2)
 signal camera_zoomed(direction: int)
+signal camera_bounds_updated(max_x_mapgrid, min_x_mapgrid, max_y_mapgrid, min_y_mapgrid)
 
 # player
 signal player_moved(pid: int, movement_steps: Array)

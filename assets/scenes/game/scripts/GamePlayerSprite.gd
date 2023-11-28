@@ -14,6 +14,9 @@ var last_dir: int = 0
 
 var queued_movement: Array = []
 
+var MAX_MOVE_TWEEN_DURATION: float = 3.0
+var current_move_tween_duration: float = 0.4
+
 var attack_done_wait_tween_duration = 0.5
 var attack_feedback_tween_duration = 1.2
 
@@ -52,7 +55,6 @@ func __prepare_animations():
 
 
 func __turn_color_updated_handler(turn_of_player):
-	print(turn_of_player, player_id)
 	if player_id == turn_of_player:
 		display_name_label.label_settings.font_color = Color.RED
 	else:
@@ -77,7 +79,7 @@ func __move_with_lerp(move_direction: int):
 	var step_2_offset = Global.Constant.Direction.STEP_TO_V2OFFSET
 	var target_pos = global_position + Vector2((step_2_offset[move_direction] * 32))
 	var t: Tween = create_tween()
-	t.tween_property(self, "global_position", target_pos, 0.4)
+	t.tween_property(self, "global_position", target_pos, current_move_tween_duration)
 	t.finished.connect(__on_move_done)
 	if move_direction == 0:
 		flip_h = true
@@ -90,7 +92,7 @@ func __on_move_done():
 
 
 func set_mapgrid_pos(mapgrid_position: Vector2):
-	global_position = Global.Util.center_global_pos_at(mapgrid_position)
+	global_position = Global.Util.global_coord_at(mapgrid_position)
 
 
 func __player_moved_handler(pid: int, steps: Array):
@@ -100,6 +102,10 @@ func __player_moved_handler(pid: int, steps: Array):
 		return
 	if is_moving == true:
 		return
+	if len(steps) * 0.4 >= MAX_MOVE_TWEEN_DURATION:
+		current_move_tween_duration = float(MAX_MOVE_TWEEN_DURATION / float(len(steps)))
+	else:
+		current_move_tween_duration = 0.4
 	queued_movement.append_array(steps)
 	__process_queued_movement()
 
@@ -123,7 +129,7 @@ func __player_attacked_handler(pid, _target_mapgrid):
 	if player_id != pid:
 		return
 	EventBus.anim_is_being_played.emit(true)
-	var global_target_pos = Global.Util.center_global_pos_at(_target_mapgrid)
+	var global_target_pos = Global.Util.global_coord_at(_target_mapgrid)
 	if global_target_pos.x > global_position.x:
 		flip_h = false
 	elif global_target_pos.x < global_position.x:

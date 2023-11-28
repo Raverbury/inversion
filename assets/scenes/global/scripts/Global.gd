@@ -21,8 +21,12 @@ class Util:
 		return hit_rate >= roll
 
 
-	static func center_global_pos_at(mapgrid_position: Vector2i):
-		return mapgrid_position * 32 + Vector2i(16, 16)
+	static func global_coord_at(mapgrid_coordinate: Vector2i):
+		return mapgrid_coordinate * 32 + Vector2i(16, 16)
+
+
+	static func global_pos_at(mapgrid_position: int):
+		return mapgrid_position * 32 + 16
 
 
 	static func format_stat_mod_as_string(value: int):
@@ -35,14 +39,19 @@ class Util:
 			victim.mapgrid_position)
 		var ranged_acc_mod = (attacker.ranged_accuracy_modifier[distance] if
 			(distance <= attacker.attack_range) else 0.0)
+		# out of range then always miss
 		if ranged_acc_mod == 0.0:
 			return 0.0
 		var final_accuracy = (attacker.accuracy + attacker_stat_mod["accuracy_mod"])
 		final_accuracy = clampf(final_accuracy, 0.0, final_accuracy)
 		var final_evasion = victim.evasion + victim_stat_mod["evasion_mod"]
 		final_evasion = clampf(final_evasion, 0.0, final_evasion)
+		# cases where both acc and eva are 0 then 50/50
 		if final_accuracy + final_evasion == 0.0:
 			return 50.0
+		# if only eva is 0 then always hit
+		if final_evasion == 0:
+			return 100.0
 		var hit_rate = ((float(final_accuracy) * ranged_acc_mod) /
 			float(final_accuracy + final_evasion)) * 100.0
 		hit_rate = clampf(hit_rate, 5.0, 100.0)
@@ -121,10 +130,12 @@ class Constant:
 		const TURN_UI = "res://assets/scenes/game/turn_ui.tscn"
 		const PLAYER_INFO_UI = "res://assets/scenes/game/player_info_ui.tscn"
 		const END_TURN_PROMPT_UI = "res://assets/scenes/game/end_turn_prompt_ui.tscn"
+		const TURN_TIMER_UI = "res://assets/scenes/game/turn_timer_ui.tscn"
 
 		const PLAYER_SPRITE_SCENE = "res://assets/scenes/game/resources/player_sprite.tscn"
 		const GAME_SCENE = "res://assets/scenes/game/game.tscn"
 		const MAP_0_SCENE = "res://assets/scenes/game/map_0.tscn"
+		const MAP_POOL = ["res://assets/scenes/game/maps/mapv2_grassy_field.tscn"]
 
 
 	class Spritesheet:
@@ -145,7 +156,10 @@ class Constant:
 	class Misc:
 
 		const CHAT_COLOR = [Color.SKY_BLUE, Color.DARK_SEA_GREEN, Color.LIGHT_PINK, Color.LIGHT_SALMON]
+
 		const SCREEN_EDGE_PAN_MARGIN = 60
+
+		const TURN_TIMER_DURATION = 60
 
 
 class PlayerClassData:
