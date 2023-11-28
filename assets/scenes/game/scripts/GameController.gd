@@ -59,6 +59,10 @@ func __should_listen_to_input() -> bool:
 	return not (menu_is_opened or anim_is_playing or cached_result != GameState.RESULT.ON_GOING)
 
 
+func __should_control_camera() -> bool:
+	return not (menu_is_opened)
+
+
 func __resolve_load_map():
 	if is_loading_map_scene == false:
 		return
@@ -79,11 +83,12 @@ func __resolve_load_map():
 	Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
 	Main.add_ui(Global.Constant.Scene.TURN_UI, 0)
 	Main.add_ui(Global.Constant.Scene.PLAYER_INFO_UI, 0)
+	EventBus.camera_bounds_updated.emit(tile_map.max_x_mapgrid, tile_map.min_x_mapgrid, tile_map.max_y_mapgrid, tile_map.min_y_mapgrid)
 
 
 func _process(_delta):
 	__resolve_load_map()
-	if __should_listen_to_input() == false:
+	if __should_control_camera() == false:
 		return
 	if tile_map == null:
 		return
@@ -162,7 +167,7 @@ func __get_tile_data(event: InputEvent):
 		var hovered_cell: Vector2i = tile_map.local_to_map(tile_map.to_local(get_global_mouse_position()))
 		tile_map.select_tile(hovered_cell)
 		var texture = tile_map.tile_set.get_source(0).texture
-		var atlas_coord = tile_map.get_cell_atlas_coords(0, hovered_cell) as Vector2
+		var atlas_coord = tile_map.get_atlas_coord_at(hovered_cell)
 		var tile_name = tile_map.get_data_at(hovered_cell, "name", "Hey there")
 		var tile_desc = tile_map.get_data_at(hovered_cell, "description", "Plz go back im too lazy to clamp camera")
 		var ap_cost = tile_map.get_data_at(hovered_cell, "ap_cost", -1)
@@ -211,7 +216,7 @@ func __make_movement_path(event: InputEvent):
 		tile_map.show_movement_path()
 		EventBus.ap_cost_updated.emit(current_path_cost)
 	else:
-		current_move_path = a_star(__get_my_player().player_game_data.mapgrid_position, hovered_cell).slice(1)
+		current_move_path = a_star(__get_my_player().player_game_data.mapgrid_position, hovered_cell, player_current_ap).slice(1)
 		current_path_cost = __get_path_cost()
 		tile_map.set_movement_path(current_move_path, current_path_cost > player_current_ap)
 		tile_map.show_movement_path()
@@ -338,7 +343,7 @@ func __inner_focus_camera(pid: int):
 	if pid == -1:
 		return
 	var target = game_state.player_dict[pid].player_game_data.mapgrid_position
-	EventBus.camera_force_panned.emit(Global.Util.center_global_pos_at(target), 0.0)
+	EventBus.camera_force_panned.emit(Global.Util.global_coord_at(target), 0.0)
 
 
 func __control_camera():
@@ -359,13 +364,7 @@ func __control_camera():
 
 
 func get_ap_cost(coord):
-	if self.tile_map == null:
-		return -1
-	var tss_id: int = tile_map.get_cell_source_id(0, coord)
-	if tss_id == -1:
-		return -1
-	var tile_data: TileData = tile_map.get_cell_tile_data(0, coord)
-	return tile_data.get_custom_data("ap_cost")
+	return tile_map.get_ap_cost_at(coord)
 
 
 func get_reachable_tiles(source: Vector2i, ap: int):
@@ -426,7 +425,7 @@ func a_star_h(node_mapgrid: Vector2i, goal_mapgrid: Vector2i):
 	return Global.Util.manhantan_distance(node_mapgrid, goal_mapgrid)
 
 
-func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i):
+func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i, current_ap: int):
 	if not goal_mapgrid in cached_reachables:
 		return []
 
@@ -454,7 +453,7 @@ func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i):
 			if next_cost == -1:
 				continue
 			var temp_g_score = g_score[current_node] + next_cost
-			if not neighbor_node in g_score.keys() or temp_g_score < g_score[neighbor_node]:
+			if (not neighbor_node in g_score.keys() or temp_g_score < g_score[neighbor_node]) and temp_g_score <= current_ap:
 				g_score[neighbor_node] = temp_g_score
 				came_from[neighbor_node] = current_node
 				if not pq.has(neighbor_node):
@@ -474,7 +473,7 @@ func __game_started_handler(_game_state: GameState):
 		player_sprite.is_me = pid == Main.root_mp.get_unique_id()
 		add_child(player_sprite)
 	__set_game_state(_game_state)
-	EventBus.camera_force_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
+	EventBus.camera_force_panned.emit(Global.Util.global_coord_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
 	EventBus.turn_timer_refreshed.emit()
 
@@ -553,7 +552,7 @@ func __send_end_turn():
 
 func __player_end_turn_updated_handler(_game_state):
 	__set_game_state(_game_state)
-	EventBus.camera_force_panned.emit(Global.Util.center_global_pos_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
+	EventBus.camera_force_panned.emit(Global.Util.global_coord_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
 	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
 	EventBus.turn_timer_refreshed.emit()
 
