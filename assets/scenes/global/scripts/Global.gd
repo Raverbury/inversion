@@ -168,16 +168,16 @@ class PlayerClassData:
 		# cid: name,    hp, acc, eva, armor, fp, cost, ap, vision,
 		# ranged acc mod, weapon name, doll id, description
 		0: ["Sniper",   20, 30,  10,  0,     7,  5,    12, 10,
-			[0.6, 0.6, 0.6, 0.6, 1.0, 1.0, 1.8, 1.8], # range of 7
+			[0.8, 0.8, 0.8, 0.8, 1.0, 1.0, 1.0, 1.8, 1.8, 1.8, 1.8, 1.0], # range of 11
 			"M14", "m14", "Long-range attacker with high accuracy"],
 		1: ["Scout",    25, 15,  30,  0,     4,  3,    18, 10,
-			[1.5, 1.5, 1.5, 1.5, 1.0, 0.6], # range of 5
+			[1.5, 1.5, 1.5, 1.5, 1.5, 1.0], # range of 5
 			"Desert Eagle", "desert_eagle", "Always on the move and evasive"],
-		2: ["Vanguard", 35, 15,  5,   2,     5,  4,    14, 10,
-			[2.0, 2.0, 2.0, 1.0, 0.8], # range of 4
+		2: ["Vanguard", 35, 10,  -10, 2,     5,  4,    14, 10,
+			[2.2, 2.2, 2.2, 1.0, 0.4], # range of 4
 			"Winchester M1887", "m1887", "Armored and devastating with point-blank blasts"],
-		3: ["Assault",  25, 20,  15,  0,     5,  4,    14, 10,
-			[1.0, 1.4, 1.4, 1.4, 1.0, 1.0, 0.6], # range of 6
+		3: ["Assault",  25, 20,  15,  0,     5,  2,    14, 10,
+			[1.5, 1.5, 1.5, 1.5, 1.0, 1.0, 1.0, 0.8], # range of 7
 			"Zastava M21", "zas_m21", "Stock standard all-rounder"],
 	}
 
