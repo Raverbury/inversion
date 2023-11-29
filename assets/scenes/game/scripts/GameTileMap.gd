@@ -134,7 +134,7 @@ func set_attack_target(_attack_target, _not_enough_ap):
 
 func show_attack_target():
 	for attack_target in attack_targets:
-		set_cell(LAYER_HIGHLIGHT_SELECT, attack_target, SOURCE_HIGHLIGHT_SELECT, HIGHLIGHT_SELECT_RED if not_enough_ap else HIGHLIGHT_SELECT_ORANGE)
+		set_cell(LAYER_HIGHLIGHT_SELECT, attack_target, SOURCE_HIGHLIGHT_SELECT, HIGHLIGHT_SELECT_RED if not_enough_ap else HIGHLIGHT_SELECT_WHITE)
 
 
 func hide_attack_target():
