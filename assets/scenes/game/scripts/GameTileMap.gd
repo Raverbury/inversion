@@ -53,12 +53,9 @@ func get_ap_cost_at(mapgrid: Vector2, fallback_value = -1):
 	return get_data_at(mapgrid, "ap_cost", fallback_value)
 
 
-func get_stat_mods_at(mapgrid: Vector2):
-	return {
-		"accuracy_mod": get_data_at(mapgrid, "accuracy_mod", 0),
-		"evasion_mod": get_data_at(mapgrid, "evasion_mod", 0),
-		"armor_mod": get_data_at(mapgrid, "armor_mod", 0)
-	}
+func get_stat_mods_at(mapgrid: Vector2) -> TileStatBonus:
+	return TileStatBonus.new(get_data_at(mapgrid, "accuracy_mod", 0),
+		get_data_at(mapgrid, "evasion_mod", 0), get_data_at(mapgrid, "armor_mod", 0))
 
 
 func get_atlas_coord_at(mapgrid: Vector2):

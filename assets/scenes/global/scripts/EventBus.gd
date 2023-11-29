@@ -27,7 +27,7 @@ signal player_attack_updated(pid, target_mapgrid, victims, game_state, result, v
 signal player_end_turn_updated(game_state)
 
 # player info ui
-signal player_info_updated(player: Player, stat_mods: Dictionary)
+signal player_info_updated(player: Player, stat_mods: TileStatBonus)
 signal ap_cost_updated(path_cost: int)
 signal mode_updated(mode_enum: int)
 signal player_info_ui_freed()

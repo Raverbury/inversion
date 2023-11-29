@@ -564,20 +564,20 @@ func __get_tooltip_stats_for_player(pid: int):
 	# 	return ""
 	var player: Player = game_state.player_dict[pid]
 	var pgd: PlayerGameData = player.player_game_data
-	var their_stat_mods_dict = tile_map.get_stat_mods_at(pgd.mapgrid_position)
-	var my_stat_mods_dict = tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position)
+	var their_stat_mods = tile_map.get_stat_mods_at(pgd.mapgrid_position)
+	var my_stat_mods = tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position)
 	var result: String = (
 		("%s %s (%s)\n" % [pgd.cls_name, player.display_name, player.peer_id]) +
 		("HP: %s/%s\n" % [pgd.current_hp, pgd.max_hp]) +
 		("AP: %s/%s\n" % [pgd.current_ap, pgd.max_ap]) +
-		("ACC: %s (%s)\n" % [pgd.accuracy, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["accuracy_mod"])]) +
-		("EVA: %s (%s)\n" % [pgd.evasion, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["evasion_mod"])]) +
-		("Armor: %s (%s)\n" % [pgd.armor, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["armor_mod"])]) +
+		("ACC: %s (%s)\n" % [pgd.accuracy, Global.Util.format_stat_mod_as_string(their_stat_mods.accuracy_mod)]) +
+		("EVA: %s (%s)\n" % [pgd.evasion, Global.Util.format_stat_mod_as_string(their_stat_mods.evasion_mod)]) +
+		("Armor: %s (%s)\n" % [pgd.armor, Global.Util.format_stat_mod_as_string(their_stat_mods.armor_mod)]) +
 		("Attack power: %s\n" % pgd.attack_power) +
 		("Attack range: %s\n" % pgd.attack_range) +
 		("Attack cost: %s\n" % pgd.attack_cost) +
 		("Vision range: %s\n" % pgd.vision_range) +
 		("Hit rate: %.2f%%" % Global.Util.calc_hit_rate(__get_my_player().player_game_data,
-			pgd, my_stat_mods_dict, their_stat_mods_dict))
+			pgd, my_stat_mods, their_stat_mods))
 	)
 	return result
