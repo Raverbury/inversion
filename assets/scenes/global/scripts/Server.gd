@@ -23,6 +23,9 @@ func wipe():
 	is_initialized = false
 	is_in_game = false
 	EventBus.player_list_updated.emit(player_dict)
+	if server_tile_map != null:
+		server_tile_map.queue_free()
+		server_tile_map = null
 	__kill_timer()
 
 
