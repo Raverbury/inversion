@@ -43,7 +43,7 @@ func _ready():
 
 func __prepare_animations():
 	if doll_name == "":
-		print("ERROR, no doll name supplied")
+		push_error("ERROR, no doll name supplied")
 		return
 	sprite_frames = SpriteFrames.new()
 	__add_anim_from_spritesheet(doll_name, "idle")

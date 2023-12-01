@@ -348,7 +348,7 @@ func __resolve_load_map():
 	if ResourceLoader.load_threaded_get_status(map_scene_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		return
 	if ResourceLoader.load_threaded_get_status(map_scene_path) != ResourceLoader.THREAD_LOAD_LOADED:
-		print("ERROR loading resources")
+		push_error("error loading resources")
 		is_loading_map_scene = false
 		return
 	var map_scene = ResourceLoader.load_threaded_get(map_scene_path) as PackedScene

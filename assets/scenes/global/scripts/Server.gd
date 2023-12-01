@@ -23,9 +23,7 @@ func wipe():
 	is_initialized = false
 	is_in_game = false
 	EventBus.player_list_updated.emit(player_dict)
-	if tween_timer != null:
-		tween_timer.kill()
-		tween_timer = null
+	__kill_timer()
 
 
 func initialize():
@@ -109,7 +107,7 @@ func __resolve_load_map():
 	if ResourceLoader.load_threaded_get_status(map_scene_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		return
 	if ResourceLoader.load_threaded_get_status(map_scene_path) != ResourceLoader.THREAD_LOAD_LOADED:
-		print("ERROR loading resources")
+		push_error("error loading resources")
 		is_loading_map_scene = false
 		return
 	var map_scene = ResourceLoader.load_threaded_get(map_scene_path) as PackedScene
@@ -131,7 +129,7 @@ func process_player_move_request(pid, move_steps: Array):
 	var action_response: ActionResponse = ActionResponse.new()
 	var tmp_action_results = []
 	if pid != game_state.turn_of_player:
-		print("MOVE TURN HACK")
+		push_error("MOVE TURN HACK")
 		return
 	var player: Player = game_state.player_dict[pid]
 	var step_to_mapgrid_offset = Global.Constant.Direction.STEP_TO_V2OFFSET
@@ -139,7 +137,7 @@ func process_player_move_request(pid, move_steps: Array):
 		var next_cell = player.player_game_data.mapgrid_position + step_to_mapgrid_offset[step]
 		var ap_cost = server_tile_map.get_ap_cost_at(next_cell, -1)
 		if ap_cost == -1 or ap_cost > player.player_game_data.current_ap:
-			print("MOVE COST HACK")
+			push_error("MOVE COST HACK")
 		player.player_game_data.current_ap -= ap_cost
 		player.player_game_data.mapgrid_position = next_cell
 		var mv_result = MoveResult.new().set_stuff(pid, step)
@@ -153,7 +151,7 @@ func process_player_move_request(pid, move_steps: Array):
 
 func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 	if attacker_id != game_state.turn_of_player:
-		print("ATTACK TURN HACK")
+		push_error("ATTACK TURN HACK")
 		return
 	var attacked_players = []
 	var attacker: Player = game_state.player_dict[attacker_id]
@@ -166,9 +164,9 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 	var attacker_mapgrid_position = attacker.player_game_data.mapgrid_position
 
 	if attacker_attack_cost > attacker.player_game_data.current_ap:
-		print("ATTACK COST HACK")
+		push_error("ATTACK COST HACK")
 	if Global.Util.manhantan_distance(target_mapgrid, attacker_mapgrid_position) > attacker_attack_range:
-		print("ATTACK RANGE HACK")
+		push_error("ATTACK RANGE HACK")
 
 	tmp_action_results.append(AttackResult.new().set_stuff(attacker_id, target_mapgrid))
 	# get list of players at targeted mapgrid excluding self
@@ -213,7 +211,7 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 
 func process_player_end_turn_request(pid):
 	if pid != game_state.turn_of_player:
-		print("END TURN HACK")
+		push_error("END TURN HACK")
 		return
 	game_state.player_end_turn()
 
