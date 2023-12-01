@@ -62,7 +62,7 @@ func player_pick_class(data: Dictionary):
 @rpc("authority", "call_local", "reliable", 0)
 func game_start(data: Dictionary):
 	var message: GameStartMessage = SRLZ.deserialize(data)
-	EventBus.game_started.emit(message.game_state)
+	EventBus.game_start_message_sent.emit(message.game_state)
 
 
 @rpc("any_peer", "call_local", "reliable", 0)

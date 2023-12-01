@@ -16,9 +16,12 @@ var is_in_game: bool = false
 
 var tween_timer: Tween
 
+var effect_dict: Dictionary = {}
+
 func wipe():
 	if is_initialized == false:
 		return
+	__remove_all_effects()
 	player_dict = {}
 	is_initialized = false
 	is_in_game = false
@@ -55,15 +58,43 @@ func player_set_class(pid, class_id):
 	player_dict[pid] = player
 	if all_players_picked_class() == true:
 		game_state = GameState.new(player_dict, server_tile_map.spawn_points)
+		for _pid in player_dict.keys():
+			var test_effect = DoubleAPPerk.new(_pid)
+			__add_effect_for_player(_pid, test_effect)
+		EventBus.game_started.emit(game_state)
 		game_state.advance_turn()
 		Rpc.game_start.rpc(SRLZ.serialize(GameStartMessage.new(game_state)))
 		__refresh_turn_timer()
+
+
+func __add_effect_for_player(pid, effect: GameEffect):
+	effect.activate(game_state)
+	if effect_dict.has(pid):
+		effect_dict[pid].append(effect)
+	else:
+		effect_dict[pid] = [effect]
+
+
+func __remove_all_effects():
+	for pid in effect_dict.keys():
+		__remove_all_effects_for_player(pid)
+
+
+func __remove_all_effects_for_player(pid):
+	if effect_dict.has(pid) == false:
+		return
+	var effects = effect_dict[pid]
+	for _effect in effects:
+		var effect: GameEffect = _effect
+		effect.deactivate()
+	effect_dict.erase(pid)
 
 
 func remove_player(pid):
 	var player: Player = player_dict[pid] if player_dict.has(pid) else null
 	var dn = player.display_name if player != null else "nil"
 	player_dict.erase(pid)
+	__remove_all_effects_for_player(pid)
 	Rpc.update_player_list.rpc(serialize_player_dict())
 	check_room_readiness()
 	return dn
@@ -131,9 +162,11 @@ func serialize_player_dict():
 func process_player_move_request(pid, move_steps: Array):
 	var action_response: ActionResponse = ActionResponse.new()
 	var tmp_action_results = []
+	var move_context: MoveContext = MoveContext.new(pid, move_steps, game_state, tmp_action_results)
 	if pid != game_state.turn_of_player:
 		push_error("MOVE TURN HACK")
 		return
+	EventBus.movement_declared.emit(move_context)
 	var player: Player = game_state.player_dict[pid]
 	var step_to_mapgrid_offset = Global.Constant.Direction.STEP_TO_V2OFFSET
 	for step in move_steps:
@@ -141,11 +174,15 @@ func process_player_move_request(pid, move_steps: Array):
 		var ap_cost = server_tile_map.get_ap_cost_at(next_cell, -1)
 		if ap_cost == -1 or ap_cost > player.player_game_data.current_ap:
 			push_error("MOVE COST HACK")
+		EventBus.tile_left.emit(move_context)
 		player.player_game_data.current_ap -= ap_cost
 		player.player_game_data.mapgrid_position = next_cell
 		var mv_result = MoveResult.new().set_stuff(pid, step)
 		tmp_action_results.append(mv_result)
+		move_context.advance_step()
+		EventBus.tile_entered.emit(move_context)
 	tmp_action_results.append(EndMoveResult.new().set_stuff(pid))
+	EventBus.movement_concluded.emit(move_context)
 	action_response.game_state = game_state
 	action_response.action_results = tmp_action_results
 	__check_game_conclusion(action_response)

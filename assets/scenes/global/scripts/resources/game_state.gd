@@ -25,11 +25,16 @@ func advance_turn():
 	turn_of_player = player_move_order[0]
 
 
-func player_end_turn():
+## Advances phase to the next player
+## Gives phase to first player if current phase is of last player and advances turn count by 1
+## Returns true if turn was advanced
+func player_end_turn() -> bool:
 	var next_player_id = __get_next_alive_player_id()
 	turn_of_player = next_player_id
 	if next_player_id == -1:
 		advance_turn()
+		return true
+	return false
 
 
 func __get_next_alive_player_id():

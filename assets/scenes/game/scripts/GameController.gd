@@ -30,7 +30,7 @@ var is_processing_action_response: bool = false
 var do_not_confirm_to_end: bool = false
 
 func _ready():
-	EventBus.game_started.connect(__game_started_handler)
+	EventBus.game_start_message_sent.connect(__game_started_handler)
 	EventBus.game_input_enabled.connect(__game_input_enabled_handler)
 	EventBus.anim_is_being_played.connect(__anim_is_being_played_handler)
 	EventBus.end_turn_confirmed.connect(__end_turn_confirmed_handler)

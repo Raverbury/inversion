@@ -20,8 +20,34 @@ signal game_class_selected(gcid)
 # game controller
 signal game_input_enabled(value)
 
-# server messages
+#region server events
+
+## Fires on game start
 signal game_started(game_state: GameState)
+
+## Fires before everything occurs
+signal movement_declared(move_context: MoveContext)
+## Fires just before moving/subtracting ap
+signal tile_left(move_context: MoveContext)
+## Fires after moving/subtracting ap and pushing MoveResult into action results
+signal tile_entered(move_context: MoveContext)
+## Fires after pushing EndMoveResult into action results
+signal movement_concluded(move_context: MoveContext)
+
+signal attack_declared()
+signal attack_individual_declared()
+signal attack_individual_hit()
+signal attack_individual_missed()
+signal attack_individual_concluded()
+signal attack_concluded()
+
+signal phase_ended()
+signal turn_ended()
+
+#endregion
+
+# server messages
+signal game_start_message_sent(game_state: GameState)
 signal action_response_received(action_response: ActionResponse)
 
 # player info ui
