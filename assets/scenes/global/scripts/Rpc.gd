@@ -71,23 +71,10 @@ func player_request_move(data: Dictionary):
 	Server.process_player_move_request(Main.root_mp.get_remote_sender_id(), message.move_steps)
 
 
-@rpc("authority", "call_local", "reliable", 0)
-func player_move_update(data: Dictionary):
-	var message: PlayerMoveResponseMessage = SRLZ.deserialize(data)
-	EventBus.player_move_updated.emit(message.player_id, message.move_steps, message.game_state)
-
-
 @rpc("any_peer", "call_local", "reliable", 0)
 func player_request_attack(data: Dictionary):
 	var message: PlayerAttackRequestMessage = SRLZ.deserialize(data)
 	Server.process_player_attack_request(Main.root_mp.get_remote_sender_id(), message.target_mapgrid)
-
-
-@rpc("authority", "call_local", "reliable", 0)
-func player_attack_update(data: Dictionary):
-	var message: PlayerAttackResponseMessage = SRLZ.deserialize(data)
-	EventBus.player_attack_updated.emit(message.attacker_id, message.target_mapgrid, message.victims, message.game_state,
-		message.result, message.victors)
 
 
 @rpc("any_peer", "call_local", "reliable", 0)
@@ -96,6 +83,6 @@ func player_request_end_turn():
 
 
 @rpc("authority", "call_local", "reliable", 0)
-func player_end_turn_update(data: Dictionary):
-	var message: PlayerEndTurnResponseMessage = SRLZ.deserialize(data)
-	EventBus.player_end_turn_updated.emit(message.game_state)
+func send_action_response(data: Dictionary):
+	var action_response: ActionResponse = SRLZ.deserialize(data)
+	EventBus.action_response_received.emit(action_response)

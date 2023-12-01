@@ -22,9 +22,7 @@ signal game_input_enabled(value)
 
 # server messages
 signal game_started(game_state: GameState)
-signal player_move_updated(pid, move_steps, game_state)
-signal player_attack_updated(pid, target_mapgrid, victims, game_state, result, victors)
-signal player_end_turn_updated(game_state)
+signal action_response_received(action_response: ActionResponse)
 
 # player info ui
 signal player_info_updated(player: Player, stat_mods: TileStatBonus)
@@ -43,6 +41,7 @@ signal class_select_ui_freed()
 signal turn_ui_freed()
 signal turn_displayed(player_name: String, is_me: bool, turn: int)
 signal game_resolved(result, victor_name)
+signal phase_display_finished()
 
 # end turn ui
 signal end_turn_prompt_ui_freed()
@@ -61,10 +60,12 @@ signal camera_zoomed(direction: int)
 signal camera_bounds_updated(max_x_mapgrid, min_x_mapgrid, max_y_mapgrid, min_y_mapgrid)
 
 # player
-signal player_moved(pid: int, movement_steps: Array)
-signal player_attacked(pid: int, target_mapgrid: Vector2i)
-signal player_was_attacked(pid: int, hit: bool, damage_taken: int, is_dead: bool)
-signal attack_anim_finished()
+signal player_sprite_moved(pid: int, movement_step: int)
+signal player_sprite_move_finished()
+signal player_sprite_ended_movement_chain(pid: int)
+signal player_sprite_attacked(pid: int, target_mapgrid: Vector2i)
+signal player_sprite_was_attacked(pid: int, hit: bool, damage_taken: int, is_dead: bool)
+signal player_sprite_attack_finished()
 signal anim_is_being_played(value: bool)
 signal turn_color_updated(turn_of_player)
 signal tooltip_updated(pid: int, tooltip_text: String)

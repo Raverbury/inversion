@@ -28,9 +28,10 @@ func _ready():
 	__prepare_animations()
 	play("idle")
 	display_name_label.text = display_name
-	EventBus.player_moved.connect(__player_moved_handler)
-	EventBus.player_attacked.connect(__player_attacked_handler)
-	EventBus.player_was_attacked.connect(__player_was_attacked_handler)
+	EventBus.player_sprite_moved.connect(__player_sprite_moved_handler)
+	EventBus.player_sprite_ended_movement_chain.connect(__player_sprite_ended_movement_chain_handler)
+	EventBus.player_sprite_attacked.connect(__player_sprite_attacked_handler)
+	EventBus.player_sprite_was_attacked.connect(__player_sprite_was_attacked_handler)
 	EventBus.turn_color_updated.connect(__turn_color_updated_handler)
 	EventBus.tooltip_updated.connect(__tooltip_updated_handler)
 	display_name_label.label_settings = LabelSettings.new()
@@ -61,21 +62,10 @@ func __turn_color_updated_handler(turn_of_player):
 		display_name_label.label_settings.font_color = Color.WHITE if is_me == true else Color.DARK_GRAY
 
 
-func __process_queued_movement():
-	if queued_movement.is_empty():
-		play("idle")
-		EventBus.anim_is_being_played.emit(false)
-		return
-	if is_moving:
-		return
-	last_dir = queued_movement.pop_front()
-	EventBus.anim_is_being_played.emit(true)
-	play("move")
-	__move_with_lerp(last_dir)
-
-
 func __move_with_lerp(move_direction: int):
+	play("move")
 	is_moving = true
+	EventBus.anim_is_being_played.emit(true)
 	var step_2_offset = Global.Constant.Direction.STEP_TO_V2OFFSET
 	var target_pos = global_position + Vector2((step_2_offset[move_direction] * 32))
 	var t: Tween = create_tween()
@@ -86,28 +76,37 @@ func __move_with_lerp(move_direction: int):
 	elif move_direction == 2:
 		flip_h = false
 
+
 func __on_move_done():
 	is_moving = false
-	__process_queued_movement()
+	EventBus.anim_is_being_played.emit(false)
+	EventBus.player_sprite_move_finished.emit()
 
 
 func set_mapgrid_pos(mapgrid_position: Vector2):
 	global_position = Global.Util.global_coord_at(mapgrid_position)
 
 
-func __player_moved_handler(pid: int, steps: Array):
+func __player_sprite_moved_handler(pid: int, direction: int):
 	if is_dead == true:
 		return
 	if player_id != pid:
 		return
 	if is_moving == true:
 		return
-	if len(steps) * 0.4 >= MAX_MOVE_TWEEN_DURATION:
-		current_move_tween_duration = float(MAX_MOVE_TWEEN_DURATION / float(len(steps)))
-	else:
-		current_move_tween_duration = 0.4
-	queued_movement.append_array(steps)
-	__process_queued_movement()
+	current_move_tween_duration = 0.2
+	__move_with_lerp(direction)
+
+
+func __player_sprite_ended_movement_chain_handler(pid: int):
+	if is_dead == true:
+		return
+	if player_id != pid:
+		return
+	if is_moving == true:
+		return
+	is_moving = false
+	play("idle")
 
 
 func __add_anim_from_spritesheet(_doll_name: String, anim: String):
@@ -123,7 +122,7 @@ func __add_anim_from_spritesheet(_doll_name: String, anim: String):
 	sprite_frames.set_animation_speed(anim, 60)
 
 
-func __player_attacked_handler(pid, _target_mapgrid):
+func __player_sprite_attacked_handler(pid, _target_mapgrid):
 	if is_dead == true:
 		return
 	if player_id != pid:
@@ -134,13 +133,13 @@ func __player_attacked_handler(pid, _target_mapgrid):
 		flip_h = false
 	elif global_target_pos.x < global_position.x:
 		flip_h = true
-	animation_finished.connect(__attack_anim_finished)
+	animation_finished.connect(__player_sprite_attack_finished)
 	play("attack")
 
 
-func __attack_anim_finished():
-	animation_finished.disconnect(__attack_anim_finished)
-	EventBus.attack_anim_finished.emit()
+func __player_sprite_attack_finished():
+	animation_finished.disconnect(__player_sprite_attack_finished)
+	EventBus.player_sprite_attack_finished.emit()
 	var wait_tween = create_tween()
 	wait_tween.tween_interval(attack_done_wait_tween_duration)
 	wait_tween.finished.connect(__attack_wait_tween_finished)
@@ -151,7 +150,7 @@ func __attack_wait_tween_finished():
 	EventBus.anim_is_being_played.emit(false)
 
 
-func __player_was_attacked_handler(pid: int, hit: bool, damage_taken: int, _is_dead: bool):
+func __player_sprite_was_attacked_handler(pid: int, hit: bool, damage_taken: int, _is_dead: bool):
 	if is_dead == true:
 		return
 	if player_id != pid:

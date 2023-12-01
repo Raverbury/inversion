@@ -128,6 +128,8 @@ func serialize_player_dict():
 
 
 func process_player_move_request(pid, move_steps: Array):
+	var action_response: ActionResponse = ActionResponse.new()
+	var tmp_action_results = []
 	if pid != game_state.turn_of_player:
 		print("MOVE TURN HACK")
 		return
@@ -140,7 +142,13 @@ func process_player_move_request(pid, move_steps: Array):
 			print("MOVE COST HACK")
 		player.player_game_data.current_ap -= ap_cost
 		player.player_game_data.mapgrid_position = next_cell
-	Rpc.player_move_update.rpc(SRLZ.serialize(PlayerMoveResponseMessage.new(pid, move_steps, game_state)))
+		var mv_result = MoveResult.new().set_stuff(pid, step)
+		tmp_action_results.append(mv_result)
+	tmp_action_results.append(EndMoveResult.new().set_stuff(pid))
+	action_response.game_state = game_state
+	action_response.action_results = tmp_action_results
+	__check_game_conclusion(action_response)
+	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))
 
 
 func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
@@ -149,6 +157,8 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 		return
 	var attacked_players = []
 	var attacker: Player = game_state.player_dict[attacker_id]
+	var action_response: ActionResponse = ActionResponse.new()
+	var tmp_action_results = []
 
 	# validation
 	var attacker_attack_range = attacker.player_game_data.attack_range
@@ -160,6 +170,7 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 	if Global.Util.manhantan_distance(target_mapgrid, attacker_mapgrid_position) > attacker_attack_range:
 		print("ATTACK RANGE HACK")
 
+	tmp_action_results.append(AttackResult.new().set_stuff(attacker_id, target_mapgrid))
 	# get list of players at targeted mapgrid excluding self
 	for pid in game_state.player_dict.keys():
 		if pid == attacker_id:
@@ -169,38 +180,35 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 			attacked_players.append(player)
 
 	# dmg calculation
-	var victim_dict: Dictionary = {}
+	var inner_action_results = []
 	var attacker_attack_power = attacker.player_game_data.attack_power
 	var attacker_mod_stats = server_tile_map.get_stat_mods_at(attacker_mapgrid_position)
+	var attacked_result = AttackedResult.new()
 	for victim in attacked_players:
 		var victim_mod_stats = server_tile_map.get_stat_mods_at(target_mapgrid)
 		var final_victim_armor = victim.player_game_data.armor + victim_mod_stats["armor_mod"]
 		var hit_rate: float = Global.Util.calc_hit_rate(attacker.player_game_data, victim.player_game_data,
 			attacker_mod_stats, victim_mod_stats)
 		var is_attack_a_hit = Global.Util.roll_acc_eva_check(hit_rate)
-		victim_dict[victim.peer_id] = [is_attack_a_hit, 0]
+		attacked_result.set_stuff(victim.peer_id, is_attack_a_hit, 0, false)
 		var damage: int = 0
 		if is_attack_a_hit == true:
 			damage = attacker_attack_power - final_victim_armor
 			damage = clamp(damage, 1, victim.player_game_data.current_hp)
 			victim.player_game_data.current_hp -= damage
-			victim_dict[victim.peer_id][1] = damage
-		print("Attacked %s %s, %s%% hit rate" % [victim.display_name, ("for %s damage" % damage)
-			if is_attack_a_hit else "and missed", hit_rate])
+			attacked_result.damage_taken = damage
+			attacked_result.is_dead = victim.player_game_data.current_hp <= 0
+			# print("Attacked %s %s, %s%% hit rate" % [victim.display_name, ("for %s damage" % damage)
+			# 	if is_attack_a_hit else "and missed", hit_rate])
+		inner_action_results.append(attacked_result)
 	attacker.player_game_data.current_ap -= attacker_attack_cost
 
 	# send attack response
-	var alive_list = game_state.get_alive_player_list()
-	var result: GameState.RESULT
-	if len(alive_list) == 0:
-		result = GameState.RESULT.DRAW
-	elif len(alive_list) == 1 and len(game_state.player_dict.keys()) > 1:
-		result = GameState.RESULT.WIN_LOSE
-	else:
-		result = GameState.RESULT.ON_GOING
-	var message: PlayerAttackResponseMessage = PlayerAttackResponseMessage.new(attacker_id,
-		target_mapgrid, victim_dict, game_state, result, alive_list)
-	Rpc.player_attack_update.rpc(SRLZ.serialize(message))
+	tmp_action_results.append(inner_action_results)
+	action_response.game_state = game_state
+	action_response.action_results = tmp_action_results
+	__check_game_conclusion(action_response)
+	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))
 
 
 func process_player_end_turn_request(pid):
@@ -209,8 +217,13 @@ func process_player_end_turn_request(pid):
 		return
 	game_state.player_end_turn()
 
-	var message: PlayerEndTurnResponseMessage = PlayerEndTurnResponseMessage.new(game_state)
-	Rpc.player_end_turn_update.rpc(SRLZ.serialize(message))
+	var action_response: ActionResponse = ActionResponse.new()
+	action_response.game_state = game_state
+	action_response.action_results = [EndPhaseResult.new().set_stuff(game_state)]
+
+	__check_game_conclusion(action_response)
+
+	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))
 	__refresh_turn_timer()
 
 
@@ -223,10 +236,29 @@ func process_player_send_chat_message(pid, display_name, text_message):
 	Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
 
 
-func __refresh_turn_timer():
+func __check_game_conclusion(action_response: ActionResponse):
+	var result: GameState.RESULT
+	var alive_list = game_state.get_alive_player_list()
+	if len(alive_list) == 0:
+		result = GameState.RESULT.DRAW
+	elif len(alive_list) == 1 and len(game_state.player_dict.keys()) > 1:
+		result = GameState.RESULT.WIN_LOSE
+	else:
+		result = GameState.RESULT.ON_GOING
+	if result == GameState.RESULT.ON_GOING:
+		return
+	__kill_timer()
+	action_response.action_results.append(GameConcludeResult.new().set_stuff(result, alive_list))
+
+
+func __kill_timer():
 	if tween_timer != null:
 		tween_timer.kill()
 		tween_timer = null
+
+
+func __refresh_turn_timer():
+	__kill_timer()
 	tween_timer = create_tween()
 	tween_timer.tween_interval(Global.Constant.Misc.TURN_TIMER_DURATION)
 	tween_timer.finished.connect(__turn_timer_timed_out)

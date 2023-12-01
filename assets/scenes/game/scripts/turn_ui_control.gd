@@ -84,3 +84,4 @@ func __tween_out():
 
 func __tween_out_done():
 	EventBus.anim_is_being_played.emit(false)
+	EventBus.phase_display_finished.emit()
