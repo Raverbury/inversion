@@ -51,15 +51,15 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Build artifact - Linux
-          path: ${{ github.workspace }}/${{ steps.build_linux.outputs.build }}build/linux.zip
+          path: ${{ github.workspace }}/${{ steps.build_linux.outputs.build }}linux.zip
 
       - name: Upload Artifact - Mac
         uses: actions/upload-artifact@v2
         with:
           name: Build artifact - Mac
-          path: ${{ github.workspace }}/${{ steps.build_mac.outputs.build }}build/mac.zip
+          path: ${{ github.workspace }}/${{ steps.build_mac.outputs.build }}mac.zip
                 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{ github.workspace }}/${{ steps.build.outputs.build }}build/*
+          artifacts: ${{ github.workspace }}/build/*
