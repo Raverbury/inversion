@@ -11,12 +11,30 @@ class Util:
 		return abs(mapgrid1.x - mapgrid2.x) + abs(mapgrid1.y - mapgrid2.y)
 
 
-	static func get_random_from_list(list):
+	static func draw_random_passives_for_class(class_id: int, max_passives: int):
+		var all_class_passive_pools = Global.PlayerClassData.CLASS_PASSIVES
+		if not all_class_passive_pools.has(class_id):
+			return []
+		var class_passive_pool: Array = all_class_passive_pools[class_id].duplicate()
+		var result = []
+		for i in range(max_passives):
+			if class_passive_pool.is_empty():
+				return result
+			var draw = Global.Util.get_random_from_list(class_passive_pool, true)
+			result.append(draw)
+		return result
+
+
+	static func get_random_from_list(list, remove_afterward = false):
 		var length = len(list)
-		return list[Global.__rng_source.randi_range(0, length - 1)]
+		var random_index = Global.__rng_source.randi_range(0, length - 1)
+		var item = list[random_index]
+		if remove_afterward == true:
+			list.pop_at(random_index)
+		return item
 
 
-	static func roll_acc_eva_check(hit_rate: float) -> bool:
+	static func roll_float_on_scale_100(hit_rate: float) -> bool:
 		var roll = Global.__rng_source.randf_range(0.0, 100.0)
 		return hit_rate >= roll
 
@@ -34,7 +52,7 @@ class Util:
 
 
 	static func calc_hit_rate(attacker: PlayerGameData, victim: PlayerGameData,
-		attacker_stat_mod: Dictionary, victim_stat_mod: Dictionary):
+		attacker_stat_mods: TileStatBonus, victim_stat_mods: TileStatBonus):
 		var distance = Global.Util.manhantan_distance(attacker.mapgrid_position,
 			victim.mapgrid_position)
 		var ranged_acc_mod = (attacker.ranged_accuracy_modifier[distance] if
@@ -42,9 +60,9 @@ class Util:
 		# out of range then always miss
 		if ranged_acc_mod == 0.0:
 			return 0.0
-		var final_accuracy = (attacker.accuracy + attacker_stat_mod["accuracy_mod"])
+		var final_accuracy = (attacker.accuracy + attacker_stat_mods.accuracy_mod)
 		final_accuracy = clampf(final_accuracy, 0.0, final_accuracy)
-		var final_evasion = victim.evasion + victim_stat_mod["evasion_mod"]
+		var final_evasion = victim.evasion + victim_stat_mods.evasion_mod
 		final_evasion = clampf(final_evasion, 0.0, final_evasion)
 		# cases where both acc and eva are 0 then 50/50
 		if final_accuracy + final_evasion == 0.0:
@@ -167,18 +185,25 @@ class PlayerClassData:
 	const CLASS_DATA = {
 		# cid: name,    hp, acc, eva, armor, fp, cost, ap, vision,
 		# ranged acc mod, weapon name, doll id, description
-		0: ["Sniper",   20, 30,  10,  0,     7,  5,    12, 10,
-			[0.6, 0.6, 0.6, 0.6, 1.0, 1.0, 1.8, 1.8], # range of 7
+		0: ["Sniper",   21, 30,  10,  0,     7,  4,    12, 10,
+			[0.8, 0.8, 0.8, 0.8, 1.0, 1.0, 1.0, 1.8, 1.8, 1.8, 1.8, 1.0], # range of 11
 			"M14", "m14", "Long-range attacker with high accuracy"],
-		1: ["Scout",    25, 15,  30,  0,     4,  3,    18, 10,
-			[1.5, 1.5, 1.5, 1.5, 1.0, 0.6], # range of 5
+		1: ["Scout",    26, 15,  30,  0,     4,  3,    18, 10,
+			[1.5, 1.5, 1.5, 1.5, 1.5, 1.0], # range of 5
 			"Desert Eagle", "desert_eagle", "Always on the move and evasive"],
-		2: ["Vanguard", 35, 15,  5,   2,     5,  4,    14, 10,
-			[2.0, 2.0, 2.0, 1.0, 0.8], # range of 4
+		2: ["Vanguard", 29, 13,  -10, 2,     5,  4,    12, 10,
+			[1.7, 1.7, 1.7, 1.0, 0.3], # range of 4
 			"Winchester M1887", "m1887", "Armored and devastating with point-blank blasts"],
-		3: ["Assault",  25, 20,  15,  0,     5,  4,    14, 10,
-			[1.0, 1.4, 1.4, 1.4, 1.0, 1.0, 0.6], # range of 6
+		3: ["Assault",  26, 22,  15,  0,     5,  2,    13, 10,
+			[1.5, 1.5, 1.5, 1.5, 1.0, 1.0, 1.0, 0.8], # range of 7
 			"Zastava M21", "zas_m21", "Stock standard all-rounder"],
+	}
+
+	static var CLASS_PASSIVES = {
+		0: [HappyCamperEffect, FocusShotEffect],
+		1: [NomadEffect, IncendiaryRoundEffect],
+		2: [PerseveranceEffect, BerserkEffect],
+		3: [StabilizedAimEffect, DisciplinedShootingEffect]
 	}
 
 	static func getPlayerGameDataBasedOnClass(class_id) -> PlayerGameData:

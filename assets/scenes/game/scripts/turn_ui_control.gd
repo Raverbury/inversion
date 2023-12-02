@@ -54,8 +54,8 @@ func __turn_displayed_handler(player_name: String, is_me: bool, turn: int):
 
 
 func __game_resolved_handler(result: GameState.RESULT, victor_name: String):
-	player_label.text = ("%s's " % victor_name) if result == GameState.RESULT.WIN_LOSE else "DRAW"
-	move_label.text = "VICTORY"
+	player_label.text = ("%s's " % victor_name) if result == GameState.RESULT.WIN_LOSE else ""
+	move_label.text = "VICTORY" if result == GameState.RESULT.WIN_LOSE else "DRAW"
 	turn_label.text = "Gameover"
 	EventBus.anim_is_being_played.emit(true)
 	var tween_in = create_tween()
@@ -84,3 +84,4 @@ func __tween_out():
 
 func __tween_out_done():
 	EventBus.anim_is_being_played.emit(false)
+	EventBus.phase_display_finished.emit()

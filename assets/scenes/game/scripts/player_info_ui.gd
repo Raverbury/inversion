@@ -22,21 +22,18 @@ func _ready():
 	EventBus.player_info_ui_freed.connect(queue_free)
 
 
-func __player_info_updated_handler(player: Player, stat_mods: Dictionary):
+func __player_info_updated_handler(player: Player, stat_mods: TileStatBonus):
 	cached_player = player
 	var player_game_data = player.player_game_data
 	display_name_label.text = "%s %s" % [player_game_data.cls_name, player.display_name]
 	pid_label.text = "PID: %s" % player.peer_id
 	hp_label.text = "HP: %s/%s" % [player_game_data.current_hp, player_game_data.max_hp]
 	accuracy_label.text = "Accuracy: %s (%s)" % [player_game_data.accuracy,
-		("+%s" % stat_mods["accuracy_mod"] if stat_mods["accuracy_mod"] >= 0 else stat_mods["accuracy_mod"])
-			if stat_mods.has("accuracy_mod") else "+0"]
+		Global.Util.format_stat_mod_as_string(stat_mods.accuracy_mod)]
 	evasion_label.text = "Evasion: %s (%s)" % [player_game_data.evasion,
-		("+%s" % stat_mods["evasion_mod"] if stat_mods["evasion_mod"] >= 0 else stat_mods["evasion_mod"])
-			if stat_mods.has("evasion_mod") else "+0"]
+		Global.Util.format_stat_mod_as_string(stat_mods.evasion_mod)]
 	armor_label.text = "Armor: %s (%s)" % [player_game_data.armor,
-		("+%s" % stat_mods["armor_mod"] if stat_mods["armor_mod"] >= 0 else stat_mods["armor_mod"])
-			if stat_mods.has("armor_mod") else "+0"]
+		Global.Util.format_stat_mod_as_string(stat_mods.armor_mod)]
 	ap_label.text = "AP: %s (-0)/%s" % [("[color=red]%s[/color]" % player_game_data.current_ap)
 		if player_game_data.current_ap == 0 else player_game_data.current_ap, player_game_data.max_ap]
 	attack_power_label.text = "Attack power: %s" % [player_game_data.attack_power]

@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://cd0y1h7o6ycd1"]
+[gd_scene load_steps=4 format=3 uid="uid://cd0y1h7o6ycd1"]
 
 [ext_resource type="Script" path="res://assets/scenes/game/scripts/GamePlayerSprite.gd" id="2_a06pq"]
+[ext_resource type="Script" path="res://assets/scenes/game/scripts/custom_tooltip_control.gd" id="2_pfkqr"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_ssw3h"]
 
@@ -10,7 +11,7 @@ sprite_frames = SubResource("SpriteFrames_ssw3h")
 speed_scale = 0.0
 script = ExtResource("2_a06pq")
 
-[node name="HoverControl" type="Control" parent="."]
+[node name="CustomTooltipControl" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -23,6 +24,7 @@ offset_right = 16.0
 offset_bottom = 16.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("2_pfkqr")
 
 [node name="DisplayName" type="Label" parent="."]
 offset_left = -200.0
@@ -35,8 +37,8 @@ autowrap_mode = 3
 text_overrun_behavior = 4
 
 [node name="AttackFeedback" type="RichTextLabel" parent="."]
-offset_left = -100.0
-offset_right = 100.0
+offset_left = -400.0
+offset_right = 400.0
 offset_bottom = 50.0
 mouse_filter = 2
 bbcode_enabled = true

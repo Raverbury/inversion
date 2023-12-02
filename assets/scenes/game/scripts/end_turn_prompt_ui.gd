@@ -42,8 +42,8 @@ func __end_turn_prompt_showed_handler(has_remaining_ap: bool):
 
 
 func __yes_button_pressed():
-	EventBus.end_turn_confirmed.emit(do_not_remind_check_box.button_pressed)
 	set_display(false)
+	EventBus.end_turn_confirmed.emit(do_not_remind_check_box.button_pressed)
 
 
 func __no_button_pressed():

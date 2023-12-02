@@ -7,6 +7,7 @@ var tween_timer: Tween
 func _ready():
 	EventBus.turn_timer_ui_freed.connect(__freed_handler)
 	EventBus.turn_timer_refreshed.connect(__turn_timer_refreshed_handler)
+	EventBus.game_resolved.connect(__game_resolved_handler)
 
 
 func __turn_timer_refreshed_handler():
@@ -29,8 +30,16 @@ func __set_timer_text(duration_left):
 		timer.label_settings.font_color = Color.WHITE
 
 
-func __freed_handler():
+func __kill_timer():
 	if tween_timer != null:
 		tween_timer.kill()
 		tween_timer = null
+
+
+func __freed_handler():
+	__kill_timer()
 	queue_free()
+
+
+func __game_resolved_handler(_result, _alive):
+	__kill_timer()

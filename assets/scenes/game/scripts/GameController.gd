@@ -1,7 +1,8 @@
 extends Node2D
 
-var game_state: GameState
+var game_state: GameState : set = __set_game_state
 
+var game_is_initialized: bool = false
 var tile_map: GameTileMap = null
 var make_path_last_cell: Vector2i
 var make_path_has_last_cell: bool = false
@@ -20,24 +21,21 @@ var current_move_path: Array = []
 var current_path_cost = 0
 var attack_targets: Array = []
 
-var cached_victims: Dictionary = {}
 var cached_result: GameState.RESULT = GameState.RESULT.ON_GOING
-var cached_victors: Array = []
+var cached_action_response: ActionResponse
 
 var menu_is_opened: bool = false
 var anim_is_playing: bool = false
+var is_processing_action_response: bool = false
 
 var do_not_confirm_to_end: bool = false
 
 func _ready():
-	EventBus.game_started.connect(__game_started_handler)
-	EventBus.player_move_updated.connect(__player_move_updated_handler)
-	EventBus.player_attack_updated.connect(__player_attack_updated_handler)
-	EventBus.attack_anim_finished.connect(__attack_anim_finished_handler)
 	EventBus.game_input_enabled.connect(__game_input_enabled_handler)
 	EventBus.anim_is_being_played.connect(__anim_is_being_played_handler)
 	EventBus.end_turn_confirmed.connect(__end_turn_confirmed_handler)
-	EventBus.player_end_turn_updated.connect(__player_end_turn_updated_handler)
+	EventBus.action_response_received.connect(__action_response_received_handler)
+	EventBus.game_resolved.connect(__game_resolved_handler)
 
 
 func _exit_tree():
@@ -53,37 +51,6 @@ func load_map(scene_path):
 	ResourceLoader.load_threaded_request(scene_path)
 	map_scene_path = scene_path
 	is_loading_map_scene = true
-
-
-func __should_listen_to_input() -> bool:
-	return not (menu_is_opened or anim_is_playing or cached_result != GameState.RESULT.ON_GOING)
-
-
-func __should_control_camera() -> bool:
-	return not (menu_is_opened)
-
-
-func __resolve_load_map():
-	if is_loading_map_scene == false:
-		return
-	if ResourceLoader.load_threaded_get_status(map_scene_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-		return
-	if ResourceLoader.load_threaded_get_status(map_scene_path) != ResourceLoader.THREAD_LOAD_LOADED:
-		print("ERROR loading resources")
-		is_loading_map_scene = false
-		return
-	var map_scene = ResourceLoader.load_threaded_get(map_scene_path) as PackedScene
-	tile_map = map_scene.instantiate()
-	add_child(tile_map)
-	move_child(tile_map, 0)
-	is_loading_map_scene = false
-	Main.add_ui(Global.Constant.Scene.END_TURN_PROMPT_UI, 0)
-	Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
-	Main.add_ui(Global.Constant.Scene.TURN_TIMER_UI, 0)
-	Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
-	Main.add_ui(Global.Constant.Scene.TURN_UI, 0)
-	Main.add_ui(Global.Constant.Scene.PLAYER_INFO_UI, 0)
-	EventBus.camera_bounds_updated.emit(tile_map.max_x_mapgrid, tile_map.min_x_mapgrid, tile_map.max_y_mapgrid, tile_map.min_y_mapgrid)
 
 
 func _process(_delta):
@@ -108,6 +75,7 @@ func _input(event):
 	__choose_attack_target(event)
 	__send_attack_target(event)
 
+#region input processing
 
 func __process_command(event: InputEvent):
 	if not __is_my_turn():
@@ -362,9 +330,39 @@ func __control_camera():
 	if zoom_direction != 0:
 		EventBus.camera_zoomed.emit(zoom_direction)
 
+#endregion
 
-func get_ap_cost(coord):
-	return tile_map.get_ap_cost_at(coord)
+#region internal processing and algo
+
+func __should_listen_to_input() -> bool:
+	return not (menu_is_opened or anim_is_playing or cached_result != GameState.RESULT.ON_GOING)
+
+
+func __should_control_camera() -> bool:
+	return not (menu_is_opened)
+
+
+func __resolve_load_map():
+	if is_loading_map_scene == false:
+		return
+	if ResourceLoader.load_threaded_get_status(map_scene_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		return
+	if ResourceLoader.load_threaded_get_status(map_scene_path) != ResourceLoader.THREAD_LOAD_LOADED:
+		push_error("error loading resources")
+		is_loading_map_scene = false
+		return
+	var map_scene = ResourceLoader.load_threaded_get(map_scene_path) as PackedScene
+	tile_map = map_scene.instantiate()
+	add_child(tile_map)
+	move_child(tile_map, 0)
+	is_loading_map_scene = false
+	Main.add_ui(Global.Constant.Scene.END_TURN_PROMPT_UI, 0)
+	Main.add_ui(Global.Constant.Scene.CLASS_SELECT_UI, 0)
+	Main.add_ui(Global.Constant.Scene.TURN_TIMER_UI, 0)
+	Main.add_ui(Global.Constant.Scene.TILE_INFO_UI, 0)
+	Main.add_ui(Global.Constant.Scene.TURN_UI, 0)
+	Main.add_ui(Global.Constant.Scene.PLAYER_INFO_UI, 0)
+	EventBus.camera_bounds_updated.emit(tile_map.max_x_mapgrid, tile_map.min_x_mapgrid, tile_map.max_y_mapgrid, tile_map.min_y_mapgrid)
 
 
 func get_reachable_tiles(source: Vector2i, ap: int):
@@ -379,7 +377,7 @@ func get_reachable_tiles(source: Vector2i, ap: int):
 
 
 func traverse(ap, coord, reachables, coming_from, cache):
-	var ap_cost = get_ap_cost(coord)
+	var ap_cost = tile_map.get_ap_cost_at(coord)
 	if ap_cost == -1:
 		return
 	if cache.has(coord):
@@ -461,21 +459,23 @@ func a_star(start_mapgrid: Vector2i, goal_mapgrid: Vector2i, current_ap: int):
 	return []
 
 
-func __game_started_handler(_game_state: GameState):
-	EventBus.class_select_ui_freed.emit()
-	for pid in _game_state.player_dict:
-		var player_sprite_ps = load(Global.Constant.Scene.PLAYER_SPRITE_SCENE) as PackedScene
-		var player_sprite: GamePlayerSprite = player_sprite_ps.instantiate()
-		player_sprite.doll_name = _game_state.player_dict[pid].player_game_data.doll_name
-		player_sprite.player_id = pid
-		player_sprite.display_name = _game_state.player_dict[pid].display_name
-		player_sprite.set_mapgrid_pos(_game_state.player_dict[pid].player_game_data.mapgrid_position)
-		player_sprite.is_me = pid == Main.root_mp.get_unique_id()
-		add_child(player_sprite)
-	__set_game_state(_game_state)
-	EventBus.camera_force_panned.emit(Global.Util.global_coord_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
-	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
-	EventBus.turn_timer_refreshed.emit()
+func __process_next_action_result():
+	var action_results = cached_action_response.get_next_result()
+	# done
+	if action_results.is_empty():
+		is_processing_action_response = false
+		return
+	var index: int = 0
+	var max_index = len(action_results) - 1
+	print(action_results)
+	for _action_result in action_results:
+		# nice type hint hack lmao
+		var action_result: ActionResult = _action_result
+		# check for finished signal from last result only
+		if index == max_index:
+			action_result.finished.connect(__process_next_action_result)
+		action_result.show()
+	# do as above instead of calling process next here to wait for anim
 
 
 func __get_my_player() -> Player:
@@ -509,27 +509,56 @@ func __set_game_state(_game_state: GameState):
 		EventBus.tooltip_updated.emit(pid, tooltip_text)
 
 
-func __player_move_updated_handler(pid, move_steps, _game_state):
-	__set_game_state(_game_state)
-	EventBus.player_moved.emit(pid, move_steps)
+func __get_tooltip_stats_for_player(pid: int):
+	if game_state == null:
+		return ""
+	# if __get_my_player().peer_id == pid:
+	# 	return ""
+	var player: Player = game_state.player_dict[pid]
+	var pgd: PlayerGameData = player.player_game_data
+	var their_stat_mods = tile_map.get_stat_mods_at(pgd.mapgrid_position)
+	var my_stat_mods = tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position)
+	var result: String = (
+		("%s %s (%s)\n" % [pgd.cls_name, player.display_name, player.peer_id]) +
+		("HP: %s/%s    " % [pgd.current_hp, pgd.max_hp]) +
+		("AP: %s/%s\n" % [pgd.current_ap, pgd.max_ap]) +
+		("ACC: %s (%s)    " % [pgd.accuracy, Global.Util.format_stat_mod_as_string(their_stat_mods.accuracy_mod)]) +
+		("EVA: %s (%s)\n" % [pgd.evasion, Global.Util.format_stat_mod_as_string(their_stat_mods.evasion_mod)]) +
+		("Armor: %s (%s)    " % [pgd.armor, Global.Util.format_stat_mod_as_string(their_stat_mods.armor_mod)]) +
+		("Attack power: %s\n" % pgd.attack_power) +
+		("Attack range: %s    " % pgd.attack_range) +
+		("Attack cost: %s\n" % pgd.attack_cost) +
+		("Vision range: %s    " % pgd.vision_range) +
+		("Hit rate: %.2f%%\n" % Global.Util.calc_hit_rate(__get_my_player().player_game_data,
+			pgd, my_stat_mods, their_stat_mods)) +
+		("<<<Active effects>>>\n") +
+		("%s" % pgd.effect_descriptions)
+	)
+	return result
 
 
-func __player_attack_updated_handler(attacker_id: int, target_mapgrid: Vector2i, victims: Dictionary, _game_state: GameState,
-		_result: GameState.RESULT, _victors: Array):
-	__set_game_state(_game_state)
-	EventBus.player_attacked.emit(attacker_id, target_mapgrid)
-	cached_victims = victims
-	cached_result = _result
-	cached_victors = _victors
+func __send_end_turn():
+	__set_action_mode(ACTION_MODE.VIEW_MODE)
+	Rpc.player_request_end_turn.rpc_id(1)
 
+#endregion
 
-func __attack_anim_finished_handler():
-	for victim_id in cached_victims:
-		var hit = cached_victims[victim_id][0]
-		var damage_taken = cached_victims[victim_id][1]
-		EventBus.player_was_attacked.emit(victim_id, hit, damage_taken, game_state.player_dict[victim_id].player_game_data.current_hp <= 0)
-	if cached_result != GameState.RESULT.ON_GOING:
-		EventBus.game_resolved.emit(cached_result, game_state.player_dict[cached_victors[0]].display_name)
+#region event listeners
+
+func __game_setup(_game_state: GameState):
+	if game_is_initialized == true:
+		return
+	EventBus.class_select_ui_freed.emit()
+	for pid in _game_state.player_dict:
+		var player_sprite_ps = load(Global.Constant.Scene.PLAYER_SPRITE_SCENE) as PackedScene
+		var player_sprite: GamePlayerSprite = player_sprite_ps.instantiate()
+		player_sprite.doll_name = _game_state.player_dict[pid].player_game_data.doll_name
+		player_sprite.player_id = pid
+		player_sprite.display_name = _game_state.player_dict[pid].display_name
+		player_sprite.set_mapgrid_pos(_game_state.player_dict[pid].player_game_data.mapgrid_position)
+		player_sprite.is_me = pid == Main.root_mp.get_unique_id()
+		add_child(player_sprite)
+	game_is_initialized = true
 
 
 func __game_input_enabled_handler(value: bool):
@@ -545,39 +574,16 @@ func __end_turn_confirmed_handler(do_not_remind: bool):
 	__send_end_turn()
 
 
-func __send_end_turn():
-	__set_action_mode(ACTION_MODE.VIEW_MODE)
-	Rpc.player_request_end_turn.rpc_id(1)
+func __action_response_received_handler(action_response: ActionResponse):
+	__game_setup(action_response.game_state)
+	game_state = action_response.game_state
+	cached_action_response = action_response
+	print(action_response)
+	is_processing_action_response = true
+	__process_next_action_result()
 
 
-func __player_end_turn_updated_handler(_game_state):
-	__set_game_state(_game_state)
-	EventBus.camera_force_panned.emit(Global.Util.global_coord_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
-	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
-	EventBus.turn_timer_refreshed.emit()
+func __game_resolved_handler(result: GameState.RESULT, _alive):
+	cached_result = result
 
-
-func __get_tooltip_stats_for_player(pid: int):
-	if game_state == null:
-		return ""
-	# if __get_my_player().peer_id == pid:
-	# 	return ""
-	var player: Player = game_state.player_dict[pid]
-	var pgd: PlayerGameData = player.player_game_data
-	var their_stat_mods_dict = tile_map.get_stat_mods_at(pgd.mapgrid_position)
-	var my_stat_mods_dict = tile_map.get_stat_mods_at(__get_my_player().player_game_data.mapgrid_position)
-	var result: String = (
-		("%s %s (%s)\n" % [pgd.cls_name, player.display_name, player.peer_id]) +
-		("HP: %s/%s\n" % [pgd.current_hp, pgd.max_hp]) +
-		("AP: %s/%s\n" % [pgd.current_ap, pgd.max_ap]) +
-		("ACC: %s (%s)\n" % [pgd.accuracy, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["accuracy_mod"])]) +
-		("EVA: %s (%s)\n" % [pgd.evasion, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["evasion_mod"])]) +
-		("Armor: %s (%s)\n" % [pgd.armor, Global.Util.format_stat_mod_as_string(their_stat_mods_dict["armor_mod"])]) +
-		("Attack power: %s\n" % pgd.attack_power) +
-		("Attack range: %s\n" % pgd.attack_range) +
-		("Attack cost: %s\n" % pgd.attack_cost) +
-		("Vision range: %s\n" % pgd.vision_range) +
-		("Hit rate: %.2f%%" % Global.Util.calc_hit_rate(__get_my_player().player_game_data,
-			pgd, my_stat_mods_dict, their_stat_mods_dict))
-	)
-	return result
+#endregion

@@ -25,11 +25,16 @@ func advance_turn():
 	turn_of_player = player_move_order[0]
 
 
-func player_end_turn():
+## Advances phase to the next player
+## Gives phase to first player if current phase is of last player and advances turn count by 1
+## Returns true if turn was advanced
+func player_end_turn() -> bool:
 	var next_player_id = __get_next_alive_player_id()
 	turn_of_player = next_player_id
 	if next_player_id == -1:
 		advance_turn()
+		return true
+	return false
 
 
 func __get_next_alive_player_id():
@@ -45,14 +50,20 @@ func __get_next_alive_player_id():
 
 
 func get_alive_player_list():
-	var player_ids = player_dict.keys()
-	var current_index = 0
 	var result = []
-	while current_index < len(player_ids):
-		var player: Player = player_dict[player_ids[current_index]]
+	for pid in player_dict.keys():
+		var player: Player = player_dict[pid]
 		if player.player_game_data.current_hp > 0:
-			result.append(player_ids[current_index])
-		current_index += 1
+			result.append(player)
+	return result
+
+
+func get_dead_player_list():
+	var result = []
+	for pid in player_dict.keys():
+		var player: Player = player_dict[pid]
+		if player.player_game_data.current_hp <= 0:
+			result.append(player)
 	return result
 
 

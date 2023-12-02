@@ -53,12 +53,9 @@ func get_ap_cost_at(mapgrid: Vector2, fallback_value = -1):
 	return get_data_at(mapgrid, "ap_cost", fallback_value)
 
 
-func get_stat_mods_at(mapgrid: Vector2):
-	return {
-		"accuracy_mod": get_data_at(mapgrid, "accuracy_mod", 0),
-		"evasion_mod": get_data_at(mapgrid, "evasion_mod", 0),
-		"armor_mod": get_data_at(mapgrid, "armor_mod", 0)
-	}
+func get_stat_mods_at(mapgrid: Vector2) -> TileStatBonus:
+	return TileStatBonus.new(get_data_at(mapgrid, "accuracy_mod", 0),
+		get_data_at(mapgrid, "evasion_mod", 0), get_data_at(mapgrid, "armor_mod", 0))
 
 
 func get_atlas_coord_at(mapgrid: Vector2):
@@ -134,7 +131,7 @@ func set_attack_target(_attack_target, _not_enough_ap):
 
 func show_attack_target():
 	for attack_target in attack_targets:
-		set_cell(LAYER_HIGHLIGHT_SELECT, attack_target, SOURCE_HIGHLIGHT_SELECT, HIGHLIGHT_SELECT_RED if not_enough_ap else HIGHLIGHT_SELECT_ORANGE)
+		set_cell(LAYER_HIGHLIGHT_SELECT, attack_target, SOURCE_HIGHLIGHT_SELECT, HIGHLIGHT_SELECT_RED if not_enough_ap else HIGHLIGHT_SELECT_WHITE)
 
 
 func hide_attack_target():
