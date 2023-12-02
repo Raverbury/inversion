@@ -37,7 +37,7 @@ jobs:
           name: Build artifact - ${{ matrix.platform.name }}
           path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
           
-      - run: ls ${{ github.workspace }}/${{ steps.build.outputs.build }}/build
+      - run: ls ${{ github.workspace }}/${{ steps.build.outputs.build }}
       
       - name: Release
         uses: elgohr/Github-Release-Action@v5
@@ -45,4 +45,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.DEVOPS_TOKEN }}
         with:
           title: Release
-          workdir: ${{ github.workspace }}/${{ steps.build.outputs.build }}build/
+          workdir: ${{ github.workspace }}/${{ steps.build.outputs.build }}
