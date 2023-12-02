@@ -53,7 +53,7 @@ func __turn_displayed_handler(player_name: String, is_me: bool, turn: int):
 	tween_in.finished.connect(__tween_hold)
 
 
-func __game_resolved_handler(result: GameState.RESULT, victor_name: String):
+func __game_resolved_handler(result: int, victor_name: String):
 	player_label.text = ("%s's " % victor_name) if result == GameState.RESULT.WIN_LOSE else ""
 	move_label.text = "VICTORY" if result == GameState.RESULT.WIN_LOSE else "DRAW"
 	turn_label.text = "Gameover"

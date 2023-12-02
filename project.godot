@@ -11,9 +11,10 @@ config_version=5
 [application]
 
 config/name="Inversion"
-config/description="Version 0.1.0"
+config/description=""
+config/version="0.1.1"
 run/main_scene="res://assets/scenes/menu/main.tscn"
-config/features=PackedStringArray("4.1", "GL Compatibility")
+config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]

@@ -1,5 +1,7 @@
 extends Node
 
+var server_version = ProjectSettings.get_setting("application/config/version")
+
 var player_dict: Dictionary = {}
 var is_initialized = false
 var room_is_ready = false
@@ -51,8 +53,13 @@ func initialize():
 	is_in_game = false
 
 
-func add_player(pid, display_name):
+func add_player(pid, display_name, client_version):
+	if client_version != server_version:
+		Rpc.whisper.rpc_id(pid, "Incompatible version, client: %s VS server: %s" % [client_version, server_version])
+		Main.root_mp.multiplayer_peer.disconnect_peer(pid)
+		return
 	if is_in_game == true:
+		Rpc.whisper.rpc_id(pid, "Game is already in progress")
 		Main.root_mp.multiplayer_peer.disconnect_peer(pid)
 		return
 	player_dict[pid] = Player.new(pid, display_name)
@@ -323,7 +330,7 @@ func __check_game_conclusion(action_response: ActionResponse):
 	var alive_list = game_state.get_alive_player_list()
 	if len(alive_list) == 0:
 		result = GameState.RESULT.DRAW
-	elif len(alive_list) == 1 and len(game_state.player_dict.keys()) > 1:
+	elif (len(alive_list) == 1) and (len(game_state.player_dict.keys()) > 1):
 		result = GameState.RESULT.WIN_LOSE
 	else:
 		result = GameState.RESULT.ON_GOING

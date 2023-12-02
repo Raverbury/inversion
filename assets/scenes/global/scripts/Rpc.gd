@@ -1,9 +1,9 @@
 extends Node
 
 
-@rpc("any_peer", "call_local", "reliable", 0)
-func test(data):
-	print(get_tree().get_multiplayer().get_remote_sender_id(), " send ", data)
+@rpc("authority", "call_local", "reliable", 0)
+func whisper(data):
+	EventBus.sent_feedback.emit(data)
 
 
 @rpc("any_peer", "call_local", "reliable", 0)
@@ -30,7 +30,7 @@ func player_connect(data: Dictionary):
 	var message: PlayerConnectMessage = SRLZ.deserialize(data)
 	var pid = Main.root_mp.get_remote_sender_id()
 	EventBus.sent_feedback.emit(str(pid) + " joined as " + message.display_name.replace("[", "[lb]"))
-	Server.add_player(pid, message.display_name)
+	Server.add_player(pid, message.display_name, message.game_version)
 
 
 @rpc("any_peer", "call_local", "reliable", 0)

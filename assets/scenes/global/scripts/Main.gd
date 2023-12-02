@@ -78,7 +78,7 @@ func on_server_host_pressed(display_name, port):
 	client_display_name = display_name
 	app_state = AppState.CONNECTED
 	Server.initialize()
-	Server.add_player(1, display_name)
+	Server.add_player(1, display_name, ProjectSettings.get_setting("application/config/version"))
 
 # Client calls this
 func on_server_join_pressed(display_name, address: String):
