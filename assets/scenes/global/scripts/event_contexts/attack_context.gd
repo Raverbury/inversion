@@ -10,8 +10,9 @@ var number_of_hits: int = 0
 var number_of_misses: int = 0
 var action_results: Array = []
 var health_to_lose: int = 0
+var tile_map: GameTileMap
 
-func _init(atker_id, target, _game_state, _possible_victims, victim_id, _action_results):
+func _init(atker_id, target, _game_state, _possible_victims, victim_id, _action_results, _tile_map):
 	attacker_id = atker_id
 	target_mapgrid = target
 	game_state = _game_state
@@ -22,6 +23,7 @@ func _init(atker_id, target, _game_state, _possible_victims, victim_id, _action_
 	number_of_hits = 0
 	number_of_misses = 0
 	health_to_lose = 0
+	tile_map = _tile_map
 
 
 func get_attacker() -> Player:
