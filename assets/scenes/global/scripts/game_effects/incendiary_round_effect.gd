@@ -34,7 +34,7 @@ func __on_attack_individual_hit(attack_context: AttackContext):
 
 ## @override
 func get_effect_description():
-	return "<Incendiary Round> Have a %.2f%% chance to apply BURN to your target when hit" % [BURN_CHANCE]
+	return "<Incendiary Round> Have a %.2f%% chance to apply BURN to your target when your attack hits" % [BURN_CHANCE]
 
 
 func get_effect_nameid() -> String:

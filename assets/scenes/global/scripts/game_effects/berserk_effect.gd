@@ -6,8 +6,8 @@ var is_in_effect: bool = false
 
 ## @override
 func get_effect_description():
-	return "<Berserk> Gain %d max AP(s) while missing %.1f or more health" % [
-		BONUS_MAX_AP, PERCENT_HEALTH_LOSS_THRESHOLD]
+	return "<Berserk> Gain %d max AP(s) while missing %.1f%% or more health (%s)(current APs are refilled at turn end only)" % [
+		BONUS_MAX_AP, PERCENT_HEALTH_LOSS_THRESHOLD, "in-effect" if is_in_effect else "inactive"]
 
 
 func get_effect_nameid() -> String:
