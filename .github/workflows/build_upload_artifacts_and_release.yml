@@ -1,4 +1,4 @@
-name: Build, Upload Artifacts and Release
+name: Build and Release
 
 on:
   push:
@@ -6,10 +6,8 @@ on:
       - "v*"
 
 jobs:
-  build-upload-artifacts-and-release:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     strategy:
       matrix:
         platform:
@@ -19,6 +17,7 @@ jobs:
             file: game.zip
           - name: linux
             file: game.zip
+          
     steps:
       - uses: actions/checkout@v2
         with:
@@ -31,11 +30,17 @@ jobs:
           preset: ${{ matrix.platform.name }}
           debugMode: "true"
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: Build artifact - ${{ matrix.platform.name }}
-          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}      
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: "Build artifact *"
-    
+          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: ${{ github.workspace }}/${{ steps.build.outputs.build }}
