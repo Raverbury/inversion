@@ -32,6 +32,8 @@ func _abstract_on_expire(action_results: Array):
 
 
 func __on_movement_declare(move_context: MoveContext):
+	if move_context.player_id != target_id:
+		return
 	if stack_counter > 0:
 		var target_player: Player = game_state.player_dict[target_id]
 		target_player.player_game_data.ranged_accuracy_modifier = original_ranged_acc_modifier

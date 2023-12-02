@@ -15,6 +15,9 @@ func _abstract_on_deactivate():
 
 ## @override
 func _abstract_on_expire(action_results: Array):
+	var player: Player = game_state.player_dict[target_id]
+	player.player_game_data.max_ap /= 2
+	player.player_game_data.current_ap = player.player_game_data.max_ap
 	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DOUBLE AP EXPIRED", Color.DARK_GRAY, false))
 
 
