@@ -22,6 +22,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           lfs: true
+          
       - name: Build
         id: build
         uses: manleydev/build-godot-action@v1.5.0
@@ -29,11 +30,13 @@ jobs:
           name: ${{ matrix.platform.file }}
           preset: ${{ matrix.platform.name }}
           debugMode: "true"
+          
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: Build artifact - ${{ matrix.platform.name }}
           path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+          
       - name: Release
         uses: elgohr/Github-Release-Action@v5
         env:
