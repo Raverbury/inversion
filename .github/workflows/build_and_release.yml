@@ -1,13 +1,12 @@
-name: Build Godot Project
+name: Build and Release
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
 
 jobs:
-  Godot:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,3 +34,14 @@ jobs:
         with:
           name: Build artifact - ${{ matrix.platform.name }}
           path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "Build artifact *"
+    
