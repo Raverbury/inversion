@@ -22,7 +22,15 @@ signal game_input_enabled(value)
 
 #region server events
 
+## Fires when a GameEffect expires, after the internal expire callback
+signal effect_expired(effect_id: int)
+
 ## Fires on game start
+
+signal player_took_damage(attack_context: AttackContext)
+signal player_lost_health(attack_context: AttackContext)
+signal effect_applied_to_player(applier, target, effect_class)
+
 signal game_started(game_state: GameState)
 
 ## Fires before everything occurs
@@ -34,12 +42,18 @@ signal tile_entered(move_context: MoveContext)
 ## Fires after pushing EndMoveResult into action results
 signal movement_concluded(move_context: MoveContext)
 
-signal attack_declared()
-signal attack_individual_declared()
-signal attack_individual_hit()
-signal attack_individual_missed()
-signal attack_individual_concluded()
-signal attack_concluded()
+## Fires before individual attacks are performed
+signal attack_declared(attack_context: AttackContext)
+## Fires before an attack against a single target is performed
+signal attack_individual_declared(attack_context: AttackContext)
+## Fires after an attack passes acc check against a single target
+signal attack_individual_hit(attack_context: AttackContext)
+## Fires after an attack fails acc check against a single target
+signal attack_individual_missed(attack_context: AttackContext)
+## Fires after an attack against a single target is performed
+signal attack_individual_concluded(attack_context: AttackContext)
+## Fires after everything in an attack
+signal attack_concluded(attack_context: AttackContext)
 
 signal phase_ended()
 signal turn_ended()

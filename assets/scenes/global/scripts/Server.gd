@@ -16,12 +16,17 @@ var is_in_game: bool = false
 
 var tween_timer: Tween
 
-var effect_dict: Dictionary = {}
+func _ready():
+	EventBus.player_took_damage.connect(__player_take_damage)
+	EventBus.player_lost_health.connect(__player_lose_health)
+	EventBus.effect_applied_to_player.connect(__apply_effect_to_player)
+	EventBus.attack_individual_missed.connect(__player_dodge_attack)
+
 
 func wipe():
 	if is_initialized == false:
 		return
-	__remove_all_effects()
+	GameEffectRegistry.clear()
 	player_dict = {}
 	is_initialized = false
 	is_in_game = false
@@ -59,42 +64,18 @@ func player_set_class(pid, class_id):
 	if all_players_picked_class() == true:
 		game_state = GameState.new(player_dict, server_tile_map.spawn_points)
 		for _pid in player_dict.keys():
-			var test_effect = DoubleAPPerk.new(_pid)
-			__add_effect_for_player(_pid, test_effect)
+			EventBus.effect_applied_to_player.emit(0, _pid, BurnEffect)
 		EventBus.game_started.emit(game_state)
 		game_state.advance_turn()
 		Rpc.game_start.rpc(SRLZ.serialize(GameStartMessage.new(game_state)))
 		__refresh_turn_timer()
 
 
-func __add_effect_for_player(pid, effect: GameEffect):
-	effect.activate(game_state)
-	if effect_dict.has(pid):
-		effect_dict[pid].append(effect)
-	else:
-		effect_dict[pid] = [effect]
-
-
-func __remove_all_effects():
-	for pid in effect_dict.keys():
-		__remove_all_effects_for_player(pid)
-
-
-func __remove_all_effects_for_player(pid):
-	if effect_dict.has(pid) == false:
-		return
-	var effects = effect_dict[pid]
-	for _effect in effects:
-		var effect: GameEffect = _effect
-		effect.deactivate()
-	effect_dict.erase(pid)
-
-
 func remove_player(pid):
 	var player: Player = player_dict[pid] if player_dict.has(pid) else null
 	var dn = player.display_name if player != null else "nil"
 	player_dict.erase(pid)
-	__remove_all_effects_for_player(pid)
+	GameEffectRegistry.remove_all_effects_from_player(pid)
 	Rpc.update_player_list.rpc(serialize_player_dict())
 	check_room_readiness()
 	return dn
@@ -217,32 +198,30 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 		if player.player_game_data.mapgrid_position == target_mapgrid:
 			attacked_players.append(player)
 
+	var attack_context: AttackContext = AttackContext.new(attacker_id,
+		target_mapgrid, game_state, attacked_players, -1, tmp_action_results)
+
+	EventBus.attack_declared.emit(attack_context)
+
 	# dmg calculation
-	var inner_action_results = []
-	var attacker_attack_power = attacker.player_game_data.attack_power
 	var attacker_mod_stats = server_tile_map.get_stat_mods_at(attacker_mapgrid_position)
-	var attacked_result = AttackedResult.new()
 	for victim in attacked_players:
+		attack_context.current_target_id = victim.peer_id
+		EventBus.attack_individual_declared.emit(attack_context)
 		var victim_mod_stats = server_tile_map.get_stat_mods_at(target_mapgrid)
-		var final_victim_armor = victim.player_game_data.armor + victim_mod_stats["armor_mod"]
 		var hit_rate: float = Global.Util.calc_hit_rate(attacker.player_game_data, victim.player_game_data,
 			attacker_mod_stats, victim_mod_stats)
 		var is_attack_a_hit = Global.Util.roll_acc_eva_check(hit_rate)
-		attacked_result.set_stuff(victim.peer_id, is_attack_a_hit, 0, false)
-		var damage: int = 0
 		if is_attack_a_hit == true:
-			damage = attacker_attack_power - final_victim_armor
-			damage = clamp(damage, 1, victim.player_game_data.current_hp)
-			victim.player_game_data.current_hp -= damage
-			attacked_result.damage_taken = damage
-			attacked_result.is_dead = victim.player_game_data.current_hp <= 0
-			# print("Attacked %s %s, %s%% hit rate" % [victim.display_name, ("for %s damage" % damage)
-			# 	if is_attack_a_hit else "and missed", hit_rate])
-		inner_action_results.append(attacked_result)
+			EventBus.attack_individual_hit.emit(attack_context)
+			EventBus.player_took_damage.emit(attack_context)
+		else:
+			EventBus.attack_individual_missed.emit(attack_context)
+		EventBus.attack_individual_concluded.emit(attack_context)
 	attacker.player_game_data.current_ap -= attacker_attack_cost
 
 	# send attack response
-	tmp_action_results.append(inner_action_results)
+	EventBus.attack_concluded.emit(attack_context)
 	action_response.game_state = game_state
 	action_response.action_results = tmp_action_results
 	__check_game_conclusion(action_response)
@@ -253,11 +232,20 @@ func process_player_end_turn_request(pid):
 	if pid != game_state.turn_of_player:
 		push_error("END TURN HACK")
 		return
-	game_state.player_end_turn()
 
 	var action_response: ActionResponse = ActionResponse.new()
+	var tmp_action_results = []
+
+	var end_phase_context = EndPhaseContext.new(pid, game_state, tmp_action_results)
+	EventBus.phase_ended.emit(end_phase_context)
+
+	var new_turn = game_state.player_end_turn()
+	if new_turn == true:
+		EventBus.turn_ended.emit()
+
 	action_response.game_state = game_state
-	action_response.action_results = [EndPhaseResult.new().set_stuff(game_state)]
+	tmp_action_results.append(EndPhaseResult.new().set_stuff(game_state))
+	action_response.action_results = tmp_action_results
 
 	__check_game_conclusion(action_response)
 
@@ -283,6 +271,12 @@ func __check_game_conclusion(action_response: ActionResponse):
 		result = GameState.RESULT.WIN_LOSE
 	else:
 		result = GameState.RESULT.ON_GOING
+
+	# remove effects from dead players
+	var dead_list = game_state.get_dead_player_list()
+	print(dead_list)
+	for dead_player in dead_list:
+		GameEffectRegistry.remove_all_effects_from_player(dead_player.peer_id)
 	if result == GameState.RESULT.ON_GOING:
 		return
 	__kill_timer()
@@ -305,3 +299,42 @@ func __refresh_turn_timer():
 func __turn_timer_timed_out():
 	tween_timer = null
 	process_player_end_turn_request(game_state.turn_of_player)
+
+
+## Default listener, takes damage before armor mitigation
+func __player_take_damage(attack_context: AttackContext):
+	var attacker = attack_context.get_attacker()
+	var premitigation_damage = attacker.player_game_data.attack_power
+	if premitigation_damage <= 0:
+		return
+	var victim: Player = attack_context.get_target()
+	var victim_final_armor = (victim.player_game_data.armor +
+		server_tile_map.get_stat_mods_at(victim.player_game_data.mapgrid_position).armor_mod)
+	var postmitigation_damage = premitigation_damage - victim_final_armor
+	attack_context.health_to_lose = postmitigation_damage
+	EventBus.player_lost_health.emit(attack_context)
+
+
+## Default listener, loses a flat amount of health after armor
+func __player_lose_health(attack_context: AttackContext):
+	var health_loss = attack_context.health_to_lose
+	if health_loss <= 0:
+		return
+	var victim: Player = attack_context.get_target()
+	health_loss = clamp(0, health_loss, victim.player_game_data.current_hp)
+	victim.player_game_data.current_hp -= health_loss
+	var is_dead = victim.player_game_data.current_hp <= 0
+	attack_context.action_results.append(AttackedResult.new().set_stuff(attack_context.current_target_id, true, health_loss, is_dead))
+	if is_dead:
+		GameEffectRegistry.remove_all_effects_from_player(attack_context.current_target_id)
+
+
+## Default listener, dodges an attack
+func __player_dodge_attack(attack_context: AttackContext):
+	attack_context.action_results.append(AttackedResult.new().set_stuff(attack_context.current_target_id, false, 0, false))
+
+
+## Default listener, creates and adds an effect to reg
+func __apply_effect_to_player(applier_id, target_id, effect_class):
+	var effect_instance = effect_class.new(applier_id, target_id, game_state)
+	GameEffectRegistry.add_effect_to_player(applier_id, target_id, effect_instance)

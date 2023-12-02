@@ -58,5 +58,14 @@ func get_alive_player_list():
 	return result
 
 
+func get_dead_player_list():
+	var result = []
+	for pid in player_dict.keys():
+		var player: Player = player_dict[pid]
+		if player.player_game_data.current_hp <= 0:
+			result.append(player)
+	return result
+
+
 func _to_string():
 	return "Game on turn %s, currently pid %s's turn, %s" % [turn, turn_of_player, player_dict]

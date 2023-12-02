@@ -22,6 +22,7 @@ Global="*res://assets/scenes/global/scripts/Global.gd"
 Main="*res://assets/scenes/global/scripts/Main.gd"
 Rpc="*res://assets/scenes/global/scripts/Rpc.gd"
 Server="*res://assets/scenes/global/scripts/Server.gd"
+GameEffectRegistry="*res://assets/scenes/global/scripts/autoloads/game_effect_registry.gd"
 
 [display]
 

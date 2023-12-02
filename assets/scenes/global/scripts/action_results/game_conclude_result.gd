@@ -12,7 +12,7 @@ func set_stuff(_game_result, _alive_list):
 
 # override
 func show():
-	EventBus.game_resolved.emit(game_result, alive_list[0].display_name)
+	EventBus.game_resolved.emit(game_result, alive_list[0].display_name if not alive_list.is_empty() else "")
 
 
 func _to_string():
