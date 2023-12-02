@@ -1,6 +1,6 @@
 class_name BerserkEffect extends GameEffect
 
-const PERCENT_HEALTH_LOSS_THRESHOLD = 60.0
+const PERCENT_HEALTH_LOSS_THRESHOLD = 55.0
 const BONUS_MAX_AP = 2
 var is_in_effect: bool = false
 

@@ -191,8 +191,8 @@ class PlayerClassData:
 		1: ["Scout",    26, 15,  30,  0,     4,  3,    18, 10,
 			[1.5, 1.5, 1.5, 1.5, 1.5, 1.0], # range of 5
 			"Desert Eagle", "desert_eagle", "Always on the move and evasive"],
-		2: ["Vanguard", 32, 10,  -10, 2,     5,  4,    12, 10,
-			[2.2, 2.2, 2.2, 1.0, 0.4], # range of 4
+		2: ["Vanguard", 29, 13,  -10, 2,     5,  4,    12, 10,
+			[1.7, 1.7, 1.7, 1.0, 0.3], # range of 4
 			"Winchester M1887", "m1887", "Armored and devastating with point-blank blasts"],
 		3: ["Assault",  26, 22,  15,  0,     5,  2,    13, 10,
 			[1.5, 1.5, 1.5, 1.5, 1.0, 1.0, 1.0, 0.8], # range of 7
