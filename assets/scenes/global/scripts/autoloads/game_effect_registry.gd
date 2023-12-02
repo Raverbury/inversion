@@ -1,6 +1,7 @@
 extends Node
 
 var effect_dict: Dictionary = {}
+## Nested dictionary to provide effect indexing on player id
 var effect_by_player_dict: Dictionary = {}
 
 var internal_counter = 0
@@ -67,3 +68,12 @@ func remove_all_effects_from_player(player_id: int):
 	effect_by_player_dict[player_id].clear()
 	for effect_id in effect_ids:
 		remove_effect_by_id(effect_id)
+
+
+func get_effect_descriptions_for_player(pid: int) -> String:
+	var result_str = ""
+	if not effect_by_player_dict.has(pid):
+		return result_str
+	for eid in effect_by_player_dict[pid].keys():
+		result_str += effect_by_player_dict[pid][eid].get_effect_description() + "\n"
+	return result_str

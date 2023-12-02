@@ -11,7 +11,7 @@ var last_dir: int = 0
 @onready var display_name_label = $DisplayName
 @onready var attack_feedback = $AttackFeedback
 
-@onready var hover_control: Control = $HoverControl
+@onready var hover_control: Control = $CustomTooltipControl
 
 var queued_movement: Array = []
 

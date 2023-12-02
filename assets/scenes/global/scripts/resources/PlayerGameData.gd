@@ -17,6 +17,7 @@ var vision_range: int = 10
 var ranged_accuracy_modifier: Array = []
 var weapon_name: String = "Weapon"
 var doll_name: String = "id152"
+var effect_descriptions: String = ""
 
 func _to_string():
 	return "%s, %d/%d at %s" % [cls_name, current_hp, max_hp, mapgrid_position]
