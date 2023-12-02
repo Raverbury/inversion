@@ -96,6 +96,7 @@ func __player_sprite_moved_handler(pid: int, direction: int):
 	if is_moving == true:
 		return
 	current_move_tween_duration = 0.2
+	EventBus.camera_force_panned.emit(global_position, current_move_tween_duration)
 	__move_with_lerp(direction)
 
 
@@ -129,6 +130,7 @@ func __player_sprite_attacked_handler(pid, _target_mapgrid):
 	if player_id != pid:
 		return
 	EventBus.anim_is_being_played.emit(true)
+	EventBus.camera_force_panned.emit(global_position, 0.01)
 	var global_target_pos = Global.Util.global_coord_at(_target_mapgrid)
 	if global_target_pos.x > global_position.x:
 		flip_h = false
@@ -159,6 +161,7 @@ func __player_sprite_popup_displayed_handler(pid: int, message: String, message_
 	if player_id != pid:
 		return
 	EventBus.anim_is_being_played.emit(true)
+	EventBus.camera_force_panned.emit(global_position, 0.01)
 	attack_feedback.clear()
 	attack_feedback.self_modulate = Color(1, 1, 1, 1)
 	attack_feedback.push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)
