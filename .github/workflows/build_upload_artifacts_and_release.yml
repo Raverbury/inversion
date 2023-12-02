@@ -36,8 +36,8 @@ jobs:
           path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
       - name: Release
         uses: elgohr/Github-Release-Action@v5
-          env:
-            GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          with:
-            title: Release
-            workdir: ${{ github.workspace }}/${{ steps.build.outputs.build }}/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEVOPS_TOKEN }}
+        with:
+          title: Release
+          workdir: ${{ github.workspace }}/${{ steps.build.outputs.build }}/**/*
