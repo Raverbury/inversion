@@ -11,9 +11,27 @@ class Util:
 		return abs(mapgrid1.x - mapgrid2.x) + abs(mapgrid1.y - mapgrid2.y)
 
 
-	static func get_random_from_list(list):
+	static func draw_random_passives_for_class(class_id: int, max_passives: int):
+		var all_class_passive_pools = Global.PlayerClassData.CLASS_PASSIVES
+		if not all_class_passive_pools.has(class_id):
+			return []
+		var class_passive_pool: Array = all_class_passive_pools[class_id].duplicate()
+		var result = []
+		for i in range(max_passives):
+			if class_passive_pool.is_empty():
+				return result
+			var draw = Global.Util.get_random_from_list(class_passive_pool, true)
+			result.append(draw)
+		return result
+
+
+	static func get_random_from_list(list, remove_afterward = false):
 		var length = len(list)
-		return list[Global.__rng_source.randi_range(0, length - 1)]
+		var random_index = Global.__rng_source.randi_range(0, length - 1)
+		var item = list[random_index]
+		if remove_afterward == true:
+			list.pop_at(random_index)
+		return item
 
 
 	static func roll_float_on_scale_100(hit_rate: float) -> bool:
@@ -179,6 +197,13 @@ class PlayerClassData:
 		3: ["Assault",  25, 20,  15,  0,     5,  2,    14, 10,
 			[1.5, 1.5, 1.5, 1.5, 1.0, 1.0, 1.0, 0.8], # range of 7
 			"Zastava M21", "zas_m21", "Stock standard all-rounder"],
+	}
+
+	static var CLASS_PASSIVES = {
+		0: [HappyCamperEffect, FocusShotEffect],
+		1: [NomadEffect, IncendiaryRoundEffect],
+		2: [PerseveranceEffect, BerserkEffect],
+		3: [StabilizedAimEffect, DisciplinedShootingEffect]
 	}
 
 	static func getPlayerGameDataBasedOnClass(class_id) -> PlayerGameData:

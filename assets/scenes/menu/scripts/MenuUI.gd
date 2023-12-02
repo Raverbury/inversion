@@ -36,6 +36,9 @@ const DEFAULT_NAMES = ["StinkyPineapple", "McCheese", "LeetKid420", "DisplayName
 var is_shown = true
 var unread_chat_message = 0
 
+var sent_messages = [""]
+var scroll_back_index = 0
+
 func _ready():
 	host_button.pressed.connect(on_host_button_pressed)
 	join_button.pressed.connect(on_join_button_pressed)
@@ -98,6 +101,18 @@ func _process(_delta):
 func _input(event):
 	if event.is_action_released("ui_cancel"):
 		set_display(not is_shown)
+	if event.is_action_released("ui_up"):
+		if chat_line_edit.has_focus():
+			if sent_messages.size() == 1:
+				return
+			scroll_back_index = clamp(0, scroll_back_index + 1, sent_messages.size() - 1)
+			chat_line_edit.text = sent_messages[sent_messages.size() - 1 - scroll_back_index]
+	if event.is_action_released("ui_down"):
+		if chat_line_edit.has_focus():
+			if sent_messages.size() == 1:
+				return
+			scroll_back_index = clamp(0, scroll_back_index - 1, sent_messages.size() - 1)
+			chat_line_edit.text = sent_messages[sent_messages.size() - 1 - scroll_back_index]
 
 
 func get_display_name():
@@ -199,7 +214,9 @@ func on_game_is_ready(_map_name):
 
 func __client_sent_chat_message_handler(text):
 	EventBus.client_sent_chat_message.emit(text)
+	sent_messages.insert(sent_messages.size() - 1, text)
 	chat_line_edit.clear()
+	scroll_back_index = 0
 
 
 func __server_sent_chat_message_handler(text, color):

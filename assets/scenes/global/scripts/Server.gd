@@ -16,6 +16,10 @@ var is_in_game: bool = false
 
 var tween_timer: Tween
 
+var max_number_of_passives: int = 2
+
+var editable_properties = ["max_number_of_passives"]
+
 func _ready():
 	EventBus.player_took_damage.connect(__player_take_damage)
 	EventBus.player_lost_health.connect(__player_lose_health)
@@ -266,13 +270,52 @@ func game_start():
 	__refresh_turn_timer()
 
 
-func process_player_send_chat_message(pid, display_name, text_message):
+func process_player_send_chat_message(pid, display_name, text_message: String):
 	if player_dict == null:
 		return
-	var pids = player_dict.keys()
-	var color = Global.Constant.Misc.CHAT_COLOR[pids.find(pid)]
-	var message = PlayerSendChatMessageResponse.new(display_name, text_message, color)
-	Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+	if text_message == "":
+		return
+	if text_message.begins_with("/"):
+		if pid != 1:
+			var message = PlayerSendChatMessageResponse.new("Server", "Insufficient permission, %s (%s)" % [player_dict[pid].display_name, pid], Color.DARK_RED)
+			Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+			return
+		var command = text_message.erase(0)
+		var args = command.split(" ", false)
+		__process_server_command(args)
+	else:
+		var pids = player_dict.keys()
+		var color = Global.Constant.Misc.CHAT_COLOR[pids.find(pid)]
+		var message = PlayerSendChatMessageResponse.new(display_name, text_message, color)
+		Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+
+
+func __process_server_command(args: Array):
+	if args.is_empty():
+		var message = PlayerSendChatMessageResponse.new("Server", "Invalid command", Color.DARK_RED)
+		Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+		return
+	var command_name = args[0]
+	if command_name == "set":
+		if args.size() < 3:
+			var message = PlayerSendChatMessageResponse.new("Server", "Invalid command", Color.DARK_RED)
+			Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+			return
+		var prop_name = args[1]
+		var value = args[2]
+		if not prop_name in editable_properties:
+			var message = PlayerSendChatMessageResponse.new("Server", "Invalid command", Color.DARK_RED)
+			Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+			return
+		else:
+			set(prop_name, value)
+			var message = PlayerSendChatMessageResponse.new("Server", "Set %s to %s" % [prop_name, value], Color.DARK_GREEN)
+			Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+			return
+	else:
+		var message = PlayerSendChatMessageResponse.new("Server", "Invalid command", Color.DARK_RED)
+		Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+		return
 
 
 func __check_game_conclusion(action_response: ActionResponse):
@@ -369,16 +412,15 @@ func __player_healed(heal_context: HealContext):
 
 ## Default listener, game started
 func __game_started(game_start_context: GameStartContext):
-	# return
+	__apply_class_passive(game_start_context)
+
+
+func __apply_class_passive(gsc: GameStartContext):
 	for _pid in game_state.player_dict.keys():
-		EventBus.effect_applied_to_player.emit(0, _pid, BerserkEffect, game_start_context.action_results)
-		# EventBus.effect_applied_to_player.emit(0, _pid, DoubleAPEffect, game_start_context.action_results)
-		# EventBus.effect_applied_to_player.emit(0, _pid, BurnEffect, game_start_context.action_results)
-		# EventBus.effect_applied_to_player.emit(0, _pid, RegenerationEffect, game_start_context.action_results)
-		# EventBus.effect_applied_to_player.emit(0, _pid, HappyCamperEffect, game_start_context.action_results)
-		# EventBus.effect_applied_to_player.emit(0, _pid, FocusShotEffect, game_start_context.action_results)
-		# EventBus.effect_applied_to_player.emit(0, _pid, RestingPlaceEffect, game_start_context.action_results)
-		# EventBus.effect_applied_to_player.emit(0, _pid, BoobyTrappedEffect, game_start_context.action_results)
+		var passives_to_apply = Global.Util.draw_random_passives_for_class(
+			game_state.player_dict[_pid].player_game_data.class_id, max_number_of_passives)
+		for effect_cls in passives_to_apply:
+			EventBus.effect_applied_to_player.emit(0, _pid, effect_cls, gsc.action_results)
 
 
 func send_rpc_action_response(action_response: ActionResponse):
