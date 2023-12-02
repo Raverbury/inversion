@@ -31,10 +31,14 @@ signal game_started(game_start_context: GameStartContext)
 signal player_took_damage(attack_context: AttackContext)
 ## Fires when a player loses health
 signal player_lost_health(attack_context: AttackContext)
-## Fires when an effect is applied to a player
+## Fires when an effect is about to be applied to a player
 signal effect_applied_to_player(applier, target, effect_class, action_results)
+## Fires when an effect is applied to a player
+signal effect_applied_to_player_success(applier, target, effect_instance, action_results)
 ## Fires when a player is healed
 signal player_healed(heal_context: HealContext)
+## Fires when a player's health is changed
+signal player_health_changed(health_change_context: HealthChangeContext)
 
 ## Fires before everything occurs
 signal movement_declared(move_context: MoveContext)
@@ -49,8 +53,10 @@ signal movement_concluded(move_context: MoveContext)
 signal attack_declared(attack_context: AttackContext)
 ## Fires before an attack against a single target is performed
 signal attack_individual_declared(attack_context: AttackContext)
-## Fires after an attack passes acc check against a single target
+## Fires after an attack passes acc check against a single target before damage is done
 signal attack_individual_hit(attack_context: AttackContext)
+## Fires after an attack passes acc check against a single target after damage is done
+signal attack_individual_hit_after_damage(attack_context: AttackContext)
 ## Fires after an attack fails acc check against a single target
 signal attack_individual_missed(attack_context: AttackContext)
 ## Fires after an attack against a single target is performed
@@ -58,7 +64,8 @@ signal attack_individual_concluded(attack_context: AttackContext)
 ## Fires after everything in an attack
 signal attack_concluded(attack_context: AttackContext)
 
-signal phase_ended()
+signal phase_end_declared(end_phase_context: EndPhaseContext)
+signal phase_end_concluded(end_phase_context: EndPhaseContext)
 signal turn_ended()
 
 #endregion

@@ -140,7 +140,7 @@ func serialize_player_dict():
 func process_player_move_request(pid, move_steps: Array):
 	var action_response: ActionResponse = ActionResponse.new()
 	var tmp_action_results = []
-	var move_context: MoveContext = MoveContext.new(pid, move_steps, game_state, tmp_action_results)
+	var move_context: MoveContext = MoveContext.new(pid, move_steps, game_state, tmp_action_results, server_tile_map)
 	if pid != game_state.turn_of_player:
 		push_error("MOVE TURN HACK")
 		return
@@ -163,8 +163,7 @@ func process_player_move_request(pid, move_steps: Array):
 	EventBus.movement_concluded.emit(move_context)
 	action_response.game_state = game_state
 	action_response.action_results = tmp_action_results
-	__check_game_conclusion(action_response)
-	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))
+	send_rpc_action_response(action_response)
 
 
 func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
@@ -196,7 +195,7 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 			attacked_players.append(player)
 
 	var attack_context: AttackContext = AttackContext.new(attacker_id,
-		target_mapgrid, game_state, attacked_players, -1, tmp_action_results)
+		target_mapgrid, game_state, attacked_players, -1, tmp_action_results, server_tile_map)
 
 	EventBus.attack_declared.emit(attack_context)
 
@@ -208,10 +207,11 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 		var victim_mod_stats = server_tile_map.get_stat_mods_at(target_mapgrid)
 		var hit_rate: float = Global.Util.calc_hit_rate(attacker.player_game_data, victim.player_game_data,
 			attacker_mod_stats, victim_mod_stats)
-		var is_attack_a_hit = Global.Util.roll_acc_eva_check(hit_rate)
+		var is_attack_a_hit = Global.Util.roll_float_on_scale_100(hit_rate)
 		if is_attack_a_hit == true:
 			EventBus.attack_individual_hit.emit(attack_context)
 			EventBus.player_took_damage.emit(attack_context)
+			EventBus.attack_individual_hit_after_damage.emit(attack_context)
 		else:
 			EventBus.attack_individual_missed.emit(attack_context)
 		EventBus.attack_individual_concluded.emit(attack_context)
@@ -221,8 +221,7 @@ func process_player_attack_request(attacker_id, target_mapgrid: Vector2i):
 	EventBus.attack_concluded.emit(attack_context)
 	action_response.game_state = game_state
 	action_response.action_results = tmp_action_results
-	__check_game_conclusion(action_response)
-	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))
+	send_rpc_action_response(action_response)
 
 
 func process_player_end_turn_request(pid):
@@ -232,21 +231,20 @@ func process_player_end_turn_request(pid):
 
 	var action_response: ActionResponse = ActionResponse.new()
 	var tmp_action_results = []
+	var end_phase_context = EndPhaseContext.new(pid, game_state, tmp_action_results, server_tile_map)
 
-	var end_phase_context = EndPhaseContext.new(pid, game_state, tmp_action_results)
-	EventBus.phase_ended.emit(end_phase_context)
-
+	EventBus.phase_end_declared.emit(end_phase_context)
 	var new_turn = game_state.player_end_turn()
+	tmp_action_results.append(EndPhaseResult.new().set_stuff(game_state))
+	EventBus.phase_end_concluded.emit(end_phase_context)
+
 	if new_turn == true:
 		EventBus.turn_ended.emit()
 
 	action_response.game_state = game_state
-	tmp_action_results.append(EndPhaseResult.new().set_stuff(game_state))
 	action_response.action_results = tmp_action_results
 
-	__check_game_conclusion(action_response)
-
-	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))
+	send_rpc_action_response(action_response)
 	__refresh_turn_timer()
 
 
@@ -254,7 +252,7 @@ func game_start():
 	var action_response: ActionResponse = ActionResponse.new()
 	var tmp_action_results = []
 
-	var game_start_context = GameStartContext.new(game_state, tmp_action_results)
+	var game_start_context = GameStartContext.new(game_state, tmp_action_results, server_tile_map)
 
 	game_state.advance_turn()
 
@@ -264,9 +262,7 @@ func game_start():
 
 	EventBus.game_started.emit(game_start_context)
 
-	__check_game_conclusion(action_response)
-
-	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))
+	send_rpc_action_response(action_response)
 	__refresh_turn_timer()
 
 
@@ -338,9 +334,13 @@ func __player_lose_health(attack_context: AttackContext):
 		return
 	var victim: Player = attack_context.get_target()
 	health_loss = clamp(0, health_loss, victim.player_game_data.current_hp)
+	var old_health = victim.player_game_data.current_hp
 	victim.player_game_data.current_hp -= health_loss
 	var is_dead = victim.player_game_data.current_hp <= 0
 	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff_for_take_damage(attack_context.current_target_id, health_loss, is_dead))
+	var health_change_context = HealthChangeContext.new(attack_context.current_target_id, attack_context.attacker_id, old_health,
+		victim.player_game_data.current_hp, attack_context.game_state, attack_context.action_results, attack_context.tile_map)
+	EventBus.player_health_changed.emit(health_change_context)
 	if is_dead:
 		GameEffectRegistry.remove_all_effects_from_player(attack_context.current_target_id)
 
@@ -369,7 +369,20 @@ func __player_healed(heal_context: HealContext):
 
 ## Default listener, game started
 func __game_started(game_start_context: GameStartContext):
+	# return
 	for _pid in game_state.player_dict.keys():
+		EventBus.effect_applied_to_player.emit(0, _pid, BerserkEffect, game_start_context.action_results)
+		# EventBus.effect_applied_to_player.emit(0, _pid, DoubleAPEffect, game_start_context.action_results)
 		# EventBus.effect_applied_to_player.emit(0, _pid, BurnEffect, game_start_context.action_results)
 		# EventBus.effect_applied_to_player.emit(0, _pid, RegenerationEffect, game_start_context.action_results)
-		EventBus.effect_applied_to_player.emit(0, _pid, HappyCamperEffect, game_start_context.action_results)
+		# EventBus.effect_applied_to_player.emit(0, _pid, HappyCamperEffect, game_start_context.action_results)
+		# EventBus.effect_applied_to_player.emit(0, _pid, FocusShotEffect, game_start_context.action_results)
+		# EventBus.effect_applied_to_player.emit(0, _pid, RestingPlaceEffect, game_start_context.action_results)
+		# EventBus.effect_applied_to_player.emit(0, _pid, BoobyTrappedEffect, game_start_context.action_results)
+
+
+func send_rpc_action_response(action_response: ActionResponse):
+	__check_game_conclusion(action_response)
+	for _pid in action_response.game_state.player_dict.keys():
+		action_response.game_state.player_dict[_pid].player_game_data.effect_descriptions = GameEffectRegistry.get_effect_descriptions_for_player(_pid)
+	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))

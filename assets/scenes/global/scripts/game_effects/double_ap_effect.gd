@@ -2,13 +2,15 @@ class_name DoubleAPEffect extends GameEffect
 
 ## @override
 func _abstract_on_activate(action_results: Array):
-	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DOUBLE AP APPLIED", Color.GREEN, false))
-	EventBus.game_started.connect(__on_game_start)
+	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DOUBLE AP APPLIED", Color.SKY_BLUE, false))
+	__on_game_start(game_state)
+	# EventBus.game_started.connect(__on_game_start)
 
 
 ## @override
 func _abstract_on_deactivate():
-	EventBus.game_started.disconnect(__on_game_start)
+	pass
+	# EventBus.game_started.disconnect(__on_game_start)
 
 
 ## @override
@@ -26,4 +28,12 @@ func __on_game_start(_game_state: GameState):
 
 ## @override
 func get_effect_description():
-	return "<Double AP> On game start, doubles your maximum AP"
+	return "<Double AP> Double your maximum AP"
+
+
+func get_effect_nameid() -> String:
+	return "double_ap"
+
+
+func get_max_instances_per_player() -> int:
+	return 1

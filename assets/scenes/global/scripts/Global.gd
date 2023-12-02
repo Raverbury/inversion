@@ -16,7 +16,7 @@ class Util:
 		return list[Global.__rng_source.randi_range(0, length - 1)]
 
 
-	static func roll_acc_eva_check(hit_rate: float) -> bool:
+	static func roll_float_on_scale_100(hit_rate: float) -> bool:
 		var roll = Global.__rng_source.randf_range(0.0, 100.0)
 		return hit_rate >= roll
 

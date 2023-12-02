@@ -10,23 +10,24 @@ var original_ranged_acc_modifier
 var original_acc
 
 ## @override
-func _abstract_on_activate(action_results: Array):
+func _abstract_on_activate(_action_results: Array):
+	# _action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "HAPPY CAMPER APPLIED", Color.MEDIUM_VIOLET_RED, false))
 	var target_player: Player = game_state.player_dict[target_id]
 	original_ranged_acc_modifier = target_player.player_game_data.ranged_accuracy_modifier
 	original_acc = target_player.player_game_data.accuracy
 	EventBus.movement_concluded.connect(__on_movement_declare)
-	EventBus.phase_ended.connect(__on_phase_end)
+	EventBus.phase_end_declared.connect(__on_phase_end)
 
 
 ## @override
 func _abstract_on_deactivate():
 	EventBus.movement_concluded.disconnect(__on_movement_declare)
-	EventBus.phase_ended.disconnect(__on_phase_end)
+	EventBus.phase_end_declared.disconnect(__on_phase_end)
 
 
 ## @override
 func _abstract_on_expire(action_results: Array):
-	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "REGENERATION EXPIRED", Color.DARK_GRAY, false))
+	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "HAPPY CAMPER EXPIRED", Color.DARK_GRAY, false))
 	pass
 
 
@@ -44,7 +45,7 @@ func __on_movement_declare(move_context: MoveContext):
 func __on_phase_end(end_phase_context: EndPhaseContext):
 	if target_id <= 0:
 		return
-	if end_phase_context.game_state.turn_of_player != target_id:
+	if end_phase_context.player_id != target_id:
 		return
 	if move_declared_last_turn == true:
 		move_declared_last_turn = false
@@ -58,11 +59,19 @@ func __on_phase_end(end_phase_context: EndPhaseContext):
 	target_player.player_game_data.ranged_accuracy_modifier = tmp_ram
 	target_player.player_game_data.accuracy += ACCURACY_INCREASE
 	target_player.player_game_data.attack_range = len(target_player.player_game_data.ranged_accuracy_modifier) - 1
-	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "RANGE + ACCURACY UP", Color.LIME_GREEN, false))
+	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "RANGE + ACCURACY UP", Color.MEDIUM_VIOLET_RED, false))
 	stack_counter += 1
 
 
 ## @override
 func get_effect_description():
-	return "<Happy Camper> Increase attack range by %s (%.1f hit rate modifier) and accuracy by %s after not moving for 1 turn, max %s stack(s). Reset upon moving" % \
-		[ATTACK_RANGE_INCREASE, HIT_RATE_MODIFIER, ACCURACY_INCREASE, MAX_STACK]
+	return "<Happy Camper> Increase attack range by %s (%.1f hit rate modifier) and accuracy by %s after not moving for 1 turn, max %s stack(s); reset upon moving (current stack(s): %d)" % \
+		[ATTACK_RANGE_INCREASE, HIT_RATE_MODIFIER, ACCURACY_INCREASE, MAX_STACK, stack_counter]
+
+
+func get_effect_nameid() -> String:
+	return "happy_camper"
+
+
+func get_max_instances_per_player() -> int:
+	return 1
