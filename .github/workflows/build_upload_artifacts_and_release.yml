@@ -19,7 +19,6 @@ jobs:
             file: game.zip
           - name: linux
             file: game.zip
-          
     steps:
       - uses: actions/checkout@v2
         with:
