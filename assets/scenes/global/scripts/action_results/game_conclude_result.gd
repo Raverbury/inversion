@@ -1,6 +1,6 @@
 class_name GameConcludeResult extends ActionResult
 
-var game_result: GameState.RESULT
+var game_result: int
 var alive_list: Array
 
 # to allow empty ctor
