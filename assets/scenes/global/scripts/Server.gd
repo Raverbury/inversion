@@ -55,11 +55,11 @@ func initialize():
 
 func add_player(pid, display_name, client_version):
 	if client_version != server_version:
-		Rpc.whisper.rpc_id(pid, "Game is already in progress")
+		Rpc.whisper.rpc_id(pid, "Incompatible version, client: %s VS server: %s" % [client_version, server_version])
 		Main.root_mp.multiplayer_peer.disconnect_peer(pid)
 		return
 	if is_in_game == true:
-		Rpc.whisper.rpc_id(pid, "Incompatible version, client: %s VS server: %s" % [client_version, server_version])
+		Rpc.whisper.rpc_id(pid, "Game is already in progress")
 		Main.root_mp.multiplayer_peer.disconnect_peer(pid)
 		return
 	player_dict[pid] = Player.new(pid, display_name)
