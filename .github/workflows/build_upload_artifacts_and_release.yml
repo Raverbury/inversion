@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build, Upload Artifacts and Release
 
 on:
   push:
@@ -6,8 +6,10 @@ on:
       - "v*"
 
 jobs:
-  build:
+  build-upload-artifacts-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
       matrix:
         platform:
@@ -30,18 +32,11 @@ jobs:
           preset: ${{ matrix.platform.name }}
           debugMode: "true"
       - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Build artifact - ${{ matrix.platform.name }}
-          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ncipollo/release-action@v1
-      with:
-        artifacts: "Build artifact *"
+          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}      
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "Build artifact *"
     
