@@ -21,6 +21,8 @@ func _ready():
 	EventBus.player_lost_health.connect(__player_lose_health)
 	EventBus.effect_applied_to_player.connect(__apply_effect_to_player)
 	EventBus.attack_individual_missed.connect(__player_dodge_attack)
+	EventBus.player_healed.connect(__player_healed)
+	EventBus.game_started.connect(__game_started)
 
 
 func wipe():
@@ -63,12 +65,7 @@ func player_set_class(pid, class_id):
 	player_dict[pid] = player
 	if all_players_picked_class() == true:
 		game_state = GameState.new(player_dict, server_tile_map.spawn_points)
-		for _pid in player_dict.keys():
-			EventBus.effect_applied_to_player.emit(0, _pid, BurnEffect)
-		EventBus.game_started.emit(game_state)
-		game_state.advance_turn()
-		Rpc.game_start.rpc(SRLZ.serialize(GameStartMessage.new(game_state)))
-		__refresh_turn_timer()
+		game_start()
 
 
 func remove_player(pid):
@@ -253,6 +250,26 @@ func process_player_end_turn_request(pid):
 	__refresh_turn_timer()
 
 
+func game_start():
+	var action_response: ActionResponse = ActionResponse.new()
+	var tmp_action_results = []
+
+	var game_start_context = GameStartContext.new(game_state, tmp_action_results)
+
+	game_state.advance_turn()
+
+	action_response.game_state = game_state
+	tmp_action_results.append(EndPhaseResult.new().set_stuff(game_state))
+	action_response.action_results = tmp_action_results
+
+	EventBus.game_started.emit(game_start_context)
+
+	__check_game_conclusion(action_response)
+
+	Rpc.send_action_response.rpc(SRLZ.serialize(action_response))
+	__refresh_turn_timer()
+
+
 func process_player_send_chat_message(pid, display_name, text_message):
 	if player_dict == null:
 		return
@@ -274,7 +291,6 @@ func __check_game_conclusion(action_response: ActionResponse):
 
 	# remove effects from dead players
 	var dead_list = game_state.get_dead_player_list()
-	print(dead_list)
 	for dead_player in dead_list:
 		GameEffectRegistry.remove_all_effects_from_player(dead_player.peer_id)
 	if result == GameState.RESULT.ON_GOING:
@@ -324,17 +340,36 @@ func __player_lose_health(attack_context: AttackContext):
 	health_loss = clamp(0, health_loss, victim.player_game_data.current_hp)
 	victim.player_game_data.current_hp -= health_loss
 	var is_dead = victim.player_game_data.current_hp <= 0
-	attack_context.action_results.append(AttackedResult.new().set_stuff(attack_context.current_target_id, true, health_loss, is_dead))
+	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff_for_take_damage(attack_context.current_target_id, health_loss, is_dead))
 	if is_dead:
 		GameEffectRegistry.remove_all_effects_from_player(attack_context.current_target_id)
 
 
 ## Default listener, dodges an attack
 func __player_dodge_attack(attack_context: AttackContext):
-	attack_context.action_results.append(AttackedResult.new().set_stuff(attack_context.current_target_id, false, 0, false))
+	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff_for_miss(attack_context.current_target_id))
 
 
 ## Default listener, creates and adds an effect to reg
-func __apply_effect_to_player(applier_id, target_id, effect_class):
+func __apply_effect_to_player(applier_id, target_id, effect_class, action_results):
 	var effect_instance = effect_class.new(applier_id, target_id, game_state)
-	GameEffectRegistry.add_effect_to_player(applier_id, target_id, effect_instance)
+	GameEffectRegistry.add_effect_to_player(applier_id, target_id, effect_instance, action_results)
+
+
+## Default listener, heals player
+func __player_healed(heal_context: HealContext):
+	var health_gained = heal_context.heal_amount
+	if health_gained <= 0:
+		return
+	var player: Player = heal_context.get_player()
+	health_gained = clamp(0, health_gained, player.player_game_data.max_hp - player.player_game_data.current_hp)
+	player.player_game_data.current_hp += health_gained
+	heal_context.action_results.append(PopupFeedbackResult.new().set_stuff(heal_context.player_id, "+%s" % str(health_gained), Color.GREEN, false))
+
+
+## Default listener, game started
+func __game_started(game_start_context: GameStartContext):
+	for _pid in game_state.player_dict.keys():
+		# EventBus.effect_applied_to_player.emit(0, _pid, BurnEffect, game_start_context.action_results)
+		# EventBus.effect_applied_to_player.emit(0, _pid, RegenerationEffect, game_start_context.action_results)
+		EventBus.effect_applied_to_player.emit(0, _pid, HappyCamperEffect, game_start_context.action_results)

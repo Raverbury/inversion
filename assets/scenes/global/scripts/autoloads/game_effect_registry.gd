@@ -25,13 +25,13 @@ func __get_next_availble_id():
 
 
 ## Adds an effect globally (aka with applier id = 0)
-func add_effect_globally(pid_list: Array, effect: GameEffect):
+func add_effect_globally(pid_list: Array, effect: GameEffect, action_results: Array):
 	for pid in pid_list:
-		add_effect_to_player(0, pid, effect)
+		add_effect_to_player(0, pid, effect, action_results)
 
 
 ## Adds an effect to a player
-func add_effect_to_player(applier_id: int, target_id: int, effect: GameEffect):
+func add_effect_to_player(applier_id: int, target_id: int, effect: GameEffect, action_results: Array):
 	var effect_id = __get_next_availble_id()
 	if effect_dict.has(effect_id):
 		push_error("Duplicate effect id")
@@ -39,7 +39,7 @@ func add_effect_to_player(applier_id: int, target_id: int, effect: GameEffect):
 	effect.effect_id = effect_id
 	effect.applier_id = applier_id
 	effect.target_id = target_id
-	effect.activate()
+	effect.activate(action_results)
 	effect_dict[effect_id] = effect
 	if effect_by_player_dict.has(target_id):
 		effect_by_player_dict[target_id][effect_id] = effect

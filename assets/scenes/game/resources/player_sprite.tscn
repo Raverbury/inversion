@@ -35,8 +35,8 @@ autowrap_mode = 3
 text_overrun_behavior = 4
 
 [node name="AttackFeedback" type="RichTextLabel" parent="."]
-offset_left = -100.0
-offset_right = 100.0
+offset_left = -400.0
+offset_right = 400.0
 offset_bottom = 50.0
 mouse_filter = 2
 bbcode_enabled = true

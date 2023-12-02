@@ -26,12 +26,15 @@ signal game_input_enabled(value)
 signal effect_expired(effect_id: int)
 
 ## Fires on game start
-
+signal game_started(game_start_context: GameStartContext)
+## Fires when a player takes damage
 signal player_took_damage(attack_context: AttackContext)
+## Fires when a player loses health
 signal player_lost_health(attack_context: AttackContext)
-signal effect_applied_to_player(applier, target, effect_class)
-
-signal game_started(game_state: GameState)
+## Fires when an effect is applied to a player
+signal effect_applied_to_player(applier, target, effect_class, action_results)
+## Fires when a player is healed
+signal player_healed(heal_context: HealContext)
 
 ## Fires before everything occurs
 signal movement_declared(move_context: MoveContext)
@@ -61,7 +64,6 @@ signal turn_ended()
 #endregion
 
 # server messages
-signal game_start_message_sent(game_state: GameState)
 signal action_response_received(action_response: ActionResponse)
 
 # player info ui
@@ -104,7 +106,8 @@ signal player_sprite_moved(pid: int, movement_step: int)
 signal player_sprite_move_finished()
 signal player_sprite_ended_movement_chain(pid: int)
 signal player_sprite_attacked(pid: int, target_mapgrid: Vector2i)
-signal player_sprite_was_attacked(pid: int, hit: bool, damage_taken: int, is_dead: bool)
+signal player_sprite_popup_displayed(pid: int, message: String, color: Color, is_dead: bool)
+signal player_sprite_popup_finished()
 signal player_sprite_attack_finished()
 signal anim_is_being_played(value: bool)
 signal turn_color_updated(turn_of_player)

@@ -2,6 +2,7 @@ extends Node2D
 
 var game_state: GameState : set = __set_game_state
 
+var game_is_initialized: bool = false
 var tile_map: GameTileMap = null
 var make_path_last_cell: Vector2i
 var make_path_has_last_cell: bool = false
@@ -30,7 +31,6 @@ var is_processing_action_response: bool = false
 var do_not_confirm_to_end: bool = false
 
 func _ready():
-	EventBus.game_start_message_sent.connect(__game_started_handler)
 	EventBus.game_input_enabled.connect(__game_input_enabled_handler)
 	EventBus.anim_is_being_played.connect(__anim_is_being_played_handler)
 	EventBus.end_turn_confirmed.connect(__end_turn_confirmed_handler)
@@ -543,7 +543,9 @@ func __send_end_turn():
 
 #region event listeners
 
-func __game_started_handler(_game_state: GameState):
+func __game_setup(_game_state: GameState):
+	if game_is_initialized == true:
+		return
 	EventBus.class_select_ui_freed.emit()
 	for pid in _game_state.player_dict:
 		var player_sprite_ps = load(Global.Constant.Scene.PLAYER_SPRITE_SCENE) as PackedScene
@@ -554,10 +556,7 @@ func __game_started_handler(_game_state: GameState):
 		player_sprite.set_mapgrid_pos(_game_state.player_dict[pid].player_game_data.mapgrid_position)
 		player_sprite.is_me = pid == Main.root_mp.get_unique_id()
 		add_child(player_sprite)
-	__set_game_state(_game_state)
-	EventBus.camera_force_panned.emit(Global.Util.global_coord_at(Vector2(game_state.player_dict[game_state.turn_of_player].player_game_data.mapgrid_position)), 1)
-	EventBus.turn_displayed.emit(game_state.player_dict[game_state.turn_of_player].display_name, __is_my_turn(), game_state.turn)
-	EventBus.turn_timer_refreshed.emit()
+	game_is_initialized = true
 
 
 func __game_input_enabled_handler(value: bool):
@@ -574,6 +573,7 @@ func __end_turn_confirmed_handler(do_not_remind: bool):
 
 
 func __action_response_received_handler(action_response: ActionResponse):
+	__game_setup(action_response.game_state)
 	game_state = action_response.game_state
 	cached_action_response = action_response
 	print(action_response)

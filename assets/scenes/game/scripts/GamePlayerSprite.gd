@@ -5,6 +5,7 @@ var display_name: String
 var doll_name: String = ""
 
 var is_moving: bool = false
+var popup_is_playing = false
 var last_dir: int = 0
 
 @onready var display_name_label = $DisplayName
@@ -31,7 +32,7 @@ func _ready():
 	EventBus.player_sprite_moved.connect(__player_sprite_moved_handler)
 	EventBus.player_sprite_ended_movement_chain.connect(__player_sprite_ended_movement_chain_handler)
 	EventBus.player_sprite_attacked.connect(__player_sprite_attacked_handler)
-	EventBus.player_sprite_was_attacked.connect(__player_sprite_was_attacked_handler)
+	EventBus.player_sprite_popup_displayed.connect(__player_sprite_popup_displayed_handler)
 	EventBus.turn_color_updated.connect(__turn_color_updated_handler)
 	EventBus.tooltip_updated.connect(__tooltip_updated_handler)
 	display_name_label.label_settings = LabelSettings.new()
@@ -150,8 +151,10 @@ func __attack_wait_tween_finished():
 	EventBus.anim_is_being_played.emit(false)
 
 
-func __player_sprite_was_attacked_handler(pid: int, hit: bool, damage_taken: int, _is_dead: bool):
+func __player_sprite_popup_displayed_handler(pid: int, message: String, message_color: Color, _is_dead: bool):
 	if is_dead == true:
+		return
+	if popup_is_playing == true:
 		return
 	if player_id != pid:
 		return
@@ -162,33 +165,31 @@ func __player_sprite_was_attacked_handler(pid: int, hit: bool, damage_taken: int
 	attack_feedback.push_font_size(24)
 	attack_feedback.push_outline_size(5)
 	attack_feedback.push_bold()
-	if hit == false:
-		attack_feedback.push_color(Color.BLACK)
-		attack_feedback.append_text("MISSED")
-		attack_feedback.pop()
-	else:
-		attack_feedback.push_color(Color.RED)
-		attack_feedback.append_text("-%s" % damage_taken)
-		attack_feedback.pop()
+	attack_feedback.push_color(message_color)
+	attack_feedback.append_text(message)
 	attack_feedback.pop()
 	attack_feedback.pop()
 	attack_feedback.pop()
 	attack_feedback.pop()
+	attack_feedback.pop()
+	popup_is_playing = true
 	var attack_feedback_tween = create_tween()
-	attack_feedback_tween.tween_property(attack_feedback, "position", Vector2(-100, -75), attack_feedback_tween_duration)
+	attack_feedback_tween.tween_property(attack_feedback, "position", attack_feedback.position + Vector2(0, -75), attack_feedback_tween_duration)
 	attack_feedback_tween.parallel()
 	(attack_feedback_tween.tween_property(attack_feedback, "self_modulate", Color(1, 1, 1, 0), attack_feedback_tween_duration)
 		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUART))
-	attack_feedback_tween.finished.connect(__attack_feedback_tween_finished)
+	attack_feedback_tween.finished.connect(__popup_tween_finished)
 	if _is_dead == true:
 		play("die")
 	is_dead = _is_dead
 
 
-func __attack_feedback_tween_finished():
-	attack_feedback.position = Vector2(-100, 0)
+func __popup_tween_finished():
+	attack_feedback.position -= Vector2(0, -75)
 	attack_feedback.clear()
+	popup_is_playing = false
 	EventBus.anim_is_being_played.emit(false)
+	EventBus.player_sprite_popup_finished.emit()
 
 
 func __tooltip_updated_handler(pid, _tooltip_text):

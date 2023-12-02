@@ -131,7 +131,7 @@ func on_start_button_pressed():
 	EventBus.pressed_start.emit()
 
 func set_display(value = true):
-	Control.print_orphan_nodes()
+	# Control.print_orphan_nodes()
 	if is_shown == value:
 		return
 	is_shown = value

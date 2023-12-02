@@ -1,7 +1,8 @@
 class_name DoubleAPEffect extends GameEffect
 
 ## @override
-func _abstract_on_activate():
+func _abstract_on_activate(action_results: Array):
+	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DOUBLE AP APPLIED", Color.GREEN, false))
 	EventBus.game_started.connect(__on_game_start)
 
 
@@ -11,8 +12,8 @@ func _abstract_on_deactivate():
 
 
 ## @override
-func _abstract_on_expire():
-	pass
+func _abstract_on_expire(action_results: Array):
+	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DOUBLE AP EXPIRED", Color.DARK_GRAY, false))
 
 
 func __on_game_start(_game_state: GameState):

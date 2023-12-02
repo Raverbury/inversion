@@ -13,14 +13,14 @@ func _init(_applier_id: int = -1, _target_id: int = -1, _game_state: GameState =
 	game_state = _game_state
 
 
-func activate():
+func activate(action_results: Array):
 	if is_activated == true:
 		return
 	is_activated = true
-	_abstract_on_activate()
+	_abstract_on_activate(action_results)
 
 
-func _abstract_on_activate():
+func _abstract_on_activate(action_results: Array):
 	push_error("Unimplemented abstract method")
 	pass
 
@@ -37,13 +37,13 @@ func _abstract_on_deactivate():
 	pass
 
 
-func expire():
-	_abstract_on_expire()
+func expire(action_results):
+	_abstract_on_expire(action_results)
 	EventBus.effect_expired.emit(effect_id)
 	pass
 
 
-func _abstract_on_expire():
+func _abstract_on_expire(action_results):
 	push_error("Unimplemented abstract method")
 	pass
 
