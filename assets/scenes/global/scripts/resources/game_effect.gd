@@ -20,9 +20,8 @@ func activate(action_results: Array):
 	_abstract_on_activate(action_results)
 
 
-func _abstract_on_activate(action_results: Array):
+func _abstract_on_activate(_action_results: Array):
 	push_error("Unimplemented abstract method")
-	pass
 
 
 func deactivate():
@@ -34,20 +33,27 @@ func deactivate():
 
 func _abstract_on_deactivate():
 	push_error("Unimplemented abstract method")
-	pass
 
 
 func expire(action_results):
 	_abstract_on_expire(action_results)
 	EventBus.effect_expired.emit(effect_id)
-	pass
 
 
-func _abstract_on_expire(action_results):
+func _abstract_on_expire(_action_results):
 	push_error("Unimplemented abstract method")
-	pass
 
 
-func get_effect_description():
+func get_effect_description() -> String:
 	push_error("Unimplemented abstract method")
-	pass
+	return "ERROR"
+
+
+func get_effect_nameid() -> String:
+	push_error("Unimplemented abstract method")
+	return "ERROR"
+
+
+func get_max_instances_per_player() -> int:
+	push_error("Unimplemented abstract method")
+	return -1
