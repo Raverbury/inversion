@@ -8,41 +8,58 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform:
-          - name: windows
-            file: game.exe
-          - name: mac
-            file: game.zip
-          - name: linux
-            file: game.zip
-          
+    
+    permissions:
+      contents: write
+    
     steps:
       - uses: actions/checkout@v2
         with:
           lfs: true
           
-      - name: Build
-        id: build
+      - name: Build Windows
+        id: build_windows
         uses: manleydev/build-godot-action@v1.5.0
         with:
-          name: ${{ matrix.platform.file }}
-          preset: ${{ matrix.platform.name }}
+          name: windows.zip
+          preset: windows
+          debugMode: "true"
+      
+      - name: Build Linux
+        id: build_linux
+        uses: manleydev/build-godot-action@v1.5.0
+        with:
+          name: linux.zip
+          preset: linux
+          debugMode: "true"
+      
+      - name: Build Mac
+        id: build_mac
+        uses: manleydev/build-godot-action@v1.5.0
+        with:
+          name: mac.zip
+          preset: mac
           debugMode: "true"
           
-      - name: Upload Artifact
+      - name: Upload Artifact - Windows
         uses: actions/upload-artifact@v2
         with:
-          name: Build artifact - ${{ matrix.platform.name }}
-          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
-          
-      - run: ls ${{ github.workspace }}/${{ steps.build.outputs.build }}
-      
-      - name: Release
-        uses: elgohr/Github-Release-Action@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.DEVOPS_TOKEN }}
+          name: Build artifact - Windows
+          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}windows.zip
+
+      - name: Upload Artifact - Linux
+        uses: actions/upload-artifact@v2
         with:
-          title: Release
-          workdir: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+          name: Build artifact - Linux
+          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}linux.zip
+
+      - name: Upload Artifact - Mac
+        uses: actions/upload-artifact@v2
+        with:
+          name: Build artifact - Mac
+          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}mac.zip
+                
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ github.workspace }}/${{ steps.build.outputs.build }}*
