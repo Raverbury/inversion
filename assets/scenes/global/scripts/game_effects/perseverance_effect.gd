@@ -1,6 +1,6 @@
 class_name PerseveranceEffect extends GameEffect
 
-const HEALTH_GAIN = 2.0
+const HEALTH_GAIN = 1
 const ACTIVATION_INTERVAL = 2
 var attack_counter: int = 0
 
