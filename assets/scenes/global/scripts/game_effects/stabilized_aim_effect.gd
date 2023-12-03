@@ -1,6 +1,6 @@
 class_name StabilizedAimEffect extends GameEffect
 
-const BONUS_ACCURACY = 30.0
+const BONUS_ACCURACY = 25.0
 var has_attacked_this_turn: bool = false
 
 ## @override

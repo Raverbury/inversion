@@ -185,13 +185,13 @@ class PlayerClassData:
 	const CLASS_DATA = {
 		# cid: name,    hp, acc, eva, armor, fp, cost, ap, vision,
 		# ranged acc mod, weapon name, doll id, description
-		0: ["Sniper",   21, 30,  10,  0,     7,  4,    12, 10,
+		0: ["Sniper",   20, 35,  10,  0,     7,  4,    12, 10,
 			[0.8, 0.8, 0.8, 0.8, 1.0, 1.0, 1.0, 1.8, 1.8, 1.8, 1.8, 1.0], # range of 11
 			"M14", "m14", "Long-range attacker with high accuracy"],
 		1: ["Scout",    26, 15,  30,  0,     4,  3,    18, 10,
 			[1.5, 1.5, 1.5, 1.5, 1.5, 1.0], # range of 5
 			"Desert Eagle", "desert_eagle", "Always on the move and evasive"],
-		2: ["Vanguard", 29, 13,  -10, 2,     5,  4,    12, 10,
+		2: ["Vanguard", 33, 13,  -10, 2,     5,  4,    12, 10,
 			[1.7, 1.7, 1.7, 1.0, 0.3], # range of 4
 			"Winchester M1887", "m1887", "Armored and devastating with point-blank blasts"],
 		3: ["Assault",  26, 22,  15,  0,     5,  2,    13, 10,

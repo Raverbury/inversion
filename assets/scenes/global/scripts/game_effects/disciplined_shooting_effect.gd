@@ -1,6 +1,6 @@
 class_name DisciplinedShootingEffect extends GameEffect
 
-const BONUS_ACCURACY = 10.0
+const BONUS_ACCURACY = 20.0
 const ACTIVATION_INTERVAL = 2
 var attack_counter: int = 0
 
