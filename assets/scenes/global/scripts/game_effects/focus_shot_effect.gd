@@ -33,7 +33,7 @@ func __on_attack_conclude(attack_context: AttackContext):
 	if stack_counter > 0:
 		var target_player: Player = game_state.player_dict[target_id]
 		target_player.player_game_data.attack_power = original_attack_power
-		attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "FOCUS SHOT'S BUFF REMOVED", Color.DARK_GRAY, false))
+		attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "FOCUS SHOT'S EFFECT REMOVED", Color.DARK_GRAY, false))
 	stack_counter = 0
 	attack_declared_last_turn = true
 
@@ -51,7 +51,7 @@ func __on_phase_end(end_phase_context: EndPhaseContext):
 		return
 	var target_player: Player = game_state.player_dict[target_id]
 	target_player.player_game_data.attack_power += ATTACK_POWER_INCREASE
-	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DAMAGE UP", Color.MEDIUM_VIOLET_RED, false))
+	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "FOCUS SHOT", Color.MEDIUM_VIOLET_RED, false))
 	stack_counter += 1
 
 

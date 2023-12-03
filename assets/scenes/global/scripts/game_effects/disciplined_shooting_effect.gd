@@ -36,7 +36,7 @@ func _abstract_on_expire(action_results: Array):
 	if ACTIVATION_INTERVAL == attack_counter:
 		return
 	game_state.player_dict[target_id].player_game_data.accuracy -= BONUS_ACCURACY
-	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "ACC DOWN", Color.TEAL, false))
+	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DISCIPLINED SHOOTING'S EFFECT REMOVED", Color.TEAL, false))
 
 
 func __on_attack_conclude(attack_context: AttackContext):
@@ -47,8 +47,8 @@ func __on_attack_conclude(attack_context: AttackContext):
 	attack_counter += 1
 	if ACTIVATION_INTERVAL == attack_counter:
 		game_state.player_dict[target_id].player_game_data.accuracy += BONUS_ACCURACY
-		attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "ACC UP", Color.TEAL, false))
+		attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DISCIPLINED SHOOTING", Color.TEAL, false))
 	elif attack_counter > ACTIVATION_INTERVAL:
 		game_state.player_dict[target_id].player_game_data.accuracy -= BONUS_ACCURACY
-		attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "ACC DOWN", Color.TEAL, false))
+		attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DISCIPLINED SHOOTING'S EFFECT REMOVED", Color.TEAL, false))
 		attack_counter = 0
