@@ -39,7 +39,7 @@ func __on_movement_declare(move_context: MoveContext):
 		target_player.player_game_data.ranged_accuracy_modifier = original_ranged_acc_modifier
 		target_player.player_game_data.accuracy = original_acc
 		target_player.player_game_data.attack_range = len(original_ranged_acc_modifier) - 1
-		move_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "HAPPY CAMPER'S BUFF REMOVED", Color.DARK_GRAY, false))
+		move_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "HAPPY CAMPER'S EFFECT REMOVED", Color.DARK_GRAY, false))
 	stack_counter = 0
 	move_declared_last_turn = true
 
@@ -61,7 +61,7 @@ func __on_phase_end(end_phase_context: EndPhaseContext):
 	target_player.player_game_data.ranged_accuracy_modifier = tmp_ram
 	target_player.player_game_data.accuracy += ACCURACY_INCREASE
 	target_player.player_game_data.attack_range = len(target_player.player_game_data.ranged_accuracy_modifier) - 1
-	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "RANGE + ACCURACY UP", Color.MEDIUM_VIOLET_RED, false))
+	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "HAPPY CAMPER", Color.MEDIUM_VIOLET_RED, false))
 	stack_counter += 1
 
 

@@ -1,6 +1,6 @@
 class_name StabilizedAimEffect extends GameEffect
 
-const BONUS_ACCURACY = 30.0
+const BONUS_ACCURACY = 25.0
 var has_attacked_this_turn: bool = false
 
 ## @override
@@ -25,7 +25,7 @@ func _abstract_on_activate(action_results: Array):
 	if has_attacked_this_turn == true:
 		return
 	game_state.player_dict[target_id].player_game_data.accuracy += BONUS_ACCURACY
-	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "ACC UP", Color.TEAL, false))
+	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "STABILIZED AIM", Color.TEAL, false))
 
 
 ## @override
@@ -40,7 +40,7 @@ func _abstract_on_expire(action_results: Array):
 	if has_attacked_this_turn == true:
 		return
 	game_state.player_dict[target_id].player_game_data.accuracy -= BONUS_ACCURACY
-	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "ACC DOWN", Color.TEAL, false))
+	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "STABILIZED AIM'S EFFECT REMOVED", Color.TEAL, false))
 
 
 func __on_attack_conclude(attack_context: AttackContext):
@@ -51,7 +51,7 @@ func __on_attack_conclude(attack_context: AttackContext):
 	if has_attacked_this_turn == true:
 		return
 	game_state.player_dict[target_id].player_game_data.accuracy -= BONUS_ACCURACY
-	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "ACC DOWN", Color.TEAL, false))
+	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "STABILIZED AIM'S EFFECT REMOVED", Color.TEAL, false))
 	has_attacked_this_turn = true
 
 
@@ -63,5 +63,5 @@ func __on_phase_end_declare(end_phase_context: EndPhaseContext):
 	if has_attacked_this_turn == false:
 		return
 	game_state.player_dict[target_id].player_game_data.accuracy += BONUS_ACCURACY
-	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "ACC UP", Color.TEAL, false))
+	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "STABILIZED AIM", Color.TEAL, false))
 	has_attacked_this_turn = false

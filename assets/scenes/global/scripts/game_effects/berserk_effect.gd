@@ -1,12 +1,12 @@
 class_name BerserkEffect extends GameEffect
 
-const PERCENT_HEALTH_LOSS_THRESHOLD = 55.0
+const PERCENT_HEALTH_LOSS_THRESHOLD = 40.0
 const BONUS_MAX_AP = 2
 var is_in_effect: bool = false
 
 ## @override
 func get_effect_description():
-	return "<Berserk> Gain %d max AP(s) while missing %.1f%% or more health (%s)(current APs are refilled at turn end only)" % [
+	return "<Berserk> Gain %d max AP(s) while missing %.1f%% or more health (%s)" % [
 		BONUS_MAX_AP, PERCENT_HEALTH_LOSS_THRESHOLD, "in-effect" if is_in_effect else "inactive"]
 
 
@@ -27,7 +27,7 @@ func _abstract_on_activate(action_results: Array):
 	var percent_health_missing = (float(player.player_game_data.max_hp) - float(player.player_game_data.current_hp)) / float(float(player.player_game_data.max_hp)) * 100.0
 	if percent_health_missing >= PERCENT_HEALTH_LOSS_THRESHOLD:
 		player.player_game_data.max_ap += BONUS_MAX_AP
-		action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "MAX AP UP", Color.STEEL_BLUE, false))
+		action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "BERSERK", Color.STEEL_BLUE, false))
 		is_in_effect = true
 
 
@@ -51,10 +51,10 @@ func __on_player_health_change(health_change_context: HealthChangeContext):
 	if is_in_effect == true:
 		if percent_health_missing < PERCENT_HEALTH_LOSS_THRESHOLD:
 			player.player_game_data.max_ap -= BONUS_MAX_AP
-			health_change_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "MAX AP DOWN", Color.DARK_GRAY, false))
+			health_change_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "BERSERK'S EFFECT REMOVED", Color.DARK_GRAY, false))
 			is_in_effect = false
 	else:
 		if percent_health_missing >= PERCENT_HEALTH_LOSS_THRESHOLD:
 			player.player_game_data.max_ap += BONUS_MAX_AP
-			health_change_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "MAX AP UP", Color.STEEL_BLUE, false))
+			health_change_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "BERSERK", Color.STEEL_BLUE, false))
 			is_in_effect = true

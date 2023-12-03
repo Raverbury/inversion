@@ -19,7 +19,7 @@ var MAX_MOVE_TWEEN_DURATION: float = 3.0
 var current_move_tween_duration: float = 0.4
 
 var attack_done_wait_tween_duration = 0.5
-var attack_feedback_tween_duration = 1.2
+var attack_feedback_tween_duration = 0.9
 
 var is_me: bool = false
 var is_dead: bool = false

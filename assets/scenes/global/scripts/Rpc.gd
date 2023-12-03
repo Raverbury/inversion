@@ -16,7 +16,7 @@ func player_send_chat_message_request(data: Dictionary):
 @rpc("authority", "call_local", "reliable", 0)
 func player_send_chat_message_respond(data: Dictionary):
 	var message: PlayerSendChatMessageResponse = SRLZ.deserialize(data)
-	var pid = Main.root_mp.get_remote_sender_id()
+	var pid = message.sender_id
 	var display_name = message.display_name.replace("[", "[lb]")
 	var content = message.chat_text.replace("[", "[lb]")
 	var color = message.server_assigned_color

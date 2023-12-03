@@ -29,7 +29,7 @@ func __on_phase_end(end_phase_context: EndPhaseContext):
 	var tile_name: String = end_phase_context.tile_map.get_data_at(end_phase_context.game_state.player_dict[target_id].player_game_data.mapgrid_position, "name", "")
 	if not "house" in tile_name.to_lower():
 		return
-	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "RESTING PLACE ACTIVATED", Color.FOREST_GREEN, false))
+	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "RESTING", Color.FOREST_GREEN, false))
 	EventBus.player_healed.emit(tmp_heal_context)
 
 

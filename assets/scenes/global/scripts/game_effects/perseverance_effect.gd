@@ -42,7 +42,7 @@ func __on_attack_individual_hit_after_damage(attack_context: AttackContext):
 		return
 	attack_counter += 1
 	if attack_counter > ACTIVATION_INTERVAL:
-		attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "PERSEVERANCE ACTIVATED", Color.STEEL_BLUE, false))
+		attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "PERSEVERANCE", Color.STEEL_BLUE, false))
 		var fake_heal_context = HealContext.new(attack_context.current_target_id, HEALTH_GAIN, attack_context.game_state,
 			attack_context.action_results, attack_context.tile_map)
 		EventBus.player_healed.emit(fake_heal_context)

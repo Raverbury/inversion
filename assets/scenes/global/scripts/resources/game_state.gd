@@ -22,7 +22,8 @@ func advance_turn():
 		var player: Player = player_dict[pid]
 		player.player_game_data.current_ap = player.player_game_data.max_ap
 	turn += 1
-	turn_of_player = player_move_order[0]
+	turn_of_player = -1
+	turn_of_player = __get_next_alive_player_id()
 
 
 ## Advances phase to the next player
@@ -34,6 +35,9 @@ func player_end_turn() -> bool:
 	if next_player_id == -1:
 		advance_turn()
 		return true
+	else:
+		var player: Player = player_dict[next_player_id]
+		player.player_game_data.current_ap = player.player_game_data.max_ap
 	return false
 
 
@@ -43,7 +47,7 @@ func __get_next_alive_player_id():
 	var next_index = current_index + 1
 	while next_index < len(player_ids):
 		var player: Player = player_dict[player_ids[next_index]]
-		if player.player_game_data.current_hp > 0:
+		if player.player_game_data.current_hp > 0 and not player.disconnected:
 			return player.peer_id
 		next_index += 1
 	return -1
@@ -53,7 +57,7 @@ func get_alive_player_list():
 	var result = []
 	for pid in player_dict.keys():
 		var player: Player = player_dict[pid]
-		if player.player_game_data.current_hp > 0:
+		if player.player_game_data.current_hp > 0 and not player.disconnected:
 			result.append(player)
 	return result
 
@@ -62,7 +66,7 @@ func get_dead_player_list():
 	var result = []
 	for pid in player_dict.keys():
 		var player: Player = player_dict[pid]
-		if player.player_game_data.current_hp <= 0:
+		if player.player_game_data.current_hp <= 0 or player.disconnected:
 			result.append(player)
 	return result
 

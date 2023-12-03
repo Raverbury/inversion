@@ -27,7 +27,7 @@ func __on_phase_end(end_phase_context: EndPhaseContext):
 		return
 	var tmp_attack_context = AttackContext.new(applier_id, Vector2i.ZERO, end_phase_context.game_state,
 		[], target_id, end_phase_context.action_results, end_phase_context.tile_map)
-	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "BURN ACTIVATED", Color.ORANGE, false))
+	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "BURNING", Color.ORANGE, false))
 	tmp_attack_context.health_to_lose = BURN_DAMAGE
 	EventBus.player_lost_health.emit(tmp_attack_context)
 	turn_ticked += 1

@@ -183,6 +183,13 @@ func on_player_list_updated(pl_dict: Dictionary):
 			id_label.label_settings.font_color = Color.YELLOW
 			name_label.label_settings.font_color = Color.YELLOW
 			ready_label.label_settings.font_color = Color.YELLOW
+		else:
+			var player: Player = pl_dict[pid]
+			if player.disconnected:
+				role_label.label_settings.font_color = Color.RED
+				id_label.label_settings.font_color = Color.RED
+				name_label.label_settings.font_color = Color.RED
+				ready_label.label_settings.font_color = Color.RED
 		control.add_child(role_label)
 		control.add_child(id_label)
 		control.add_child(name_label)

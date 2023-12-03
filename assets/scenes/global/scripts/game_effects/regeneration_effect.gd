@@ -27,7 +27,7 @@ func __on_phase_end(end_phase_context: EndPhaseContext):
 	if end_phase_context.player_id != target_id:
 		return
 	var tmp_heal_context = HealContext.new(target_id, HEAL_AMOUNT, end_phase_context.game_state, end_phase_context.action_results, end_phase_context.tile_map)
-	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "REGENERATION ACTIVATED", Color.PINK, false))
+	end_phase_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "REGENERATING", Color.PINK, false))
 	EventBus.player_healed.emit(tmp_heal_context)
 	turn_ticked += 1
 	if turn_ticked >= HEAL_DURATION:

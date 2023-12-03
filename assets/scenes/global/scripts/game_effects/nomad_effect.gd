@@ -46,8 +46,8 @@ func __on_tile_enter(move_context: MoveContext):
 	if last_tile_names.has(current_tile_name):
 		return
 	move_context.game_state.player_dict[target_id].player_game_data.current_ap += AP_RESTORE
-	move_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "NOMAD ACTIVATED", Color.TURQUOISE, false))
-	move_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "+%dAP" % AP_RESTORE, Color.TURQUOISE, false))
+	move_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "NOMAD", Color.TURQUOISE, false))
+	# move_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "+%dAP" % AP_RESTORE, Color.TURQUOISE, false))
 	proc_counter += 1
 
 

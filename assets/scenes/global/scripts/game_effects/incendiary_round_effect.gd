@@ -28,7 +28,7 @@ func __on_attack_individual_hit(attack_context: AttackContext):
 	var success = Global.Util.roll_float_on_scale_100(BURN_CHANCE)
 	if success == false:
 		return
-	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "INCENDIARY ROUND ACTIVATED", Color.ORANGE, false))
+	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "INCENDIARY ROUND", Color.ORANGE, false))
 	EventBus.effect_applied_to_player.emit(target_id, attack_context.current_target_id, BurnEffect, attack_context.action_results)
 
 

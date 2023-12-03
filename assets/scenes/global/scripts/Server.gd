@@ -80,10 +80,15 @@ func player_set_class(pid, class_id):
 
 
 func remove_player(pid):
-	var player: Player = player_dict[pid] if player_dict.has(pid) else null
-	var dn = player.display_name if player != null else "nil"
-	player_dict.erase(pid)
-	GameEffectRegistry.remove_all_effects_from_player(pid)
+	if not player_dict.has(pid):
+		return "nil"
+	var player: Player = player_dict[pid]
+	var dn = player.display_name
+	if not is_in_game:
+		player_dict.erase(pid)
+	else:
+		player.disconnected = true
+		GameEffectRegistry.remove_all_effects_from_player(pid)
 	Rpc.update_player_list.rpc(serialize_player_dict())
 	check_room_readiness()
 	return dn
@@ -255,8 +260,8 @@ func process_player_end_turn_request(pid):
 	action_response.game_state = game_state
 	action_response.action_results = tmp_action_results
 
-	send_rpc_action_response(action_response)
 	__refresh_turn_timer()
+	send_rpc_action_response(action_response)
 
 
 func game_start():
@@ -273,8 +278,8 @@ func game_start():
 
 	EventBus.game_started.emit(game_start_context)
 
-	send_rpc_action_response(action_response)
 	__refresh_turn_timer()
+	send_rpc_action_response(action_response)
 
 
 func process_player_send_chat_message(pid, display_name, text_message: String):
@@ -293,7 +298,7 @@ func process_player_send_chat_message(pid, display_name, text_message: String):
 	else:
 		var pids = player_dict.keys()
 		var color = Global.Constant.Misc.CHAT_COLOR[pids.find(pid)]
-		var message = PlayerSendChatMessageResponse.new(display_name, text_message, color)
+		var message = PlayerSendChatMessageResponse.new(display_name, text_message, color, pid)
 		Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
 
 
@@ -347,6 +352,7 @@ func __check_game_conclusion(action_response: ActionResponse):
 
 func __kill_timer():
 	if tween_timer != null:
+		tween_timer.finished.disconnect(__turn_timer_timed_out)
 		tween_timer.kill()
 		tween_timer = null
 
@@ -359,7 +365,7 @@ func __refresh_turn_timer():
 
 
 func __turn_timer_timed_out():
-	tween_timer = null
+	__kill_timer()
 	process_player_end_turn_request(game_state.turn_of_player)
 
 

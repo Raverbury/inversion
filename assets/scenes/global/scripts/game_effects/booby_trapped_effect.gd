@@ -30,7 +30,7 @@ func __on_tile_enter(move_context: MoveContext):
 		return
 	var fake_attack_context = AttackContext.new(0, Vector2i.ZERO, move_context.game_state, [], target_id, move_context.action_results, move_context.tile_map)
 	fake_attack_context.health_to_lose = HEALTH_LOSS
-	move_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "BOOBY TRAPPED ACTIVATED", Color.PURPLE, false))
+	move_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "BOOBY TRAPPED", Color.PURPLE, false))
 	EventBus.player_lost_health.emit(fake_attack_context)
 
 

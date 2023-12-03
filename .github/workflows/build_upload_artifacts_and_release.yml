@@ -8,15 +8,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
-    
+
     steps:
       - uses: actions/checkout@v2
         with:
           lfs: true
-          
+
       - name: Build Windows
         id: build_windows
         uses: manleydev/build-godot-action@v1.5.0
@@ -24,7 +24,7 @@ jobs:
           name: windows.zip
           preset: windows
           debugMode: "true"
-      
+
       - name: Build Linux
         id: build_linux
         uses: manleydev/build-godot-action@v1.5.0
@@ -32,7 +32,7 @@ jobs:
           name: linux.zip
           preset: linux
           debugMode: "true"
-      
+
       - name: Build Mac
         id: build_mac
         uses: manleydev/build-godot-action@v1.5.0
@@ -40,7 +40,7 @@ jobs:
           name: mac.zip
           preset: mac
           debugMode: "true"
-          
+
       - name: Upload Artifact - Windows
         uses: actions/upload-artifact@v2
         with:
@@ -58,8 +58,9 @@ jobs:
         with:
           name: Build artifact - Mac
           path: ${{ github.workspace }}/${{ steps.build_mac.outputs.build }}mac.zip
-                
+
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: ${{ github.workspace }}/build/*
+          bodyFile: "current_changelog.md"
