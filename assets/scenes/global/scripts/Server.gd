@@ -80,10 +80,15 @@ func player_set_class(pid, class_id):
 
 
 func remove_player(pid):
-	var player: Player = player_dict[pid] if player_dict.has(pid) else null
-	var dn = player.display_name if player != null else "nil"
-	player_dict.erase(pid)
-	GameEffectRegistry.remove_all_effects_from_player(pid)
+	if not player_dict.has(pid):
+		return "nil"
+	var player: Player = player_dict[pid]
+	var dn = player.display_name
+	if not is_in_game:
+		player_dict.erase(pid)
+	else:
+		player.disconnected = true
+		GameEffectRegistry.remove_all_effects_from_player(pid)
 	Rpc.update_player_list.rpc(serialize_player_dict())
 	check_room_readiness()
 	return dn
