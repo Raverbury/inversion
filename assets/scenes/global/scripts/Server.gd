@@ -255,8 +255,8 @@ func process_player_end_turn_request(pid):
 	action_response.game_state = game_state
 	action_response.action_results = tmp_action_results
 
-	send_rpc_action_response(action_response)
 	__refresh_turn_timer()
+	send_rpc_action_response(action_response)
 
 
 func game_start():
@@ -273,8 +273,8 @@ func game_start():
 
 	EventBus.game_started.emit(game_start_context)
 
-	send_rpc_action_response(action_response)
 	__refresh_turn_timer()
+	send_rpc_action_response(action_response)
 
 
 func process_player_send_chat_message(pid, display_name, text_message: String):
@@ -347,6 +347,7 @@ func __check_game_conclusion(action_response: ActionResponse):
 
 func __kill_timer():
 	if tween_timer != null:
+		tween_timer.finished.disconnect(__turn_timer_timed_out)
 		tween_timer.kill()
 		tween_timer = null
 
@@ -359,7 +360,7 @@ func __refresh_turn_timer():
 
 
 func __turn_timer_timed_out():
-	tween_timer = null
+	__kill_timer()
 	process_player_end_turn_request(game_state.turn_of_player)
 
 
