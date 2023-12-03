@@ -177,7 +177,7 @@ class Constant:
 
 		const SCREEN_EDGE_PAN_MARGIN = 60
 
-		const TURN_TIMER_DURATION = 60
+		const TURN_TIMER_DURATION = 75
 
 
 class PlayerClassData:
