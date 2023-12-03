@@ -293,7 +293,7 @@ func process_player_send_chat_message(pid, display_name, text_message: String):
 	else:
 		var pids = player_dict.keys()
 		var color = Global.Constant.Misc.CHAT_COLOR[pids.find(pid)]
-		var message = PlayerSendChatMessageResponse.new(display_name, text_message, color)
+		var message = PlayerSendChatMessageResponse.new(display_name, text_message, color, pid)
 		Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
 
 
