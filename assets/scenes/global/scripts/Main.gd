@@ -141,3 +141,14 @@ func __client_sent_chat_message_handler(text):
 	if app_state in [AppState.CONNECTING, AppState.DISCONNECTED]:
 		return
 	Rpc.player_send_chat_message_request.rpc_id(1, SRLZ.serialize(PlayerSendChatMessageRequest.new(client_display_name, text)))
+
+
+func _input(event: InputEvent):
+	if event.is_action_released("take_screenshot"):
+		var img = get_viewport().get_texture().get_image()
+		DirAccess.make_dir_recursive_absolute("res://screenshots")
+		img.save_png("res://screenshots/Screenshot_%s.png" % Time.get_datetime_string_from_system().replace(":", "_"))
+		# print(InputMap.action_get_events("take_screenshot"))
+		# print(JSON.parse_string("
+		# {\"hello\": 4194334}
+		# "))

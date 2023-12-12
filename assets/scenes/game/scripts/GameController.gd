@@ -285,8 +285,6 @@ func __send_attack_target(event: InputEvent):
 
 
 func __focus_camera_on_player(event: InputEvent):
-	if current_action_mode != ACTION_MODE.VIEW_MODE:
-		return
 	if event.is_action_released("space_bar"):
 		__inner_focus_camera(__get_my_player().peer_id if __get_my_player() != null else -1)
 	elif event.is_action_released("num_row_1"):
@@ -580,6 +578,7 @@ func __action_response_received_handler(action_response: ActionResponse):
 	cached_action_response = action_response
 	print(action_response)
 	is_processing_action_response = true
+	__set_action_mode(ACTION_MODE.VIEW_MODE)
 	__process_next_action_result()
 
 
