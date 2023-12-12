@@ -28,9 +28,15 @@ extends Control
 const DEFAULT_NAMES = ["StinkyPineapple", "McCheese", "LeetKid420", "DisplayName", "AndyPhm", "IUseArchBTW",
 	"FMJ7.62x51", "1v1 me rust", "AYAYA AYAYA", "OBAMA YOSHI", "original name", "howdoiwriteincap", "MemeLord420",
 	"general_generous", "admiral_admirable", "captain_captive", "private_prying", "target package romeo", "CritRollPlz",
-	"ImagineLizard", "DivineTsundere", "malding maldino", "mad teacher", "#1 NALCS Coach", "lame weasel", "NerfElectroPea",
-	"WdymISkipLunch", "MittensOnKittens", "dm me 4 free vbucks", "come@me.bro", "TerribleDay", "xX_qu1cksc0p3r_Xx",
-	"\"name' OR 'a'='a\"", "\"a'); DELETE FROM items; --\"", "CritDmgRollPlz", "IAbstractFactoryBuilder"
+	"ImagineLizard", "DivineTsundere", "malding maldino", "mad teacher", "#1 NALCS Coach", "bait master", "NerfElectroPea",
+	"WdymISkipLunch", "MittensOnKittens", "dm me 4 free vbucks", "come@me.bro", "TerribleTea", "xX_qu1cksc0p3r_Xx",
+	"\"name' OR 'a'='a\"", "\"a'); DELETE FROM items; --\"", "CritDmgRollPlz", "IAbstractFactoryBuilder", "sponsored by nerdvpn",
+	"#StopModReposting", "GOAT3000", "jimmy.eth", "average fan", "chad enjoyer", "useEffect", "3balls1cup", "MIT licensed",
+	"Soon™", "Early June", "May in Pallet", "54 aint too tall", "FekarFanFever", "coldZ", "macro abuser", "BoeJiden#4375",
+	"juan deaged irl", "@real_elon_musket", "1st potus", "---+++---", "ratratrat", "IGotLaidOff", "too far D:", "sudo rm -rf /",
+	"53 cents", "terminatorxxx", "Pritzel", "Francis", "dANIEL", "DankCamel_381", "biggus_dickus", "sir sucksalot", "uimm my beloved",
+	"Skunk Allergy", "Skelky", "CornCub", "43321106", "100932352", "NeglectfulMiner", "7 dayz at school", "TornTub", "HornHub", "netherite=bad",
+	"minimum wage", "guy above = gay"
 ]
 
 var is_shown = true

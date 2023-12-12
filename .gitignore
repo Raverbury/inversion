@@ -2,3 +2,7 @@
 .godot/
 build
 addons/*/test
+
+# Project specific ignores
+screenshots/**/*
+!screenshots/.gdignore
