@@ -1,4 +1,4 @@
-class_name TileStatBonus
+class_name TileStatBonus extends RefCounted
 
 var accuracy_mod: int
 var evasion_mod: int

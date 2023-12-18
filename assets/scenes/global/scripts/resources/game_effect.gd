@@ -1,4 +1,4 @@
-class_name GameEffect
+class_name GameEffect extends RefCounted
 
 ## 0 should be server aka for all players, >0 is normal player id, -1 is no one aka bug
 var applier_id: int = -1
@@ -36,6 +36,8 @@ func _abstract_on_deactivate():
 
 
 func expire(action_results):
+	if is_activated == false:
+		return
 	_abstract_on_expire(action_results)
 	EventBus.effect_expired.emit(effect_id)
 

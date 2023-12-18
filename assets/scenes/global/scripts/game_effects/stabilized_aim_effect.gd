@@ -51,7 +51,7 @@ func __on_attack_conclude(attack_context: AttackContext):
 	if has_attacked_this_turn == true:
 		return
 	game_state.player_dict[target_id].player_game_data.accuracy -= BONUS_ACCURACY
-	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "STABILIZED AIM'S EFFECT REMOVED", Color.TEAL, false))
+	attack_context.action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "STABILIZED AIM'S EFFECT REMOVED", Color.DARK_GRAY, false))
 	has_attacked_this_turn = true
 
 

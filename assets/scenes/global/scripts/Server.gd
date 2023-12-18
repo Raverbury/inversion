@@ -35,7 +35,7 @@ func wipe():
 	if is_initialized == false:
 		return
 	GameEffectRegistry.clear()
-	player_dict = {}
+	player_dict.clear()
 	is_initialized = false
 	is_in_game = false
 	EventBus.player_list_updated.emit(player_dict)
@@ -88,7 +88,7 @@ func remove_player(pid):
 		player_dict.erase(pid)
 	else:
 		player.disconnected = true
-		GameEffectRegistry.remove_all_effects_from_player(pid)
+		# GameEffectRegistry.remove_all_effects_from_player(pid)
 	Rpc.update_player_list.rpc(serialize_player_dict())
 	check_room_readiness()
 	return dn
@@ -290,11 +290,11 @@ func process_player_send_chat_message(pid, display_name, text_message: String):
 	if text_message.begins_with("/"):
 		if pid != 1:
 			var message = PlayerSendChatMessageResponse.new("Server", "Insufficient permission, %s (%s)" % [player_dict[pid].display_name, pid], Color.DARK_RED)
-			Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+			Rpc.player_send_chat_message_respond.rpc_id(pid, (SRLZ.serialize(message)))
 			return
 		var command = text_message.erase(0)
 		var args = command.split(" ", false)
-		__process_server_command(args)
+		__process_server_command(pid, args)
 	else:
 		var pids = player_dict.keys()
 		var color = Global.Constant.Misc.CHAT_COLOR[pids.find(pid)]
@@ -302,22 +302,22 @@ func process_player_send_chat_message(pid, display_name, text_message: String):
 		Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
 
 
-func __process_server_command(args: Array):
+func __process_server_command(pid, args: Array):
 	if args.is_empty():
 		var message = PlayerSendChatMessageResponse.new("Server", "Invalid command", Color.DARK_RED)
-		Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+		Rpc.player_send_chat_message_respond.rpc_id(pid, SRLZ.serialize(message))
 		return
 	var command_name = args[0]
 	if command_name == "set":
 		if args.size() < 3:
 			var message = PlayerSendChatMessageResponse.new("Server", "Invalid command", Color.DARK_RED)
-			Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+			Rpc.player_send_chat_message_respond.rpc_id(pid, SRLZ.serialize(message))
 			return
 		var prop_name = args[1]
 		var value = args[2]
 		if not prop_name in editable_properties:
 			var message = PlayerSendChatMessageResponse.new("Server", "Invalid command", Color.DARK_RED)
-			Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+			Rpc.player_send_chat_message_respond.rpc_id(pid, SRLZ.serialize(message))
 			return
 		else:
 			set(prop_name, value)
@@ -326,7 +326,7 @@ func __process_server_command(args: Array):
 			return
 	else:
 		var message = PlayerSendChatMessageResponse.new("Server", "Invalid command", Color.DARK_RED)
-		Rpc.player_send_chat_message_respond.rpc(SRLZ.serialize(message))
+		Rpc.player_send_chat_message_respond.rpc_id(pid, SRLZ.serialize(message))
 		return
 
 

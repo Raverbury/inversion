@@ -154,11 +154,12 @@ func __attack_wait_tween_finished():
 
 
 func __player_sprite_popup_displayed_handler(pid: int, message: String, message_color: Color, _is_dead: bool):
-	if is_dead == true:
+	if player_id != pid:
 		return
 	if popup_is_playing == true:
 		return
-	if player_id != pid:
+	if is_dead == true:
+		EventBus.player_sprite_popup_finished.emit()
 		return
 	EventBus.anim_is_being_played.emit(true)
 	EventBus.camera_force_panned.emit(global_position, 0.01)

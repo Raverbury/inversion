@@ -36,7 +36,7 @@ func _abstract_on_expire(action_results: Array):
 	if ACTIVATION_INTERVAL == attack_counter:
 		return
 	game_state.player_dict[target_id].player_game_data.accuracy -= BONUS_ACCURACY
-	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DISCIPLINED SHOOTING'S EFFECT REMOVED", Color.TEAL, false))
+	action_results.append(PopupFeedbackResult.new().set_stuff(target_id, "DISCIPLINED SHOOTING'S EFFECT REMOVED", Color.DARK_GRAY, false))
 
 
 func __on_attack_conclude(attack_context: AttackContext):

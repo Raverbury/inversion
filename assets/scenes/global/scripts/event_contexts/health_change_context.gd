@@ -1,4 +1,4 @@
-class_name HealthChangeContext
+class_name HealthChangeContext extends RefCounted
 
 var player_id: int
 var game_state: GameState

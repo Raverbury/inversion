@@ -1,4 +1,4 @@
-class_name GameState extends Object
+class_name GameState extends RefCounted
 
 var turn: int = 0
 var player_move_order: Array = []

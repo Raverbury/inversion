@@ -1,4 +1,4 @@
-class_name Message extends Object
+class_name Message extends RefCounted
 
 var sender_pid: int = 0
 

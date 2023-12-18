@@ -1,4 +1,4 @@
-class_name AttackContext
+class_name AttackContext extends RefCounted
 
 var attacker_id: int = -1
 var target_mapgrid: Vector2i

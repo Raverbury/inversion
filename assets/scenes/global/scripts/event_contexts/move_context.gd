@@ -1,4 +1,4 @@
-class_name MoveContext
+class_name MoveContext extends RefCounted
 
 var player_id: int
 var move_steps: Array

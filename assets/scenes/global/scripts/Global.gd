@@ -190,7 +190,7 @@ class PlayerClassData:
 			"M14", "m14", "Long-range attacker with high accuracy"],
 		1: ["Scout",    26, 15,  30,  0,     4,  3,    18, 10,
 			[1.5, 1.5, 1.5, 1.5, 1.5, 1.0], # range of 5
-			"Desert Eagle", "desert_eagle", "Always on the move and evasive"],
+			"Colt Python", "python", "Always on the move and evasive"],
 		2: ["Vanguard", 33, 13,  -10, 2,     5,  4,    12, 10,
 			[1.7, 1.7, 1.7, 1.0, 0.3], # range of 4
 			"Winchester M1887", "m1887", "Armored and devastating with point-blank blasts"],
