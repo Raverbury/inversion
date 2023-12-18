@@ -1,4 +1,4 @@
-class_name PlayerGameData extends Object
+class_name PlayerGameData extends RefCounted
 
 var mapgrid_position: Vector2i = Vector2i.ZERO
 var class_id: int = 0

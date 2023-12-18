@@ -1,4 +1,4 @@
-class_name ActionResponse
+class_name ActionResponse extends RefCounted
 
 var game_state: GameState
 var action_results: Array

@@ -1,4 +1,4 @@
-class_name GameEffect
+class_name GameEffect extends RefCounted
 
 ## 0 should be server aka for all players, >0 is normal player id, -1 is no one aka bug
 var applier_id: int = -1

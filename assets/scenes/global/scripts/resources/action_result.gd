@@ -1,4 +1,4 @@
-class_name ActionResult
+class_name ActionResult extends RefCounted
 
 signal finished
 

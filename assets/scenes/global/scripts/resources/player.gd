@@ -1,4 +1,4 @@
-class_name Player extends Object
+class_name Player extends RefCounted
 
 var peer_id: int = 0
 var is_ready: bool = false

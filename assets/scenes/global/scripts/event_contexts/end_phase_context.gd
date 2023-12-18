@@ -1,4 +1,4 @@
-class_name EndPhaseContext
+class_name EndPhaseContext extends RefCounted
 
 var player_id: int
 var game_state: GameState

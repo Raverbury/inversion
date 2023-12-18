@@ -1,4 +1,4 @@
-class_name HealContext
+class_name HealContext extends RefCounted
 
 var player_id: int = -1
 var heal_amount: int

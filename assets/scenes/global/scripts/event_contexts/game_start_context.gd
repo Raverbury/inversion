@@ -1,4 +1,4 @@
-class_name GameStartContext
+class_name GameStartContext extends RefCounted
 
 var game_state: GameState
 var action_results: Array

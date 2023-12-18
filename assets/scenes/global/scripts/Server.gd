@@ -35,7 +35,7 @@ func wipe():
 	if is_initialized == false:
 		return
 	GameEffectRegistry.clear()
-	player_dict = {}
+	player_dict.clear()
 	is_initialized = false
 	is_in_game = false
 	EventBus.player_list_updated.emit(player_dict)
