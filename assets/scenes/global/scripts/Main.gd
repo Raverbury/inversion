@@ -146,8 +146,16 @@ func __client_sent_chat_message_handler(text):
 func _input(event: InputEvent):
 	if event.is_action_released("take_screenshot"):
 		var img = get_viewport().get_texture().get_image()
-		DirAccess.make_dir_recursive_absolute("res://screenshots")
-		img.save_png("res://screenshots/Screenshot_%s.png" % Time.get_datetime_string_from_system().replace(":", "_"))
+		if OS.has_feature("editor"):
+			var screenshot_path = "res://".path_join("screenshots")
+			DirAccess.make_dir_recursive_absolute(screenshot_path)
+			var img_path = screenshot_path.path_join("Screenshot_%s.png" % Time.get_datetime_string_from_system().replace(":", "_"))
+			img.save_png(img_path)
+		else:
+			var screenshot_path = OS.get_executable_path().get_base_dir().path_join("/screenshots")
+			DirAccess.make_dir_recursive_absolute(screenshot_path)
+			var img_path = screenshot_path.path_join("Screenshot_%s.png" % Time.get_datetime_string_from_system().replace(":", "_"))
+			img.save_png(img_path)
 		# print(InputMap.action_get_events("take_screenshot"))
 		# print(JSON.parse_string("
 		# {\"hello\": 4194334}
